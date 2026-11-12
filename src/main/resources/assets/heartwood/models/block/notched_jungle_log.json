@@ -1,0 +1,9 @@
+{
+  "parent": "heartwood:block/notched_log_template",
+  "textures": {
+    "side": "minecraft:block/jungle_log",
+    "end": "minecraft:block/jungle_log_top",
+    "cut": "minecraft:block/stripped_jungle_log_top",
+    "inner": "minecraft:block/stripped_jungle_log"
+  }
+}

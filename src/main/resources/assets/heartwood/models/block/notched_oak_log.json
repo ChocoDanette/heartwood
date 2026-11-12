@@ -1,0 +1,9 @@
+{
+  "parent": "heartwood:block/notched_log_template",
+  "textures": {
+    "side": "minecraft:block/oak_log",
+    "end": "minecraft:block/oak_log_top",
+    "cut": "minecraft:block/stripped_oak_log_top",
+    "inner": "minecraft:block/stripped_oak_log"
+  }
+}

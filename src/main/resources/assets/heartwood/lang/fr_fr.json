@@ -1,0 +1,14 @@
+{
+  "message.heartwood.notch_done": "Entaille faite. Faites maintenant le trait d'abattage du côté opposé.",
+  "message.heartwood.back_cut_side": "Le trait d'abattage se fait du côté opposé à l'entaille.",
+  "block.heartwood.notched_oak_log": "Bûche de chêne entaillée",
+  "block.heartwood.notched_spruce_log": "Bûche de sapin entaillée",
+  "block.heartwood.notched_birch_log": "Bûche de bouleau entaillée",
+  "block.heartwood.notched_jungle_log": "Bûche d'acajou entaillée",
+  "block.heartwood.notched_acacia_log": "Bûche d'acacia entaillée",
+  "block.heartwood.notched_dark_oak_log": "Bûche de chêne noir entaillée",
+  "block.heartwood.notched_mangrove_log": "Bûche de palétuvier entaillée",
+  "block.heartwood.notched_cherry_log": "Bûche de cerisier entaillée",
+  "block.heartwood.notched_crimson_stem": "Tige carmin entaillée",
+  "block.heartwood.notched_warped_stem": "Tige biscornue entaillée"
+}

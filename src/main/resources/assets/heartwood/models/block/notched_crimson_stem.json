@@ -1,0 +1,9 @@
+{
+  "parent": "heartwood:block/notched_log_template",
+  "textures": {
+    "side": "minecraft:block/crimson_stem",
+    "end": "minecraft:block/crimson_stem_top",
+    "cut": "minecraft:block/stripped_crimson_stem_top",
+    "inner": "minecraft:block/stripped_crimson_stem"
+  }
+}

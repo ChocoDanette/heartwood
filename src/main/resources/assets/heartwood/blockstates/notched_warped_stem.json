@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "heartwood:block/notched_warped_stem"
+    },
+    "facing=east": {
+      "model": "heartwood:block/notched_warped_stem",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "heartwood:block/notched_warped_stem",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "heartwood:block/notched_warped_stem",
+      "y": 270
+    }
+  }
+}

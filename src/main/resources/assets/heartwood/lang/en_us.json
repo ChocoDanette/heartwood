@@ -1,0 +1,14 @@
+{
+  "message.heartwood.notch_done": "Notch cut. Now make the back cut on the opposite side.",
+  "message.heartwood.back_cut_side": "Make the back cut on the side opposite the notch.",
+  "block.heartwood.notched_oak_log": "Notched Oak Log",
+  "block.heartwood.notched_spruce_log": "Notched Spruce Log",
+  "block.heartwood.notched_birch_log": "Notched Birch Log",
+  "block.heartwood.notched_jungle_log": "Notched Jungle Log",
+  "block.heartwood.notched_acacia_log": "Notched Acacia Log",
+  "block.heartwood.notched_dark_oak_log": "Notched Dark Oak Log",
+  "block.heartwood.notched_mangrove_log": "Notched Mangrove Log",
+  "block.heartwood.notched_cherry_log": "Notched Cherry Log",
+  "block.heartwood.notched_crimson_stem": "Notched Crimson Stem",
+  "block.heartwood.notched_warped_stem": "Notched Warped Stem"
+}
