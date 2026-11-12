@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "planks",
+  "ingredients": [
+    {
+      "item": "heartwood:green_cherry_log"
+    }
+  ],
+  "result": {
+    "id": "minecraft:cherry_planks",
+    "count": 2
+  }
+}

@@ -7,7 +7,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:cherry_log"
+          "name": "heartwood:green_cherry_log"
         }
       ],
       "conditions": [

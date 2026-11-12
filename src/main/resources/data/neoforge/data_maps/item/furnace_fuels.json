@@ -1,0 +1,28 @@
+{
+  "values": {
+    "heartwood:green_oak_log": {
+      "burn_time": 100
+    },
+    "heartwood:green_spruce_log": {
+      "burn_time": 100
+    },
+    "heartwood:green_birch_log": {
+      "burn_time": 100
+    },
+    "heartwood:green_jungle_log": {
+      "burn_time": 100
+    },
+    "heartwood:green_acacia_log": {
+      "burn_time": 100
+    },
+    "heartwood:green_dark_oak_log": {
+      "burn_time": 100
+    },
+    "heartwood:green_mangrove_log": {
+      "burn_time": 100
+    },
+    "heartwood:green_cherry_log": {
+      "burn_time": 100
+    }
+  }
+}

@@ -32,5 +32,22 @@
   "block.heartwood.azalea_branches": "Branches d'azalée",
   "block.heartwood.flowering_azalea_branches": "Branches d'azalée fleurie",
   "message.heartwood.limb_first": "Ébranchez d'abord le tronc : coupez les branches à la hache.",
-  "message.heartwood.need_axe": "Il faut une hache pour débiter le tronc."
+  "message.heartwood.need_axe": "Il faut une hache pour débiter le tronc.",
+  "block.heartwood.green_oak_log": "Bûche verte de chêne",
+  "item.heartwood.green_oak_log": "Bûche verte de chêne",
+  "block.heartwood.green_spruce_log": "Bûche verte de sapin",
+  "item.heartwood.green_spruce_log": "Bûche verte de sapin",
+  "block.heartwood.green_birch_log": "Bûche verte de bouleau",
+  "item.heartwood.green_birch_log": "Bûche verte de bouleau",
+  "block.heartwood.green_jungle_log": "Bûche verte d'acajou",
+  "item.heartwood.green_jungle_log": "Bûche verte d'acajou",
+  "block.heartwood.green_acacia_log": "Bûche verte d'acacia",
+  "item.heartwood.green_acacia_log": "Bûche verte d'acacia",
+  "block.heartwood.green_dark_oak_log": "Bûche verte de chêne noir",
+  "item.heartwood.green_dark_oak_log": "Bûche verte de chêne noir",
+  "block.heartwood.green_mangrove_log": "Bûche verte de palétuvier",
+  "item.heartwood.green_mangrove_log": "Bûche verte de palétuvier",
+  "block.heartwood.green_cherry_log": "Bûche verte de cerisier",
+  "item.heartwood.green_cherry_log": "Bûche verte de cerisier",
+  "tooltip.heartwood.green_log": "Bois vert : posez-le à l'abri du ciel pour qu'il sèche (environ %s jours). Brûle mal."
 }

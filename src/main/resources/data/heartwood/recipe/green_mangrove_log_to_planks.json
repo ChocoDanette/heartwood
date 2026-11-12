@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "planks",
+  "ingredients": [
+    {
+      "item": "heartwood:green_mangrove_log"
+    }
+  ],
+  "result": {
+    "id": "minecraft:mangrove_planks",
+    "count": 2
+  }
+}

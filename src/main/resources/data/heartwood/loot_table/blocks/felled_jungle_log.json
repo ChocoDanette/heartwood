@@ -7,7 +7,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:jungle_log"
+          "name": "heartwood:green_jungle_log"
         }
       ],
       "conditions": [

@@ -19,6 +19,14 @@
     "heartwood:mangrove_branches",
     "heartwood:cherry_branches",
     "heartwood:azalea_branches",
-    "heartwood:flowering_azalea_branches"
+    "heartwood:flowering_azalea_branches",
+    "heartwood:green_oak_log",
+    "heartwood:green_spruce_log",
+    "heartwood:green_birch_log",
+    "heartwood:green_jungle_log",
+    "heartwood:green_acacia_log",
+    "heartwood:green_dark_oak_log",
+    "heartwood:green_mangrove_log",
+    "heartwood:green_cherry_log"
   ]
 }

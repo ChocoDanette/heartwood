@@ -7,7 +7,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:oak_log"
+          "name": "heartwood:green_oak_log"
         }
       ],
       "conditions": [

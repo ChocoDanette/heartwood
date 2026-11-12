@@ -32,5 +32,22 @@
   "block.heartwood.azalea_branches": "Azalea Branches",
   "block.heartwood.flowering_azalea_branches": "Flowering Azalea Branches",
   "message.heartwood.limb_first": "Limb the trunk first: cut the branches off with an axe.",
-  "message.heartwood.need_axe": "You need an axe to buck the trunk."
+  "message.heartwood.need_axe": "You need an axe to buck the trunk.",
+  "block.heartwood.green_oak_log": "Green Oak Log",
+  "item.heartwood.green_oak_log": "Green Oak Log",
+  "block.heartwood.green_spruce_log": "Green Spruce Log",
+  "item.heartwood.green_spruce_log": "Green Spruce Log",
+  "block.heartwood.green_birch_log": "Green Birch Log",
+  "item.heartwood.green_birch_log": "Green Birch Log",
+  "block.heartwood.green_jungle_log": "Green Jungle Log",
+  "item.heartwood.green_jungle_log": "Green Jungle Log",
+  "block.heartwood.green_acacia_log": "Green Acacia Log",
+  "item.heartwood.green_acacia_log": "Green Acacia Log",
+  "block.heartwood.green_dark_oak_log": "Green Dark Oak Log",
+  "item.heartwood.green_dark_oak_log": "Green Dark Oak Log",
+  "block.heartwood.green_mangrove_log": "Green Mangrove Log",
+  "item.heartwood.green_mangrove_log": "Green Mangrove Log",
+  "block.heartwood.green_cherry_log": "Green Cherry Log",
+  "item.heartwood.green_cherry_log": "Green Cherry Log",
+  "tooltip.heartwood.green_log": "Green wood: place it sheltered from the sky to dry (about %s days). Burns poorly."
 }

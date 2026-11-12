@@ -2,6 +2,10 @@ package com.chocodanette.heartwood;
 
 import com.chocodanette.heartwood.felling.BranchesBlock;
 import com.chocodanette.heartwood.felling.FelledLogBlock;
+import com.chocodanette.heartwood.drying.GreenLogBlock;
+import com.chocodanette.heartwood.drying.GreenLogItem;
+import net.minecraft.world.item.Item;
+import net.neoforged.neoforge.registries.DeferredItem;
 import com.chocodanette.heartwood.felling.NotchedLogBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -25,14 +29,18 @@ import java.util.function.Supplier;
  */
 public final class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Heartwood.MOD_ID);
+    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Heartwood.MOD_ID);
 
     private record Link(Supplier<Block> from, DeferredBlock<? extends Block> to) {}
 
     private static final List<Link> NOTCHED = new ArrayList<>();
     private static final List<Link> FELLED = new ArrayList<>();
     private static final List<Link> BRANCHES = new ArrayList<>();
+    private static final List<Link> GREEN = new ArrayList<>();
+    public static final List<DeferredBlock<GreenLogBlock>> ALL_GREEN = new ArrayList<>();
+    public static final List<DeferredItem<GreenLogItem>> ALL_GREEN_ITEMS = new ArrayList<>();
     public static final List<DeferredBlock<BranchesBlock>> ALL_BRANCHES = new ArrayList<>();
-    private static Map<Block, Block> notchedByLog, felledByLog, branchesByLeaves;
+    private static Map<Block, Block> notchedByLog, felledByLog, branchesByLeaves, greenByLog;
 
     static {
         log("oak_log", () -> Blocks.OAK_LOG);
@@ -43,6 +51,15 @@ public final class ModBlocks {
         log("dark_oak_log", () -> Blocks.DARK_OAK_LOG);
         log("mangrove_log", () -> Blocks.MANGROVE_LOG);
         log("cherry_log", () -> Blocks.CHERRY_LOG);
+        green("oak_log", () -> Blocks.OAK_LOG);
+        green("spruce_log", () -> Blocks.SPRUCE_LOG);
+        green("birch_log", () -> Blocks.BIRCH_LOG);
+        green("jungle_log", () -> Blocks.JUNGLE_LOG);
+        green("acacia_log", () -> Blocks.ACACIA_LOG);
+        green("dark_oak_log", () -> Blocks.DARK_OAK_LOG);
+        green("mangrove_log", () -> Blocks.MANGROVE_LOG);
+        green("cherry_log", () -> Blocks.CHERRY_LOG);
+
         log("crimson_stem", () -> Blocks.CRIMSON_STEM);
         log("warped_stem", () -> Blocks.WARPED_STEM);
 
@@ -68,6 +85,16 @@ public final class ModBlocks {
                 () -> new FelledLogBlock(log, BlockBehaviour.Properties.ofFullCopy(log.get())
                         .mapColor(log.get().defaultMapColor())
                         .strength(3.0f)))));
+    }
+
+    private static void green(String name, Supplier<Block> log) {
+        DeferredBlock<GreenLogBlock> block = BLOCKS.register("green_" + name,
+                () -> new GreenLogBlock(log, BlockBehaviour.Properties.ofFullCopy(log.get())
+                        .mapColor(log.get().defaultMapColor())
+                        .randomTicks()));
+        GREEN.add(new Link(log, block));
+        ALL_GREEN.add(block);
+        ALL_GREEN_ITEMS.add(ITEMS.register("green_" + name, () -> new GreenLogItem(block.get(), new Item.Properties())));
     }
 
     private static void branches(String name, Supplier<Block> leaves) {
@@ -107,6 +134,12 @@ public final class ModBlocks {
     public static Block branchesFor(Block leaves) {
         if (branchesByLeaves == null) branchesByLeaves = index(BRANCHES);
         return branchesByLeaves.get(leaves);
+    }
+
+    /** The green (freshly cut) variant of a dry log, or null. */
+    public static Block greenFor(Block log) {
+        if (greenByLog == null) greenByLog = index(GREEN);
+        return greenByLog.get(log);
     }
 
     private ModBlocks() {}

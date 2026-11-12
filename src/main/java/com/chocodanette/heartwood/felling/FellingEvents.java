@@ -48,7 +48,17 @@ public final class FellingEvents {
             return;
         }
 
-        if (player.isShiftKeyDown() || !tool.is(ItemTags.AXES)) return;
+        if (player.isShiftKeyDown() || !tool.is(ItemTags.AXES)) {
+            // A trunk broken the plain way still gives green wood.
+            Block green = ModBlocks.greenFor(state.getBlock());
+            if (green != null && !player.isCreative() && TreeFeller.isStandingTree(level, pos)) {
+                event.setCanceled(true);
+                level.destroyBlock(pos, false, player);
+                Block.popResource(level, pos, new ItemStack(green));
+                if (tool.is(ItemTags.AXES)) tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
+            }
+            return;
+        }
         Direction face = hitFace(player, pos);
 
         if (state.getBlock() instanceof NotchedLogBlock notched) {
@@ -59,7 +69,7 @@ public final class FellingEvents {
                 return;
             }
             tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
-            TreeFeller.fell(level, pos, notch, notched.log().defaultBlockState(), player);
+            TreeFeller.fell(level, pos, notch, greenOrDry(notched.log()), player);
             return;
         }
 
@@ -91,6 +101,11 @@ public final class FellingEvents {
             if (level.getBlockState(p).getBlock() instanceof BranchesBlock) return true;
         }
         return false;
+    }
+
+    private static BlockState greenOrDry(Block log) {
+        Block green = ModBlocks.greenFor(log);
+        return (green != null ? green : log).defaultBlockState();
     }
 
     private FellingEvents() {}

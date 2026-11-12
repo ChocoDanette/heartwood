@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "planks",
+  "ingredients": [
+    {
+      "item": "heartwood:green_spruce_log"
+    }
+  ],
+  "result": {
+    "id": "minecraft:spruce_planks",
+    "count": 2
+  }
+}

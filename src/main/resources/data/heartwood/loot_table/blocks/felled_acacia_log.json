@@ -7,7 +7,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:acacia_log"
+          "name": "heartwood:green_acacia_log"
         }
       ],
       "conditions": [

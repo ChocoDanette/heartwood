@@ -1,0 +1,7 @@
+{
+  "parent": "heartwood:block/tinted_column",
+  "textures": {
+    "side": "minecraft:block/mangrove_log",
+    "end": "minecraft:block/mangrove_log_top"
+  }
+}

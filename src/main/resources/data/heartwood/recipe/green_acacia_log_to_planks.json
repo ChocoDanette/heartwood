@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "planks",
+  "ingredients": [
+    {
+      "item": "heartwood:green_acacia_log"
+    }
+  ],
+  "result": {
+    "id": "minecraft:acacia_planks",
+    "count": 2
+  }
+}

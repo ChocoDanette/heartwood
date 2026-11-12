@@ -7,7 +7,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:mangrove_log"
+          "name": "heartwood:green_mangrove_log"
         }
       ],
       "conditions": [
