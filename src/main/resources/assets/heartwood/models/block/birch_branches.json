@@ -1,0 +1,4 @@
+{
+  "parent": "minecraft:block/birch_leaves",
+  "render_type": "minecraft:cutout_mipped"
+}

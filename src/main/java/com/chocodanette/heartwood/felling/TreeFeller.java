@@ -1,5 +1,6 @@
 package com.chocodanette.heartwood.felling;
 
+import com.chocodanette.heartwood.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -42,12 +43,8 @@ public final class TreeFeller {
         Set<BlockPos> leaves = findLeaves(level, logs, MAX_LEAVES);
 
         Map<BlockPos, BlockState> moved = new LinkedHashMap<>();
-        for (BlockPos p : logs) moved.put(p, rotateLog(level.getBlockState(p), dir));
-        for (BlockPos p : leaves) {
-            BlockState s = level.getBlockState(p);
-            if (s.hasProperty(LeavesBlock.PERSISTENT)) s = s.setValue(LeavesBlock.PERSISTENT, true);
-            moved.put(p, s);
-        }
+        for (BlockPos p : logs) moved.put(p, felled(rotateLog(level.getBlockState(p), dir)));
+        for (BlockPos p : leaves) moved.put(p, branches(level.getBlockState(p)));
 
         // Remove the cut block (with drops) and the standing tree, without triggering leaf decay.
         Block.dropResources(cutLog, level, cut, null, player, player.getMainHandItem());
@@ -71,10 +68,10 @@ public final class TreeFeller {
             BlockPos p = e.getKey().below(drop);
             BlockState s = e.getValue();
             BlockState there = level.getBlockState(p);
-            if (there.isAir() || there.canBeReplaced() || there.is(BlockTags.LEAVES) && !s.is(BlockTags.LEAVES)) {
+            if (there.isAir() || there.canBeReplaced() || isTrunk(s) && isCrown(there)) {
                 if (!there.isAir()) Block.dropResources(there, level, p);
                 level.setBlock(p, s, Block.UPDATE_ALL);
-            } else if (s.is(BlockTags.LOGS)) {
+            } else if (isTrunk(s)) {
                 // Blocked by terrain: the log pops out as an item instead.
                 Block.dropResources(s, level, p.above());
             }
@@ -150,12 +147,37 @@ public final class TreeFeller {
 
     private static boolean canLower(ServerLevel level, Map<BlockPos, BlockState> target, int drop) {
         for (Map.Entry<BlockPos, BlockState> e : target.entrySet()) {
-            if (!e.getValue().is(BlockTags.LOGS)) continue;
+            if (!isTrunk(e.getValue())) continue;
             BlockPos below = e.getKey().below(drop);
             BlockState s = level.getBlockState(below);
-            if (!(s.isAir() || s.canBeReplaced() || s.is(BlockTags.LEAVES))) return false;
+            if (!(s.isAir() || s.canBeReplaced() || isCrown(s))) return false;
         }
         return true;
+    }
+
+    /** A lying trunk section, keeping the log's (already rotated) axis. */
+    static BlockState felled(BlockState log) {
+        Block felled = ModBlocks.felledFor(log.getBlock());
+        if (felled == null) return log;
+        BlockState s = felled.defaultBlockState();
+        if (log.hasProperty(BlockStateProperties.AXIS)) s = s.setValue(BlockStateProperties.AXIS, log.getValue(BlockStateProperties.AXIS));
+        return s;
+    }
+
+    /** The branches block for these leaves; unknown leaves just stop decaying. */
+    static BlockState branches(BlockState leaves) {
+        Block branches = ModBlocks.branchesFor(leaves.getBlock());
+        if (branches != null) return branches.defaultBlockState();
+        if (leaves.hasProperty(LeavesBlock.PERSISTENT)) return leaves.setValue(LeavesBlock.PERSISTENT, true);
+        return leaves;
+    }
+
+    static boolean isTrunk(BlockState s) {
+        return s.getBlock() instanceof FelledLogBlock || s.is(BlockTags.LOGS);
+    }
+
+    static boolean isCrown(BlockState s) {
+        return s.getBlock() instanceof BranchesBlock || s.is(BlockTags.LEAVES);
     }
 
     private TreeFeller() {}

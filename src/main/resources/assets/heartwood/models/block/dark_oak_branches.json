@@ -1,0 +1,4 @@
+{
+  "parent": "minecraft:block/dark_oak_leaves",
+  "render_type": "minecraft:cutout_mipped"
+}

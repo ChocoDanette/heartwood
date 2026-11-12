@@ -30,12 +30,25 @@ public final class FellingEvents {
     public static void onBreak(BlockEvent.BreakEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         Player player = event.getPlayer();
-        if (player == null || player.isShiftKeyDown()) return;
+        if (player == null) return;
         ItemStack tool = player.getMainHandItem();
-        if (!tool.is(ItemTags.AXES)) return;
-
         BlockPos pos = event.getPos();
         BlockState state = event.getState();
+
+        // Bucking: a felled trunk is cut with an axe, once its branches are off.
+        if (state.getBlock() instanceof FelledLogBlock) {
+            if (player.isCreative()) return;
+            if (hasBranchesAround(level, pos)) {
+                event.setCanceled(true);
+                player.displayClientMessage(Component.translatable("message.heartwood.limb_first"), true);
+            } else if (!tool.is(ItemTags.AXES)) {
+                event.setCanceled(true);
+                player.displayClientMessage(Component.translatable("message.heartwood.need_axe"), true);
+            }
+            return;
+        }
+
+        if (player.isShiftKeyDown() || !tool.is(ItemTags.AXES)) return;
         Direction face = hitFace(player, pos);
 
         if (state.getBlock() instanceof NotchedLogBlock notched) {
@@ -70,6 +83,14 @@ public final class FellingEvents {
             return blockHit.getDirection();
         }
         return player.getDirection().getOpposite();
+    }
+
+    /** True when branches still touch this trunk section (including diagonally). */
+    private static boolean hasBranchesAround(ServerLevel level, BlockPos pos) {
+        for (BlockPos p : BlockPos.betweenClosed(pos.offset(-1, -1, -1), pos.offset(1, 1, 1))) {
+            if (level.getBlockState(p).getBlock() instanceof BranchesBlock) return true;
+        }
+        return false;
     }
 
     private FellingEvents() {}

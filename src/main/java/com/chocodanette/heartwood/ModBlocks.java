@@ -1,54 +1,112 @@
 package com.chocodanette.heartwood;
 
+import com.chocodanette.heartwood.felling.BranchesBlock;
+import com.chocodanette.heartwood.felling.FelledLogBlock;
 import com.chocodanette.heartwood.felling.NotchedLogBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-/** Notched variants of the vanilla logs (the directional "V" cut). */
+/**
+ * Blocks derived from the vanilla trees:
+ * notched logs (the directional "V" cut), felled logs (trunk lying on the ground)
+ * and branches (the crown of a felled tree, to be limbed with an axe).
+ */
 public final class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Heartwood.MOD_ID);
 
-    /** Original log -> its notched variant. Filled at registration. */
-    private static final Map<Supplier<Block>, DeferredBlock<NotchedLogBlock>> NOTCHED = new LinkedHashMap<>();
-    private static Map<Block, Block> byLog;
+    private record Link(Supplier<Block> from, DeferredBlock<? extends Block> to) {}
+
+    private static final List<Link> NOTCHED = new ArrayList<>();
+    private static final List<Link> FELLED = new ArrayList<>();
+    private static final List<Link> BRANCHES = new ArrayList<>();
+    public static final List<DeferredBlock<BranchesBlock>> ALL_BRANCHES = new ArrayList<>();
+    private static Map<Block, Block> notchedByLog, felledByLog, branchesByLeaves;
 
     static {
-        notched("oak_log", () -> Blocks.OAK_LOG);
-        notched("spruce_log", () -> Blocks.SPRUCE_LOG);
-        notched("birch_log", () -> Blocks.BIRCH_LOG);
-        notched("jungle_log", () -> Blocks.JUNGLE_LOG);
-        notched("acacia_log", () -> Blocks.ACACIA_LOG);
-        notched("dark_oak_log", () -> Blocks.DARK_OAK_LOG);
-        notched("mangrove_log", () -> Blocks.MANGROVE_LOG);
-        notched("cherry_log", () -> Blocks.CHERRY_LOG);
-        notched("crimson_stem", () -> Blocks.CRIMSON_STEM);
-        notched("warped_stem", () -> Blocks.WARPED_STEM);
+        log("oak_log", () -> Blocks.OAK_LOG);
+        log("spruce_log", () -> Blocks.SPRUCE_LOG);
+        log("birch_log", () -> Blocks.BIRCH_LOG);
+        log("jungle_log", () -> Blocks.JUNGLE_LOG);
+        log("acacia_log", () -> Blocks.ACACIA_LOG);
+        log("dark_oak_log", () -> Blocks.DARK_OAK_LOG);
+        log("mangrove_log", () -> Blocks.MANGROVE_LOG);
+        log("cherry_log", () -> Blocks.CHERRY_LOG);
+        log("crimson_stem", () -> Blocks.CRIMSON_STEM);
+        log("warped_stem", () -> Blocks.WARPED_STEM);
+
+        branches("oak", () -> Blocks.OAK_LEAVES);
+        branches("spruce", () -> Blocks.SPRUCE_LEAVES);
+        branches("birch", () -> Blocks.BIRCH_LEAVES);
+        branches("jungle", () -> Blocks.JUNGLE_LEAVES);
+        branches("acacia", () -> Blocks.ACACIA_LEAVES);
+        branches("dark_oak", () -> Blocks.DARK_OAK_LEAVES);
+        branches("mangrove", () -> Blocks.MANGROVE_LEAVES);
+        branches("cherry", () -> Blocks.CHERRY_LEAVES);
+        branches("azalea", () -> Blocks.AZALEA_LEAVES);
+        branches("flowering_azalea", () -> Blocks.FLOWERING_AZALEA_LEAVES);
     }
 
-    private static void notched(String name, Supplier<Block> log) {
-        DeferredBlock<NotchedLogBlock> block = BLOCKS.register("notched_" + name,
+    private static void log(String name, Supplier<Block> log) {
+        NOTCHED.add(new Link(log, BLOCKS.register("notched_" + name,
                 () -> new NotchedLogBlock(log, BlockBehaviour.Properties.ofFullCopy(log.get())
                         // The copied map colour reads the log's AXIS property, which notched logs do not have.
                         .mapColor(log.get().defaultMapColor())
-                        .noOcclusion()));
-        NOTCHED.put(log, block);
+                        .noOcclusion()))));
+        FELLED.add(new Link(log, BLOCKS.register("felled_" + name,
+                () -> new FelledLogBlock(log, BlockBehaviour.Properties.ofFullCopy(log.get())
+                        .mapColor(log.get().defaultMapColor())
+                        .strength(3.0f)))));
     }
 
-    /** The notched variant of a log, or null when the log has none. */
+    private static void branches(String name, Supplier<Block> leaves) {
+        DeferredBlock<BranchesBlock> block = BLOCKS.register(name + "_branches",
+                () -> new BranchesBlock(BlockBehaviour.Properties.of()
+                        .mapColor(MapColor.PLANT)
+                        .strength(0.4f)
+                        .sound(SoundType.AZALEA_LEAVES)
+                        .noOcclusion()
+                        .isSuffocating((s, l, p) -> false)
+                        .isViewBlocking((s, l, p) -> false)
+                        .ignitedByLava()
+                        .pushReaction(PushReaction.DESTROY)));
+        BRANCHES.add(new Link(leaves, block));
+        ALL_BRANCHES.add(block);
+    }
+
+    private static Map<Block, Block> index(List<Link> links) {
+        Map<Block, Block> map = new HashMap<>();
+        for (Link l : links) map.put(l.from().get(), l.to().get());
+        return map;
+    }
+
+    /** The notched variant of a standing log, or null. */
     public static Block notchedFor(Block log) {
-        if (byLog == null) {
-            Map<Block, Block> map = new java.util.HashMap<>();
-            NOTCHED.forEach((orig, notched) -> map.put(orig.get(), notched.get()));
-            byLog = map;
-        }
-        return byLog.get(log);
+        if (notchedByLog == null) notchedByLog = index(NOTCHED);
+        return notchedByLog.get(log);
+    }
+
+    /** The felled (lying) variant of a log, or null. */
+    public static Block felledFor(Block log) {
+        if (felledByLog == null) felledByLog = index(FELLED);
+        return felledByLog.get(log);
+    }
+
+    /** The branches block that replaces these leaves on a felled tree, or null. */
+    public static Block branchesFor(Block leaves) {
+        if (branchesByLeaves == null) branchesByLeaves = index(BRANCHES);
+        return branchesByLeaves.get(leaves);
     }
 
     private ModBlocks() {}

@@ -1,0 +1,24 @@
+{
+  "values": [
+    "heartwood:felled_oak_log",
+    "heartwood:felled_spruce_log",
+    "heartwood:felled_birch_log",
+    "heartwood:felled_jungle_log",
+    "heartwood:felled_acacia_log",
+    "heartwood:felled_dark_oak_log",
+    "heartwood:felled_mangrove_log",
+    "heartwood:felled_cherry_log",
+    "heartwood:felled_crimson_stem",
+    "heartwood:felled_warped_stem",
+    "heartwood:oak_branches",
+    "heartwood:spruce_branches",
+    "heartwood:birch_branches",
+    "heartwood:jungle_branches",
+    "heartwood:acacia_branches",
+    "heartwood:dark_oak_branches",
+    "heartwood:mangrove_branches",
+    "heartwood:cherry_branches",
+    "heartwood:azalea_branches",
+    "heartwood:flowering_azalea_branches"
+  ]
+}
