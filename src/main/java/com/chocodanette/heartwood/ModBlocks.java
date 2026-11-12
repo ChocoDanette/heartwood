@@ -34,7 +34,10 @@ public final class ModBlocks {
 
     private static void notched(String name, Supplier<Block> log) {
         DeferredBlock<NotchedLogBlock> block = BLOCKS.register("notched_" + name,
-                () -> new NotchedLogBlock(log, BlockBehaviour.Properties.ofFullCopy(log.get()).noOcclusion()));
+                () -> new NotchedLogBlock(log, BlockBehaviour.Properties.ofFullCopy(log.get())
+                        // The copied map colour reads the log's AXIS property, which notched logs do not have.
+                        .mapColor(log.get().defaultMapColor())
+                        .noOcclusion()));
         NOTCHED.put(log, block);
     }
 
