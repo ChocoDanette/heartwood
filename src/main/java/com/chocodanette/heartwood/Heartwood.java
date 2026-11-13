@@ -1,5 +1,6 @@
 package com.chocodanette.heartwood;
 
+import com.chocodanette.heartwood.drying.PlacedLogs;
 import com.chocodanette.heartwood.felling.FellingEvents;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.bus.api.IEventBus;
@@ -16,6 +17,8 @@ public class Heartwood {
     public Heartwood(IEventBus modBus, ModContainer container) {
         ModBlocks.BLOCKS.register(modBus);
         ModBlocks.ITEMS.register(modBus);
+        ModBlocks.BLOCK_ENTITIES.register(modBus);
+        PlacedLogs.ATTACHMENTS.register(modBus);
         container.registerConfig(ModConfig.Type.SERVER, Config.SPEC);
         modBus.addListener(Heartwood::addToCreativeTabs);
         NeoForge.EVENT_BUS.register(FellingEvents.class);

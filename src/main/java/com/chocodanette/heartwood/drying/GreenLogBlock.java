@@ -7,7 +7,10 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -22,12 +25,9 @@ import java.util.function.Supplier;
  * above it, so no rain or snow reaches it. Drying goes through stages 0..7, then
  * the block turns into the dry vanilla log.
  */
-public class GreenLogBlock extends RotatedPillarBlock {
+public class GreenLogBlock extends RotatedPillarBlock implements EntityBlock {
     public static final int MAX_STAGE = 7;
     public static final IntegerProperty DRYING = IntegerProperty.create("drying", 0, MAX_STAGE);
-
-    /** Average game ticks between two random ticks of one block, at the default randomTickSpeed (3). */
-    private static final double TICKS_PER_RANDOM_TICK = 4096.0 / 3.0;
 
     private final Supplier<Block> dryLog;
 
@@ -54,19 +54,34 @@ public class GreenLogBlock extends RotatedPillarBlock {
 
     @Override
     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (!isSheltered(level, pos)) return;
-        // Chance per random tick so that the 8 stages take, on average, the configured number of days.
-        double ticksPerStage = Config.dryingDays() * 24000.0 / (MAX_STAGE + 1);
-        double chance = Math.min(1.0, TICKS_PER_RANDOM_TICK / ticksPerStage);
-        if (random.nextDouble() >= chance) return;
-
-        int stage = state.getValue(DRYING);
-        if (stage < MAX_STAGE) {
-            level.setBlock(pos, state.setValue(DRYING, stage + 1), Block.UPDATE_ALL);
-        } else {
+        if (!(level.getBlockEntity(pos) instanceof DryingLogBlockEntity drying)) return;
+        long total = (long) (Config.dryingDays() * 24000.0);
+        long dried = drying.update(level, isSheltered(level, pos));
+        if (dried >= total) {
             level.setBlock(pos, dryLog.get().defaultBlockState()
                     .setValue(BlockStateProperties.AXIS, state.getValue(BlockStateProperties.AXIS)), Block.UPDATE_ALL);
+            PlacedLogs.markDry(level, pos);
+            return;
         }
+        int stage = (int) Math.min(MAX_STAGE, dried * (MAX_STAGE + 1) / total);
+        if (stage != state.getValue(DRYING)) level.setBlock(pos, state.setValue(DRYING, stage), Block.UPDATE_ALL);
+    }
+
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new DryingLogBlockEntity(pos, state);
+    }
+
+    @Override
+    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        // Start the drying clock now rather than at the first random tick.
+        if (!level.isClientSide && !oldState.is(this)) level.scheduleTick(pos, this, 1);
+    }
+
+    @Override
+    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        if (level.getBlockEntity(pos) instanceof DryingLogBlockEntity drying) drying.update(level, false);
     }
 
     /** Sheltered: the sky cannot be seen from the block, so rain cannot reach it. */

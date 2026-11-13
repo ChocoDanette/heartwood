@@ -4,6 +4,9 @@ import com.chocodanette.heartwood.felling.BranchesBlock;
 import com.chocodanette.heartwood.felling.FelledLogBlock;
 import com.chocodanette.heartwood.drying.GreenLogBlock;
 import com.chocodanette.heartwood.drying.GreenLogItem;
+import com.chocodanette.heartwood.drying.DryingLogBlockEntity;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
 import com.chocodanette.heartwood.felling.NotchedLogBlock;
@@ -30,6 +33,8 @@ import java.util.function.Supplier;
 public final class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Heartwood.MOD_ID);
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Heartwood.MOD_ID);
+    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
+            DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, Heartwood.MOD_ID);
 
     private record Link(Supplier<Block> from, DeferredBlock<? extends Block> to) {}
 
@@ -74,6 +79,11 @@ public final class ModBlocks {
         branches("azalea", () -> Blocks.AZALEA_LEAVES);
         branches("flowering_azalea", () -> Blocks.FLOWERING_AZALEA_LEAVES);
     }
+
+    @SuppressWarnings("DataFlowIssue")
+    public static final Supplier<BlockEntityType<DryingLogBlockEntity>> DRYING_LOG = BLOCK_ENTITIES.register("drying_log",
+            () -> BlockEntityType.Builder.of(DryingLogBlockEntity::new,
+                    ALL_GREEN.stream().map(DeferredBlock::get).toArray(Block[]::new)).build(null));
 
     private static void log(String name, Supplier<Block> log) {
         NOTCHED.add(new Link(log, BLOCKS.register("notched_" + name,

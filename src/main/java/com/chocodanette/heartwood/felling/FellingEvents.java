@@ -1,6 +1,7 @@
 package com.chocodanette.heartwood.felling;
 
 import com.chocodanette.heartwood.ModBlocks;
+import com.chocodanette.heartwood.drying.PlacedLogs;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -22,7 +23,7 @@ import net.neoforged.neoforge.event.level.BlockEvent;
  * Directional felling with an axe:
  * 1. the first cut on a standing trunk carves a notch into the face you hit;
  * 2. the back cut, on the opposite face, fells the tree towards the notch.
- * Sneaking, or breaking without an axe, keeps vanilla behaviour.
+ * Sneaking, or breaking without an axe, breaks one block; natural wood always gives green logs.
  */
 public final class FellingEvents {
 
@@ -34,6 +35,12 @@ public final class FellingEvents {
         ItemStack tool = player.getMainHandItem();
         BlockPos pos = event.getPos();
         BlockState state = event.getState();
+
+        // Logs placed by a player (or dried green logs) are dry wood and break the vanilla way.
+        if (PlacedLogs.isDry(level, pos)) {
+            PlacedLogs.forget(level, pos);
+            return;
+        }
 
         // Bucking: a felled trunk is cut with an axe, once its branches are off.
         if (state.getBlock() instanceof FelledLogBlock) {
@@ -49,14 +56,7 @@ public final class FellingEvents {
         }
 
         if (player.isShiftKeyDown() || !tool.is(ItemTags.AXES)) {
-            // A trunk broken the plain way still gives green wood.
-            Block green = ModBlocks.greenFor(state.getBlock());
-            if (green != null && !player.isCreative() && TreeFeller.isStandingTree(level, pos)) {
-                event.setCanceled(true);
-                level.destroyBlock(pos, false, player);
-                Block.popResource(level, pos, new ItemStack(green));
-                if (tool.is(ItemTags.AXES)) tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
-            }
+            breakAsGreen(event, level, pos, state, player, tool);
             return;
         }
         Direction face = hitFace(player, pos);
@@ -75,7 +75,10 @@ public final class FellingEvents {
 
         Block notchedBlock = ModBlocks.notchedFor(state.getBlock());
         if (notchedBlock == null) return;
-        if (!TreeFeller.isStandingTree(level, pos)) return;
+        if (!TreeFeller.isStandingTree(level, pos)) {
+            breakAsGreen(event, level, pos, state, player, tool);
+            return;
+        }
 
         event.setCanceled(true);
         tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
@@ -101,6 +104,25 @@ public final class FellingEvents {
             if (level.getBlockState(p).getBlock() instanceof BranchesBlock) return true;
         }
         return false;
+    }
+
+    /** Natural wood (any vanilla log not placed by a player) always breaks into green wood. */
+    private static void breakAsGreen(BlockEvent.BreakEvent event, ServerLevel level, BlockPos pos, BlockState state,
+                                     Player player, ItemStack tool) {
+        Block green = ModBlocks.greenFor(state.getBlock());
+        if (green == null || player.isCreative()) return;
+        event.setCanceled(true);
+        level.destroyBlock(pos, false, player);
+        Block.popResource(level, pos, new ItemStack(green));
+        if (tool.is(ItemTags.AXES)) tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
+    }
+
+    /** A vanilla log placed by a player is dry wood. */
+    @SubscribeEvent
+    public static void onPlace(BlockEvent.EntityPlaceEvent event) {
+        if (event.getLevel() instanceof ServerLevel level && ModBlocks.greenFor(event.getPlacedBlock().getBlock()) != null) {
+            PlacedLogs.markDry(level, event.getPos());
+        }
     }
 
     private static BlockState greenOrDry(Block log) {
