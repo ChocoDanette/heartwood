@@ -33,10 +33,10 @@ public final class ClientColors {
         ModBlocks.ALL_GREEN_ITEMS.forEach(i -> event.register((stack, tint) -> 0xFF000000 | greenTint(0), i.get()));
     }
 
-    /** From a damp green-grey (stage 0) to no tint (fully dry). */
+    /** From a strong damp green (stage 0) to a pale green (last stage); dry logs are untinted vanilla logs. */
     static int greenTint(int stage) {
         float t = stage / (float) GreenLogBlock.MAX_STAGE;
-        int r = lerp(0x9C, 0xFF, t), g = lerp(0xB8, 0xFF, t), b = lerp(0x84, 0xFF, t);
+        int r = lerp(0x68, 0xCC, t), g = lerp(0xA0, 0xDC, t), b = lerp(0x48, 0xB4, t);
         return (r << 16) | (g << 8) | b;
     }
 

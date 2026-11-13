@@ -55,8 +55,8 @@ public class GreenLogBlock extends RotatedPillarBlock implements EntityBlock {
     @Override
     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (!(level.getBlockEntity(pos) instanceof DryingLogBlockEntity drying)) return;
-        long total = (long) (Config.dryingDays() * 24000.0);
         long dried = drying.update(level, isSheltered(level, pos));
+        long total = (long) (Config.dryingDays() * 24000.0 * drying.spread());
         if (dried >= total) {
             level.setBlock(pos, dryLog.get().defaultBlockState()
                     .setValue(BlockStateProperties.AXIS, state.getValue(BlockStateProperties.AXIS)), Block.UPDATE_ALL);
@@ -65,6 +65,18 @@ public class GreenLogBlock extends RotatedPillarBlock implements EntityBlock {
         }
         int stage = (int) Math.min(MAX_STAGE, dried * (MAX_STAGE + 1) / total);
         if (stage != state.getValue(DRYING)) level.setBlock(pos, state.setValue(DRYING, stage), Block.UPDATE_ALL);
+    }
+
+    /** Damp wood: water drips from the underside of fresh logs. */
+    @Override
+    public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
+        if (state.getValue(DRYING) >= MAX_STAGE - 1 || random.nextInt(6) != 0) return;
+        BlockPos below = pos.below();
+        if (!level.getBlockState(below).isFaceSturdy(level, below, net.minecraft.core.Direction.UP)) {
+            level.addParticle(net.minecraft.core.particles.ParticleTypes.DRIPPING_WATER,
+                    pos.getX() + 0.15 + random.nextDouble() * 0.7, pos.getY() - 0.05,
+                    pos.getZ() + 0.15 + random.nextDouble() * 0.7, 0, 0, 0);
+        }
     }
 
     @Override

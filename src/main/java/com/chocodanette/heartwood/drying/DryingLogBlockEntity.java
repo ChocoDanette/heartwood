@@ -17,6 +17,8 @@ public class DryingLogBlockEntity extends BlockEntity {
     private long dried;
     private long lastGameTime = -1;
     private long lastDayTime = -1;
+    /** Per-log spread of the drying time (0.75 to 1.25), so a stack does not dry all at once. */
+    private float spread = -1;
 
     public DryingLogBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlocks.DRYING_LOG.get(), pos, state);
@@ -24,6 +26,7 @@ public class DryingLogBlockEntity extends BlockEntity {
 
     /** Adds the time elapsed since the last check (only if sheltered) and returns the total. */
     public long update(Level level, boolean sheltered) {
+        if (spread < 0) spread = 0.75f + level.random.nextFloat() * 0.5f;
         long game = level.getGameTime(), day = level.getDayTime();
         if (lastGameTime >= 0) {
             long dGame = Math.max(0, game - lastGameTime);
@@ -38,12 +41,17 @@ public class DryingLogBlockEntity extends BlockEntity {
         return dried;
     }
 
+    public float spread() {
+        return spread < 0 ? 1f : spread;
+    }
+
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.putLong("dried", dried);
         tag.putLong("lastGameTime", lastGameTime);
         tag.putLong("lastDayTime", lastDayTime);
+        tag.putFloat("spread", spread);
     }
 
     @Override
@@ -52,5 +60,6 @@ public class DryingLogBlockEntity extends BlockEntity {
         dried = tag.getLong("dried");
         lastGameTime = tag.contains("lastGameTime") ? tag.getLong("lastGameTime") : -1;
         lastDayTime = tag.contains("lastDayTime") ? tag.getLong("lastDayTime") : -1;
+        spread = tag.contains("spread") ? tag.getFloat("spread") : -1;
     }
 }
