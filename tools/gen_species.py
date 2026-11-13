@@ -21,6 +21,18 @@ SPECIES = {
                 foliage={"type": "minecraft:pine_foliage_placer", "radius": 2, "offset": 1,
                          "height": {"type": "minecraft:uniform", "min_inclusive": 3, "max_inclusive": 4}},
                 size={"type": "minecraft:two_layers_feature_size", "limit": 2, "lower_size": 0, "upper_size": 2}),
+    "chestnut": dict(en="Chestnut", fr="châtaignier", fr_de="de châtaignier", fr_en="en châtaignier",
+                biomes=["minecraft:forest", "minecraft:windswept_forest", "minecraft:dark_forest"],
+                count=1, chance_plains=False,
+                trunk={"type": "minecraft:fancy_trunk_placer", "base_height": 6, "height_rand_a": 3, "height_rand_b": 0},
+                foliage={"type": "minecraft:fancy_foliage_placer", "radius": 3, "offset": 3, "height": 4},
+                size={"type": "minecraft:two_layers_feature_size", "limit": 0, "lower_size": 0, "upper_size": 0, "min_clipped_height": 4}),
+    "maple": dict(en="Maple", fr="érable", fr_de="d'érable", fr_en="en érable",
+                biomes=["minecraft:forest", "minecraft:flower_forest", "minecraft:birch_forest", "minecraft:meadow"],
+                count=1, chance_plains=False,
+                trunk={"type": "minecraft:straight_trunk_placer", "base_height": 6, "height_rand_a": 3, "height_rand_b": 0},
+                foliage={"type": "minecraft:blob_foliage_placer", "radius": 3, "offset": 0, "height": 4},
+                size={"type": "minecraft:two_layers_feature_size", "limit": 1, "lower_size": 0, "upper_size": 2}),
 }
 
 def w(path, data):

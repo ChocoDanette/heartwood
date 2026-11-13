@@ -53,6 +53,14 @@
     "heartwood:scots_pine_stairs",
     "heartwood:scots_pine_slab",
     "heartwood:scots_pine_fence",
-    "heartwood:scots_pine_fence_gate"
+    "heartwood:scots_pine_fence_gate",
+    "heartwood:notched_chestnut_log",
+    "heartwood:felled_chestnut_log",
+    "heartwood:green_chestnut_log",
+    "heartwood:chestnut_branches",
+    "heartwood:notched_maple_log",
+    "heartwood:felled_maple_log",
+    "heartwood:green_maple_log",
+    "heartwood:maple_branches"
   ]
 }

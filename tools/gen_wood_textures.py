@@ -14,6 +14,10 @@ SPECIES = {
                   leaf="pinnate", sapling_leaf=(96, 140, 60)),
     "scots_pine": dict(bark=(150, 92, 60), bark_dark=(96, 58, 40), wood=(220, 178, 118), wood_dark=(190, 146, 88), style="plates",
                   leaf="needles", sapling_leaf=(56, 98, 60)),
+    "chestnut": dict(bark=(118, 108, 96), bark_dark=(76, 68, 60), wood=(204, 164, 104), wood_dark=(174, 134, 78), style="spiral",
+                  leaf="long", sapling_leaf=(90, 132, 56)),
+    "maple": dict(bark=(132, 124, 112), bark_dark=(96, 88, 80), wood=(232, 214, 184), wood_dark=(208, 188, 156), style="flaky",
+                  leaf="lobed", sapling_leaf=(104, 146, 58)),
     "teak":  dict(bark=(112, 94, 74),   bark_dark=(78, 64, 50),    wood=(176, 124, 64),  wood_dark=(146, 98, 48),  style="fissured"),
 }
 
@@ -59,6 +63,24 @@ def bark(s, r):
                     crack = y in cracks and r.random() < 0.85
                     c = s["bark_dark"] if edge or crack else mix(s["bark"], (205, 135, 85), 0.3 * r.random())
                     img.putpixel((x, y), jitter(c, r, 5))
+    elif s["style"] == "spiral":
+        # Chestnut: deep fissures twisting diagonally around the trunk.
+        for y in range(16):
+            for x in range(16):
+                f = (x + y // 3) % 4 == 0
+                c = s["bark_dark"] if f and r.random() < 0.9 else s["bark"]
+                img.putpixel((x, y), jitter(c, r, 7))
+    elif s["style"] == "flaky":
+        # Maple (sycamore): smooth bark flaking off in small patches.
+        for y in range(16):
+            for x in range(16):
+                img.putpixel((x, y), jitter(s["bark"], r, 6))
+        for _ in range(7):
+            x0, y0 = r.randrange(16), r.randrange(16)
+            for dx in range(r.randint(2, 3)):
+                for dy in range(r.randint(1, 2)):
+                    img.putpixel(((x0 + dx) % 16, (y0 + dy) % 16), jitter(mix(s["bark"], (190, 170, 130), 0.5), r, 6))
+            img.putpixel(((x0 - 1) % 16, y0), jitter(s["bark_dark"], r, 4))
     else:
         # Fissured bark: vertical ridges with dark furrows.
         furrows = sorted(r.sample(range(16), 4))
@@ -133,6 +155,20 @@ def leaves(s, r):
             for x in range(16):
                 if img.getpixel((x, y))[3] == 0 and r.random() < 0.72:
                     put(x, y, r.randint(105, 185))
+    elif s["leaf"] in ("long", "lobed"):
+        # Broad leaves: chestnut long serrated leaves, maple five-lobed leaves; dense cover.
+        for y in range(16):
+            for x in range(16):
+                if r.random() < 0.78:
+                    put(x, y, r.randint(110, 190))
+        for _ in range(7):
+            cx, cy = r.randrange(16), r.randrange(16)
+            if s["leaf"] == "long":
+                for k in range(4):
+                    put(cx + k, cy + k // 2, 70)
+            else:
+                for dx, dy in ((0, 0), (0, -1), (-1, 0), (1, 0), (-1, 1), (1, 1)):
+                    put(cx + dx, cy + dy, 75)
     else:
         # Pine: tufts of long needles.
         for _ in range(9):
@@ -150,7 +186,7 @@ def sapling(s, r):
     for y in range(8, 16):
         img.putpixel((7, y), stem + (255,))
     leaf = s["sapling_leaf"]
-    if s["leaf"] == "pinnate":
+    if s["leaf"] in ("pinnate", "long", "lobed"):
         for y, xs in ((3, (5, 6, 8, 9)), (4, (4, 5, 6, 7, 8, 9, 10)), (6, (3, 4, 5, 6, 8, 9, 10, 11)),
                       (7, (5, 6, 8, 9)), (9, (4, 5, 9, 10)), (10, (5, 9))):
             for x in xs:

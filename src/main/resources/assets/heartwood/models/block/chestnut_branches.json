@@ -1,0 +1,4 @@
+{
+  "parent": "heartwood:block/chestnut_leaves",
+  "render_type": "minecraft:cutout_mipped"
+}

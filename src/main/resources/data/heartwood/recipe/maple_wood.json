@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "##",
+    "##"
+  ],
+  "key": {
+    "#": {
+      "item": "heartwood:maple_log"
+    }
+  },
+  "result": {
+    "id": "heartwood:maple_wood",
+    "count": 3
+  }
+}

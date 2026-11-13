@@ -45,13 +45,15 @@ public final class Species {
     }
 
     public static final List<Wood> ALL = new ArrayList<>();
-    public static Wood ASH, SCOTS_PINE;
+    public static Wood ASH, SCOTS_PINE, CHESTNUT, MAPLE;
 
     /** Registers the species; called first thing by ModBlocks' static initialiser. */
     public static void init() {
         if (!ALL.isEmpty()) return;
         ASH = register("ash", MapColor.SAND, MapColor.STONE, Foliage.BIOME);
         SCOTS_PINE = register("scots_pine", MapColor.COLOR_ORANGE, MapColor.TERRACOTTA_BROWN, Foliage.EVERGREEN);
+        CHESTNUT = register("chestnut", MapColor.TERRACOTTA_YELLOW, MapColor.TERRACOTTA_GRAY, Foliage.BIOME);
+        MAPLE = register("maple", MapColor.TERRACOTTA_WHITE, MapColor.COLOR_GRAY, Foliage.BIOME);
     }
 
     private static Wood register(String name, MapColor woodColor, MapColor barkColor, Foliage foliage) {

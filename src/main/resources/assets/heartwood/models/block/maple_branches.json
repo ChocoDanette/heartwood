@@ -1,0 +1,4 @@
+{
+  "parent": "heartwood:block/maple_leaves",
+  "render_type": "minecraft:cutout_mipped"
+}

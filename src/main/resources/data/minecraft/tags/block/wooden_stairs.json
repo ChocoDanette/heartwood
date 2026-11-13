@@ -2,6 +2,8 @@
   "replace": false,
   "values": [
     "heartwood:ash_stairs",
-    "heartwood:scots_pine_stairs"
+    "heartwood:scots_pine_stairs",
+    "heartwood:chestnut_stairs",
+    "heartwood:maple_stairs"
   ]
 }

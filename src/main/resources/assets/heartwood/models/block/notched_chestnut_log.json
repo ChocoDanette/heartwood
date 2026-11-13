@@ -1,0 +1,9 @@
+{
+  "parent": "heartwood:block/notched_log_template",
+  "textures": {
+    "side": "heartwood:block/chestnut_log",
+    "end": "heartwood:block/chestnut_log_top",
+    "cut": "heartwood:block/stripped_chestnut_log_top",
+    "inner": "heartwood:block/stripped_chestnut_log"
+  }
+}

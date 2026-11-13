@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "heartwood:block/chestnut_slab"
+    },
+    "type=top": {
+      "model": "heartwood:block/chestnut_slab_top"
+    },
+    "type=double": {
+      "model": "heartwood:block/chestnut_planks"
+    }
+  }
+}

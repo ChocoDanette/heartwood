@@ -2,6 +2,8 @@
   "replace": false,
   "values": [
     "heartwood:ash_fence_gate",
-    "heartwood:scots_pine_fence_gate"
+    "heartwood:scots_pine_fence_gate",
+    "heartwood:chestnut_fence_gate",
+    "heartwood:maple_fence_gate"
   ]
 }

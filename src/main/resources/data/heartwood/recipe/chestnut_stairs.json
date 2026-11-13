@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "#  ",
+    "## ",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "heartwood:chestnut_planks"
+    }
+  },
+  "result": {
+    "id": "heartwood:chestnut_stairs",
+    "count": 4
+  }
+}

@@ -2,6 +2,8 @@
   "replace": false,
   "values": [
     "heartwood:ash_leaves",
-    "heartwood:scots_pine_leaves"
+    "heartwood:scots_pine_leaves",
+    "heartwood:chestnut_leaves",
+    "heartwood:maple_leaves"
   ]
 }

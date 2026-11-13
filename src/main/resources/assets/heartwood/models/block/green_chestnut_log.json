@@ -1,0 +1,7 @@
+{
+  "parent": "heartwood:block/tinted_column",
+  "textures": {
+    "side": "heartwood:block/chestnut_log",
+    "end": "heartwood:block/chestnut_log_top"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab_top",
+  "textures": {
+    "bottom": "heartwood:block/chestnut_planks",
+    "side": "heartwood:block/chestnut_planks",
+    "top": "heartwood:block/chestnut_planks"
+  }
+}

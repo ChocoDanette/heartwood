@@ -2,6 +2,8 @@
   "replace": false,
   "values": [
     "heartwood:ash_log",
-    "heartwood:scots_pine_log"
+    "heartwood:scots_pine_log",
+    "heartwood:chestnut_log",
+    "heartwood:maple_log"
   ]
 }

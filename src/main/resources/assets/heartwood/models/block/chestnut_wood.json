@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "heartwood:block/chestnut_log",
+    "side": "heartwood:block/chestnut_log"
+  }
+}

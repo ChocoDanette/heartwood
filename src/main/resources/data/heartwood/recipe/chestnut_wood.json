@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "##",
+    "##"
+  ],
+  "key": {
+    "#": {
+      "item": "heartwood:chestnut_log"
+    }
+  },
+  "result": {
+    "id": "heartwood:chestnut_wood",
+    "count": 3
+  }
+}
