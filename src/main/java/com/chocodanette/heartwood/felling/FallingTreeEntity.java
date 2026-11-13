@@ -73,6 +73,10 @@ public class FallingTreeEntity extends Entity implements IEntityWithComplexSpawn
         return parts;
     }
 
+    public BlockPos cut() {
+        return cut;
+    }
+
     public Direction direction() {
         return direction;
     }

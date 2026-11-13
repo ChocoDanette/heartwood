@@ -13,6 +13,14 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import org.joml.Quaternionf;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.client.RenderTypeHelper;
+import net.neoforged.neoforge.client.model.data.ModelData;
 
 /** Draws the standing tree rotated around the centre of the cut block. */
 public class FallingTreeRenderer extends EntityRenderer<FallingTreeEntity> {
@@ -35,11 +43,32 @@ public class FallingTreeRenderer extends EntityRenderer<FallingTreeEntity> {
         for (FallingTreeEntity.Part part : tree.parts()) {
             pose.pushPose();
             pose.translate(part.offset().getX() - 0.5, part.offset().getY() - 0.5, part.offset().getZ() - 0.5);
-            blocks.renderSingleBlock(part.state(), pose, buffers, light, OverlayTexture.NO_OVERLAY);
+            renderTinted(blocks, tree, part, pose, buffers, light);
             pose.popPose();
         }
         pose.popPose();
         super.render(tree, yaw, partialTick, pose, buffers, light);
+    }
+
+    /** Like renderSingleBlock, but tinted with the colours of the block's original spot (biome foliage). */
+    private static void renderTinted(BlockRenderDispatcher blocks, FallingTreeEntity tree, FallingTreeEntity.Part part,
+                                     PoseStack pose, MultiBufferSource buffers, int light) {
+        BlockState state = part.state();
+        if (state.getRenderShape() != RenderShape.MODEL) return;
+        BakedModel model = blocks.getBlockModel(state);
+        BlockPos at = tree.cut().offset(part.offset());
+        int color = Minecraft.getInstance().getBlockColors().getColor(state, tree.level(), at, 0);
+        float r = 1f, g = 1f, b = 1f;
+        if (color != -1) {
+            r = (color >> 16 & 255) / 255f;
+            g = (color >> 8 & 255) / 255f;
+            b = (color & 255) / 255f;
+        }
+        for (RenderType type : model.getRenderTypes(state, RandomSource.create(42), ModelData.EMPTY)) {
+            blocks.getModelRenderer().renderModel(pose.last(),
+                    buffers.getBuffer(RenderTypeHelper.getEntityRenderType(type, false)),
+                    state, model, r, g, b, light, OverlayTexture.NO_OVERLAY, ModelData.EMPTY, type);
+        }
     }
 
     @Override
