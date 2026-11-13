@@ -9,7 +9,7 @@ public final class Config {
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
         DRYING_DAYS = b.comment("Average number of in-game days a placed green log takes to dry when sheltered (no sky above it).")
-                .defineInRange("dryingDays", 2.0, 0.05, 100.0);
+                .defineInRange("dryingDays", 1.0, 0.05, 100.0);
         SPEC = b.build();
     }
 
