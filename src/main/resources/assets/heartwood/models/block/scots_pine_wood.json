@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "heartwood:block/scots_pine_log",
+    "side": "heartwood:block/scots_pine_log"
+  }
+}

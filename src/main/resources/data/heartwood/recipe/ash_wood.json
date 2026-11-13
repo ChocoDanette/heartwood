@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "##",
+    "##"
+  ],
+  "key": {
+    "#": {
+      "item": "heartwood:ash_log"
+    }
+  },
+  "result": {
+    "id": "heartwood:ash_wood",
+    "count": 3
+  }
+}

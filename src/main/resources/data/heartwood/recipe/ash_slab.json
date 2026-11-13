@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "heartwood:ash_planks"
+    }
+  },
+  "result": {
+    "id": "heartwood:ash_slab",
+    "count": 6
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "heartwood:block/scots_pine_wood"
+    },
+    "axis=z": {
+      "model": "heartwood:block/scots_pine_wood",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "heartwood:block/scots_pine_wood",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

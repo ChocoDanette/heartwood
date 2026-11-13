@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "heartwood:block/notched_scots_pine_log"
+    },
+    "facing=east": {
+      "model": "heartwood:block/notched_scots_pine_log",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "heartwood:block/notched_scots_pine_log",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "heartwood:block/notched_scots_pine_log",
+      "y": 270
+    }
+  }
+}

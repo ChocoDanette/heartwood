@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "heartwood:block/ash_slab"
+    },
+    "type=top": {
+      "model": "heartwood:block/ash_slab_top"
+    },
+    "type=double": {
+      "model": "heartwood:block/ash_planks"
+    }
+  }
+}

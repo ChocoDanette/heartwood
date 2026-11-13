@@ -2,6 +2,7 @@ package com.chocodanette.heartwood.client;
 
 import com.chocodanette.heartwood.Heartwood;
 import com.chocodanette.heartwood.ModBlocks;
+import com.chocodanette.heartwood.species.Species;
 import com.chocodanette.heartwood.drying.GreenLogBlock;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.world.level.FoliageColor;
@@ -22,6 +23,15 @@ public final class ClientColors {
         ModBlocks.ALL_GREEN.forEach(b -> event.register(
                 (state, level, pos, tint) -> tint == 1 ? HEART_TINT : greenTint(state.getValue(GreenLogBlock.DRYING)), b.get()));
         event.register((state, level, pos, tint) -> FoliageColor.getEvergreenColor(), block("spruce"));
+        for (Species.Wood w : Species.ALL) {
+            Block leaves = w.leaves().get(), branches = block(w.name());
+            if (w.foliage() == Species.Foliage.EVERGREEN) {
+                event.register((state, level, pos, tint) -> FoliageColor.getEvergreenColor(), leaves, branches);
+            } else {
+                event.register((state, level, pos, tint) -> level != null && pos != null
+                        ? BiomeColors.getAverageFoliageColor(level, pos) : FoliageColor.getDefaultColor(), leaves, branches);
+            }
+        }
         event.register((state, level, pos, tint) -> FoliageColor.getBirchColor(), block("birch"));
         event.register((state, level, pos, tint) -> FoliageColor.getMangroveColor(), block("mangrove"));
         event.register((state, level, pos, tint) -> level != null && pos != null
@@ -36,6 +46,10 @@ public final class ClientColors {
 
     @SubscribeEvent
     public static void onItemColors(RegisterColorHandlersEvent.Item event) {
+        for (Species.Wood w : Species.ALL) {
+            int color = w.foliage() == Species.Foliage.EVERGREEN ? FoliageColor.getEvergreenColor() : FoliageColor.getDefaultColor();
+            event.register((stack, tint) -> 0xFF000000 | color, w.leaves().get());
+        }
         ModBlocks.ALL_GREEN_ITEMS.forEach(i -> event.register((stack, tint) -> 0xFF000000 | (tint == 1 ? HEART_TINT : greenTint(0)), i.get()));
     }
 

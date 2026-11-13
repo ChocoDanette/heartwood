@@ -1,6 +1,7 @@
 package com.chocodanette.heartwood;
 
 import com.chocodanette.heartwood.felling.BranchesBlock;
+import com.chocodanette.heartwood.species.Species;
 import com.chocodanette.heartwood.felling.FelledLogBlock;
 import com.chocodanette.heartwood.felling.FallingTreeEntity;
 import net.minecraft.world.entity.EntityType;
@@ -51,6 +52,13 @@ public final class ModBlocks {
     private static Map<Block, Block> notchedByLog, felledByLog, branchesByLeaves, greenByLog;
 
     static {
+        Species.init();
+        for (Species.Wood w : Species.ALL) {
+            log(w.name() + "_log", w.log()::get);
+            green(w.name() + "_log", w.log()::get);
+            branches(w.name(), w.leaves()::get);
+        }
+
         log("oak_log", () -> Blocks.OAK_LOG);
         log("spruce_log", () -> Blocks.SPRUCE_LOG);
         log("birch_log", () -> Blocks.BIRCH_LOG);

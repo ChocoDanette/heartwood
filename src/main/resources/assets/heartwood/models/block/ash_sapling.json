@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "heartwood:block/ash_sapling"
+  },
+  "render_type": "minecraft:cutout"
+}

@@ -1,0 +1,4 @@
+{
+  "parent": "heartwood:block/scots_pine_leaves",
+  "render_type": "minecraft:cutout_mipped"
+}

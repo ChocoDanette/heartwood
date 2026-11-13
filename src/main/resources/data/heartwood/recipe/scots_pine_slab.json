@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "heartwood:scots_pine_planks"
+    }
+  },
+  "result": {
+    "id": "heartwood:scots_pine_slab",
+    "count": 6
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "##",
+    "##"
+  ],
+  "key": {
+    "#": {
+      "item": "heartwood:stripped_scots_pine_log"
+    }
+  },
+  "result": {
+    "id": "heartwood:stripped_scots_pine_wood",
+    "count": 3
+  }
+}

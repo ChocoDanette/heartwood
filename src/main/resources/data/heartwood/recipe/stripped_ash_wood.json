@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "##",
+    "##"
+  ],
+  "key": {
+    "#": {
+      "item": "heartwood:stripped_ash_log"
+    }
+  },
+  "result": {
+    "id": "heartwood:stripped_ash_wood",
+    "count": 3
+  }
+}
