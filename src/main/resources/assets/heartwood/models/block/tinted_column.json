@@ -1,8 +1,7 @@
 {
   "parent": "minecraft:block/block",
   "textures": {
-    "particle": "#side",
-    "heart": "heartwood:block/green_heart"
+    "particle": "#side"
   },
   "elements": [
     {
@@ -40,37 +39,14 @@
         "up": {
           "texture": "#end",
           "cullface": "up",
-          "tintindex": 0
+          "tintindex": 1
         },
         "down": {
           "texture": "#end",
           "cullface": "down",
-          "tintindex": 0
-        }
-      }
-    },
-    {
-      "from": [
-        0,
-        -0.01,
-        0
-      ],
-      "to": [
-        16,
-        16.01,
-        16
-      ],
-      "faces": {
-        "up": {
-          "texture": "#heart",
-          "cullface": "up"
-        },
-        "down": {
-          "texture": "#heart",
-          "cullface": "down"
+          "tintindex": 1
         }
       }
     }
-  ],
-  "render_type": "minecraft:cutout"
+  ]
 }

@@ -19,7 +19,7 @@ public final class ClientColors {
     public static void onBlockColors(RegisterColorHandlersEvent.Block event) {
         // Green logs: a greenish, damp tint that fades as they dry.
         ModBlocks.ALL_GREEN.forEach(b -> event.register(
-                (state, level, pos, tint) -> greenTint(state.getValue(GreenLogBlock.DRYING)), b.get()));
+                (state, level, pos, tint) -> tint == 1 ? HEART_TINT : greenTint(state.getValue(GreenLogBlock.DRYING)), b.get()));
         event.register((state, level, pos, tint) -> FoliageColor.getEvergreenColor(), block("spruce"));
         event.register((state, level, pos, tint) -> FoliageColor.getBirchColor(), block("birch"));
         event.register((state, level, pos, tint) -> FoliageColor.getMangroveColor(), block("mangrove"));
@@ -30,8 +30,14 @@ public final class ClientColors {
 
     @SubscribeEvent
     public static void onItemColors(RegisterColorHandlersEvent.Item event) {
-        ModBlocks.ALL_GREEN_ITEMS.forEach(i -> event.register((stack, tint) -> 0xFF000000 | greenTint(0), i.get()));
+        ModBlocks.ALL_GREEN_ITEMS.forEach(i -> event.register((stack, tint) -> 0xFF000000 | (tint == 1 ? HEART_TINT : greenTint(0)), i.get()));
     }
+
+    /**
+     * End grain of green wood: the vanilla rings stay visible, darkened and tinted
+     * with sap (damp yellow-green) until the log has dried into a vanilla log.
+     */
+    static final int HEART_TINT = 0xB4C080;
 
     /** From a damp green-grey (stage 0) to no tint (fully dry). */
     static int greenTint(int stage) {
