@@ -2,6 +2,9 @@ package com.chocodanette.heartwood;
 
 import com.chocodanette.heartwood.felling.BranchesBlock;
 import com.chocodanette.heartwood.felling.FelledLogBlock;
+import com.chocodanette.heartwood.felling.FallingTreeEntity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import com.chocodanette.heartwood.drying.GreenLogBlock;
 import com.chocodanette.heartwood.drying.GreenLogItem;
 import com.chocodanette.heartwood.drying.DryingLogBlockEntity;
@@ -79,6 +82,14 @@ public final class ModBlocks {
         branches("azalea", () -> Blocks.AZALEA_LEAVES);
         branches("flowering_azalea", () -> Blocks.FLOWERING_AZALEA_LEAVES);
     }
+
+    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
+            DeferredRegister.create(Registries.ENTITY_TYPE, Heartwood.MOD_ID);
+
+    public static final Supplier<EntityType<FallingTreeEntity>> FALLING_TREE = ENTITY_TYPES.register("falling_tree",
+            () -> EntityType.Builder.<FallingTreeEntity>of(FallingTreeEntity::new, MobCategory.MISC)
+                    .sized(1f, 1f).clientTrackingRange(10).updateInterval(20).noSave().noSummon()
+                    .build("falling_tree"));
 
     @SuppressWarnings("DataFlowIssue")
     public static final Supplier<BlockEntityType<DryingLogBlockEntity>> DRYING_LOG = BLOCK_ENTITIES.register("drying_log",

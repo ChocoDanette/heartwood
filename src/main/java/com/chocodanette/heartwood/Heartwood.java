@@ -18,6 +18,7 @@ public class Heartwood {
         ModBlocks.BLOCKS.register(modBus);
         ModBlocks.ITEMS.register(modBus);
         ModBlocks.BLOCK_ENTITIES.register(modBus);
+        ModBlocks.ENTITY_TYPES.register(modBus);
         PlacedLogs.ATTACHMENTS.register(modBus);
         container.registerConfig(ModConfig.Type.SERVER, Config.SPEC);
         modBus.addListener(Heartwood::addToCreativeTabs);

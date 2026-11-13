@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.Block;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 
 /** Branches are tinted like the leaves they come from. */
@@ -26,6 +27,11 @@ public final class ClientColors {
         event.register((state, level, pos, tint) -> level != null && pos != null
                         ? BiomeColors.getAverageFoliageColor(level, pos) : FoliageColor.getDefaultColor(),
                 block("oak"), block("jungle"), block("acacia"), block("dark_oak"));
+    }
+
+    @SubscribeEvent
+    public static void onRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(ModBlocks.FALLING_TREE.get(), FallingTreeRenderer::new);
     }
 
     @SubscribeEvent

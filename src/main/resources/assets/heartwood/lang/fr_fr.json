@@ -49,5 +49,6 @@
   "item.heartwood.green_mangrove_log": "Bûche verte de palétuvier",
   "block.heartwood.green_cherry_log": "Bûche verte de cerisier",
   "item.heartwood.green_cherry_log": "Bûche verte de cerisier",
-  "tooltip.heartwood.green_log": "Bois vert : posez-le à l'abri du ciel pour qu'il sèche (environ %s jour(s), plus ou moins). Brûle mal et ne donne pas de planches."
+  "tooltip.heartwood.green_log": "Bois vert : posez-le à l'abri du ciel pour qu'il sèche (environ %s jour(s), plus ou moins). Brûle mal et ne donne pas de planches.",
+  "entity.heartwood.falling_tree": "Arbre qui tombe"
 }

@@ -1,6 +1,13 @@
 package com.chocodanette.heartwood.felling;
 
 import com.chocodanette.heartwood.ModBlocks;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.AABB;
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -42,9 +49,21 @@ public final class TreeFeller {
         Set<BlockPos> logs = findLogs(level, cut);
         Set<BlockPos> leaves = findLeaves(level, logs, MAX_LEAVES);
 
+        // What is seen falling (the standing tree) and what lands (lying trunk and branches).
+        List<FallingTreeEntity.Part> parts = new ArrayList<>();
         Map<BlockPos, BlockState> moved = new LinkedHashMap<>();
-        for (BlockPos p : logs) moved.put(p, felled(rotateLog(level.getBlockState(p), dir)));
-        for (BlockPos p : leaves) moved.put(p, branches(level.getBlockState(p)));
+        int height = 1;
+        for (BlockPos p : logs) {
+            BlockState s = level.getBlockState(p);
+            parts.add(new FallingTreeEntity.Part(p.subtract(cut), s));
+            moved.put(p, felled(rotateLog(s, dir)));
+            height = Math.max(height, p.getY() - cut.getY());
+        }
+        for (BlockPos p : leaves) {
+            BlockState s = branches(level.getBlockState(p));
+            parts.add(new FallingTreeEntity.Part(p.subtract(cut), s));
+            moved.put(p, s);
+        }
 
         // Remove the cut block (with drops) and the standing tree, without triggering leaf decay.
         Block.dropResources(cutLog, level, cut, null, player, player.getMainHandItem());
@@ -60,25 +79,59 @@ public final class TreeFeller {
             target.put(rotate(e.getKey(), cut, dir), e.getValue());
         }
 
+        level.playSound(null, cut, SoundEvents.ZOMBIE_BREAK_WOODEN_DOOR, SoundSource.BLOCKS, 0.7f, 0.6f);
+        // Taller trees take longer to come down.
+        int duration = Math.min(60, 20 + height * 2);
+        FallingTreeEntity.spawn(level, cut, dir, parts, target, duration);
+    }
+
+    /** Lays the fallen tree on the ground once the fall animation is over, and hurts what is under it. */
+    static void land(ServerLevel level, BlockPos cut, Direction dir, Map<BlockPos, BlockState> target, Entity source) {
         // Lower the fallen tree until a log would touch the ground.
         int drop = 0;
         while (drop < MAX_DROP && canLower(level, target, drop + 1)) drop++;
 
+        AABB trunkBox = null, crownBox = null;
         for (Map.Entry<BlockPos, BlockState> e : target.entrySet()) {
             BlockPos p = e.getKey().below(drop);
             BlockState s = e.getValue();
+            AABB box = new AABB(p);
+            if (isTrunk(s)) trunkBox = trunkBox == null ? box : trunkBox.minmax(box);
+            else crownBox = crownBox == null ? box : crownBox.minmax(box);
             BlockState there = level.getBlockState(p);
             if (there.isAir() || there.canBeReplaced() || isTrunk(s) && isCrown(there)) {
                 if (!there.isAir()) Block.dropResources(there, level, p);
                 level.setBlock(p, s, Block.UPDATE_ALL);
+                if (level.random.nextInt(3) == 0) {
+                    level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, s),
+                            p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5, 6, 0.4, 0.3, 0.4, 0.1);
+                }
             } else if (isTrunk(s)) {
                 // Blocked by terrain: the log pops out as an item instead.
                 Block.dropResources(s, level, p.above());
             }
         }
+        hurt(level, target.keySet(), drop, target, source);
 
-        level.playSound(null, cut, SoundEvents.ZOMBIE_BREAK_WOODEN_DOOR, SoundSource.BLOCKS, 0.7f, 0.6f);
-        level.playSound(null, cut.relative(dir, 4), SoundEvents.WOOD_FALL, SoundSource.BLOCKS, 1.5f, 0.6f);
+        BlockPos middle = cut.relative(dir, Math.max(1, target.size() > 0 ? 4 : 1));
+        level.playSound(null, middle, SoundEvents.WOOD_FALL, SoundSource.BLOCKS, 2.0f, 0.5f);
+        level.playSound(null, middle, SoundEvents.ZOMBIE_ATTACK_WOODEN_DOOR, SoundSource.BLOCKS, 1.0f, 0.5f);
+    }
+
+    /** Living things under the trunk take heavy damage; under the branches, light damage. */
+    private static void hurt(ServerLevel level, Set<BlockPos> positions, int drop, Map<BlockPos, BlockState> target, Entity source) {
+        int trunkLength = 0;
+        for (BlockState s : target.values()) if (isTrunk(s)) trunkLength++;
+        float trunkDamage = Math.min(20f, 6f + trunkLength);
+        Map<LivingEntity, Float> hits = new java.util.HashMap<>();
+        for (Map.Entry<BlockPos, BlockState> e : target.entrySet()) {
+            BlockPos p = e.getKey().below(drop);
+            float damage = isTrunk(e.getValue()) ? trunkDamage : 2f;
+            for (LivingEntity living : level.getEntitiesOfClass(LivingEntity.class, new AABB(p))) {
+                hits.merge(living, damage, Math::max);
+            }
+        }
+        hits.forEach((living, damage) -> living.hurt(level.damageSources().fallingBlock(source), damage));
     }
 
     /** Logs connected to the cut, strictly above it (the stump and roots stay). */
