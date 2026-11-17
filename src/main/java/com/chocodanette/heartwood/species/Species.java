@@ -6,11 +6,15 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BoatItem;
+import net.minecraft.world.item.HangingSignItem;
+import net.minecraft.world.item.SignItem;
 import net.minecraft.world.item.DoubleHighBlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ButtonBlock;
+import net.minecraft.world.level.block.CeilingHangingSignBlock;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.FenceBlock;
 import net.minecraft.world.level.block.FenceGateBlock;
@@ -21,7 +25,10 @@ import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.StandingSignBlock;
 import net.minecraft.world.level.block.TrapDoorBlock;
+import net.minecraft.world.level.block.WallHangingSignBlock;
+import net.minecraft.world.level.block.WallSignBlock;
 import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
@@ -29,6 +36,7 @@ import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,17 +47,30 @@ import java.util.function.Supplier;
 public final class Species {
     public enum Foliage { BIOME, EVERGREEN }
 
-    public record Wood(String name, Foliage foliage,
+    public record Wood(String name, Foliage foliage, WoodType woodType,
                        DeferredBlock<Block> log, DeferredBlock<Block> wood,
                        DeferredBlock<Block> strippedLog, DeferredBlock<Block> strippedWood,
                        DeferredBlock<Block> planks, DeferredBlock<Block> stairs, DeferredBlock<Block> slab,
                        DeferredBlock<Block> fence, DeferredBlock<Block> fenceGate,
                        DeferredBlock<Block> door, DeferredBlock<Block> trapdoor,
                        DeferredBlock<Block> button, DeferredBlock<Block> pressurePlate,
-                       DeferredBlock<Block> leaves, DeferredBlock<Block> sapling) {
+                       DeferredBlock<Block> leaves, DeferredBlock<Block> sapling,
+                       DeferredBlock<Block> sign, DeferredBlock<Block> wallSign,
+                       DeferredBlock<Block> hangingSign, DeferredBlock<Block> wallHangingSign,
+                       DeferredItem<Item> signItem, DeferredItem<Item> hangingSignItem,
+                       DeferredItem<Item> boat, DeferredItem<Item> chestBoat) {
+        /** Blocks that have their own block item (signs are left out). */
         public List<DeferredBlock<Block>> blocks() {
             return List.of(log, wood, strippedLog, strippedWood, planks, stairs, slab, fence, fenceGate,
                     door, trapdoor, pressurePlate, button, leaves, sapling);
+        }
+
+        public List<DeferredBlock<Block>> signs() {
+            return List.of(sign, wallSign, hangingSign, wallHangingSign);
+        }
+
+        public List<DeferredItem<Item>> items() {
+            return List.of(signItem, hangingSignItem, boat, chestBoat);
         }
     }
 
@@ -65,6 +86,11 @@ public final class Species {
         MAPLE = register("maple", MapColor.TERRACOTTA_WHITE, MapColor.COLOR_GRAY, Foliage.BIOME);
     }
 
+    public static Wood byName(String name) {
+        for (Wood w : ALL) if (w.name().equals(name)) return w;
+        throw new IllegalArgumentException("Unknown species " + name);
+    }
+
     private static Wood register(String name, MapColor woodColor, MapColor barkColor, Foliage foliage) {
         BlockBehaviour.Properties wood = BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS).mapColor(woodColor);
         BlockBehaviour.Properties bark = BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS).mapColor(barkColor)
@@ -78,8 +104,9 @@ public final class Species {
         DeferredBlock<Block> stairs = block(name + "_stairs", () -> new StairBlock(planks.get().defaultBlockState(), wood));
         DeferredBlock<Block> slab = block(name + "_slab", () -> new SlabBlock(wood));
         DeferredBlock<Block> fence = block(name + "_fence", () -> new FenceBlock(wood));
-        DeferredBlock<Block> gate = block(name + "_fence_gate", () -> new FenceGateBlock(WoodType.OAK, wood));
+        DeferredBlock<Block> gate = block(name + "_fence_gate", () -> new FenceGateBlock(woodType, wood));
         BlockSetType set = BlockSetType.register(new BlockSetType(Heartwood.MOD_ID + ":" + name));
+        WoodType woodType = WoodType.register(new WoodType(Heartwood.MOD_ID + ":" + name, set));
         DeferredBlock<Block> door = ModBlocks.BLOCKS.register(name + "_door",
                 () -> new DoorBlock(set, BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_DOOR).mapColor(woodColor)));
         ModBlocks.ITEMS.register(name + "_door", () -> new DoubleHighBlockItem(door.get(), new Item.Properties()));
@@ -96,8 +123,26 @@ public final class Species {
         DeferredBlock<Block> sapling = block(name + "_sapling",
                 () -> new SaplingBlock(grower, BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING)));
 
-        Wood w = new Wood(name, foliage, log, woodBlock, strippedLog, strippedWood, planks, stairs, slab, fence, gate,
-                door, trapdoor, button, plate, leaves, sapling);
+        DeferredBlock<Block> sign = ModBlocks.BLOCKS.register(name + "_sign",
+                () -> new StandingSignBlock(woodType, BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SIGN).mapColor(woodColor)));
+        DeferredBlock<Block> wallSign = ModBlocks.BLOCKS.register(name + "_wall_sign",
+                () -> new WallSignBlock(woodType, BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_WALL_SIGN).mapColor(woodColor).dropsLike(sign.get())));
+        DeferredBlock<Block> hanging = ModBlocks.BLOCKS.register(name + "_hanging_sign",
+                () -> new CeilingHangingSignBlock(woodType, BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_HANGING_SIGN).mapColor(woodColor)));
+        DeferredBlock<Block> wallHanging = ModBlocks.BLOCKS.register(name + "_wall_hanging_sign",
+                () -> new WallHangingSignBlock(woodType, BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_WALL_HANGING_SIGN).mapColor(woodColor).dropsLike(hanging.get())));
+        DeferredItem<Item> signItem = ModBlocks.ITEMS.register(name + "_sign",
+                () -> new SignItem(new Item.Properties().stacksTo(16), sign.get(), wallSign.get()));
+        DeferredItem<Item> hangingItem = ModBlocks.ITEMS.register(name + "_hanging_sign",
+                () -> new HangingSignItem(hanging.get(), wallHanging.get(), new Item.Properties().stacksTo(16)));
+        DeferredItem<Item> boat = ModBlocks.ITEMS.register(name + "_boat",
+                () -> new BoatItem(false, HeartwoodBoats.type(name), new Item.Properties().stacksTo(1)));
+        DeferredItem<Item> chestBoat = ModBlocks.ITEMS.register(name + "_chest_boat",
+                () -> new BoatItem(true, HeartwoodBoats.type(name), new Item.Properties().stacksTo(1)));
+
+        Wood w = new Wood(name, foliage, woodType, log, woodBlock, strippedLog, strippedWood, planks, stairs, slab, fence, gate,
+                door, trapdoor, button, plate, leaves, sapling,
+                sign, wallSign, hanging, wallHanging, signItem, hangingItem, boat, chestBoat);
         ALL.add(w);
         return w;
     }

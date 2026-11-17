@@ -5,17 +5,25 @@ import com.chocodanette.heartwood.ModBlocks;
 import com.chocodanette.heartwood.species.Species;
 import com.chocodanette.heartwood.drying.GreenLogBlock;
 import net.minecraft.client.renderer.BiomeColors;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.world.level.FoliageColor;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 
 /** Branches are tinted like the leaves they come from. */
 @EventBusSubscriber(modid = Heartwood.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class ClientColors {
+
+    /** Sign materials for the species' wood types (must run on the main thread). */
+    @SubscribeEvent
+    public static void onClientSetup(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> Species.ALL.forEach(w -> Sheets.addWoodType(w.woodType())));
+    }
 
     @SubscribeEvent
     public static void onBlockColors(RegisterColorHandlersEvent.Block event) {

@@ -188,12 +188,50 @@ def door_extras(name, s, en, fr, tags, axe_list, item_tex=None):
                     (button, f"{E} Button", f"Bouton {F['fr_en']}"), (plate, f"{E} Pressure Plate", f"Plaque de pression {F['fr_en']}")):
         en[f"block.{NS}.{b}"] = e; fr[f"block.{NS}.{b}"] = f
 
+def signs_and_boats(name, s, en, fr, tags, axe_list):
+    planks, slog = f"{name}_planks", f"stripped_{name}_log"
+    sign, wsign, hang, whang = f"{name}_sign", f"{name}_wall_sign", f"{name}_hanging_sign", f"{name}_wall_hanging_sign"
+    boat, cboat = f"{name}_boat", f"{name}_chest_boat"
+    for b, particle in ((sign, planks), (hang, slog)):
+        w(f"assets/{NS}/models/block/{b}.json", {"textures": {"particle": blk(particle)}})
+    for b, m in ((sign, sign), (wsign, sign), (hang, hang), (whang, hang)):
+        w(f"assets/{NS}/blockstates/{b}.json", {"variants": {"": {"model": blk(m)}}})
+    for it in (sign, hang, boat, cboat):
+        w(f"assets/{NS}/models/item/{it}.json", {"parent": "minecraft:item/generated", "textures": {"layer0": f"{NS}:item/{it}"}})
+    w(f"data/{NS}/loot_table/blocks/{sign}.json", self_drop(sign))
+    w(f"data/{NS}/loot_table/blocks/{hang}.json", self_drop(hang))
+    w(f"data/{NS}/recipe/{sign}.json", {"type": "minecraft:crafting_shaped", "category": "misc", "group": "wooden_sign",
+        "pattern": ["###", "###", " X "], "key": {"#": {"item": rl(planks)}, "X": {"item": "minecraft:stick"}},
+        "result": {"id": rl(sign), "count": 3}})
+    w(f"data/{NS}/recipe/{hang}.json", {"type": "minecraft:crafting_shaped", "category": "misc", "group": "hanging_sign",
+        "pattern": ["X X", "###", "###"], "key": {"#": {"item": rl(slog)}, "X": {"item": "minecraft:chain"}},
+        "result": {"id": rl(hang), "count": 6}})
+    w(f"data/{NS}/recipe/{boat}.json", {"type": "minecraft:crafting_shaped", "category": "transportation", "group": "boat",
+        "pattern": ["# #", "###"], "key": {"#": {"item": rl(planks)}}, "result": {"id": rl(boat), "count": 1}})
+    w(f"data/{NS}/recipe/{cboat}.json", {"type": "minecraft:crafting_shapeless", "category": "transportation", "group": "chest_boat",
+        "ingredients": [{"item": "minecraft:chest"}, {"item": rl(boat)}], "result": {"id": rl(cboat), "count": 1}})
+    tags["b:standing_signs"].append(rl(sign)); tags["b:wall_signs"].append(rl(wsign))
+    tags["b:ceiling_hanging_signs"].append(rl(hang)); tags["b:wall_hanging_signs"].append(rl(whang))
+    tags["i:signs"].append(rl(sign)); tags["i:hanging_signs"].append(rl(hang))
+    tags["i:boats"].append(rl(boat)); tags["i:chest_boats"].append(rl(cboat))
+    axe_list += [sign, wsign, hang, whang]
+    E, F = s["en"], s
+    for b, e, f in ((sign, f"{E} Sign", f"Pancarte {F['fr_en']}"), (wsign, f"{E} Wall Sign", f"Pancarte {F['fr_en']}"),
+                    (hang, f"{E} Hanging Sign", f"Pancarte suspendue {F['fr_en']}"),
+                    (whang, f"{E} Wall Hanging Sign", f"Pancarte suspendue {F['fr_en']}")):
+        en[f"block.{NS}.{b}"] = e; fr[f"block.{NS}.{b}"] = f
+    en[f"item.{NS}.{boat}"] = f"{E} Boat"; fr[f"item.{NS}.{boat}"] = f"Bateau {F['fr_en']}"
+    en[f"item.{NS}.{cboat}"] = f"{E} Boat with Chest"; fr[f"item.{NS}.{cboat}"] = f"Bateau {F['fr_en']} avec coffre"
+
 def main():
     en, fr = {}, {}
     tags = {k: [] for k in ("logs_that_burn", "planks", "leaves", "saplings", "wooden_stairs", "wooden_slabs",
                            "wooden_fences", "fence_gates",
                            "wooden_doors", "wooden_trapdoors", "wooden_buttons", "wooden_pressure_plates")}
     axe_list = []
+    for k in ("b:standing_signs", "b:wall_signs", "b:ceiling_hanging_signs", "b:wall_hanging_signs",
+              "i:signs", "i:hanging_signs", "i:boats", "i:chest_boats"):
+        tags[k] = []
     for name, s in SPECIES.items():
         log, wood, slog, swood = f"{name}_log", f"{name}_wood", f"stripped_{name}_log", f"stripped_{name}_wood"
         planks, stairs, slab, fence, gate = f"{name}_planks", f"{name}_stairs", f"{name}_slab", f"{name}_fence", f"{name}_fence_gate"
@@ -339,9 +377,14 @@ def main():
                         (f"{name}_branches", f"{E} Branches", f"Branches {F['fr_de']}")):
             en[f"block.{NS}.{b}"] = e; fr[f"block.{NS}.{b}"] = f
         door_extras(name, s, en, fr, tags, axe_list)
+        signs_and_boats(name, s, en, fr, tags, axe_list)
         en[f"item.{NS}.green_{log}"] = en[f"block.{NS}.green_{log}"]; fr[f"item.{NS}.green_{log}"] = fr[f"block.{NS}.green_{log}"]
 
     for t, values in tags.items():
+        if ":" in t:
+            kind, tag = t.split(":")
+            w(f"data/minecraft/tags/{'block' if kind == 'b' else 'item'}/{tag}.json", {"replace": False, "values": values})
+            continue
         for kind in ("block", "item"):
             if t == "logs_that_burn" and kind == "block":
                 values_b = [v for v in values]

@@ -301,6 +301,114 @@ def door_item(top, bot):
     img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); img.paste(small, (4, 0))
     return img
 
+def _fill(img, box, fn):
+    x0, y0, x1, y1 = box
+    for y in range(y0, y1):
+        for x in range(x0, x1):
+            img.putpixel((x, y), fn(x, y))
+
+def _plank_px(s, r, rows=4):
+    def f(x, y):
+        c = s["wood"]
+        if y % rows == rows - 1 or (x + (y // rows) * 7) % 16 == 0:
+            c = s["wood_dark"]
+        elif r.random() < 0.12:
+            c = mix(s["wood"], s["wood_dark"], 0.5)
+        return jitter(c, r, 4) + (255,)
+    return f
+
+def _grain_px(s, r):
+    # Stripped wood seen along the grain (vertical streaks).
+    lines = {x for x in range(64) if r.random() < 0.3}
+    return lambda x, y: jitter(s["wood_dark"] if x in lines and r.random() < 0.7 else s["wood"], r, 5) + (255,)
+
+def sign_entity(s, r):
+    """64x32 standing sign texture: board (0,0)-(52,14), post (0,14)-(8,30)."""
+    img = Image.new("RGBA", (64, 32), (0, 0, 0, 0))
+    _fill(img, (0, 0, 52, 14), _plank_px(s, r, 4))
+    post = mix(s["wood_dark"], s["bark_dark"], 0.4)
+    _fill(img, (0, 14, 8, 30), lambda x, y: jitter(post, r, 5) + (255,))
+    return img
+
+def hanging_entity(s, r):
+    """64x32 hanging sign: beam (0,0)-(40,6), chains (0,6)-(38,12), board (0,12)-(32,24)."""
+    img = Image.new("RGBA", (64, 32), (0, 0, 0, 0))
+    _fill(img, (0, 0, 40, 6), _grain_px(s, r))
+    _fill(img, (0, 12, 32, 24), _plank_px(s, r, 3))
+    for x0 in (0, 3, 6, 9):  # two vertical chains, front and back faces
+        for y in range(6, 12):
+            if y % 2 == 0:
+                img.putpixel((x0 + 1, y), IRON + (255,))
+            else:
+                img.putpixel((x0, y), IRON_LIGHT + (255,)); img.putpixel((x0 + 2, y), IRON + (255,))
+    for x0 in (14, 26):  # V-shaped chains
+        for y in range(6, 12):
+            for x in (x0 + (y - 6), x0 + 11 - (y - 6)):
+                img.putpixel((x, y), (IRON if y % 2 else IRON_LIGHT) + (255,))
+    return img
+
+def hanging_gui(s, r):
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    _fill(img, (0, 4, 16, 16), _plank_px(s, r, 3))
+    for y in range(0, 4):
+        for x in (3, 12):
+            img.putpixel((x, y), (IRON if y % 2 else IRON_LIGHT) + (255,))
+    return img
+
+def boat_entity(s, r, chest):
+    """128x64 boat (128x128 with chest). Hull and paddles in planks, paddle blades darker."""
+    img = Image.new("RGBA", (128, 128 if chest else 64), (0, 0, 0, 0))
+    _fill(img, (0, 0, 62, 51), _plank_px(s, r, 3))
+    _fill(img, (62, 0, 128, 40), _grain_px(s, r))
+    if chest:
+        cw, cd = (162, 120, 60), (108, 76, 38)
+        _fill(img, (0, 59, 48, 96), lambda x, y: jitter(cd if (y in (63, 71, 75, 83, 95) or x % 12 == 0) else cw, r, 5) + (255,))
+        _fill(img, (0, 59, 6, 64), lambda x, y: jitter((200, 200, 205), r, 6) + (255,))
+    return img
+
+def sign_item(s, r):
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    f = _plank_px(s, r, 3)
+    _fill(img, (1, 2, 15, 10), f)
+    for x in range(1, 15):
+        img.putpixel((x, 2), jitter(s["wood_dark"], r, 3) + (255,)); img.putpixel((x, 9), jitter(s["wood_dark"], r, 3) + (255,))
+    for y in range(2, 10):
+        img.putpixel((1, y), jitter(s["wood_dark"], r, 3) + (255,)); img.putpixel((14, y), jitter(s["wood_dark"], r, 3) + (255,))
+    post = mix(s["wood_dark"], s["bark_dark"], 0.4)
+    for y in range(10, 16):
+        img.putpixel((7, y), jitter(post, r, 4) + (255,)); img.putpixel((8, y), jitter(post, r, 4) + (255,))
+    return img
+
+def hanging_item(s, r):
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    _fill(img, (1, 0, 15, 2), _grain_px(s, r))
+    for y in range(2, 6):
+        for x in (4, 11):
+            img.putpixel((x, y), (IRON if y % 2 else IRON_LIGHT) + (255,))
+    _fill(img, (2, 6, 14, 14), _plank_px(s, r, 3))
+    for x in range(2, 14):
+        img.putpixel((x, 13), jitter(s["wood_dark"], r, 3) + (255,))
+    return img
+
+def boat_item(s, r, chest):
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    dark = s["wood_dark"]
+    rows = {9: (1, 15), 10: (1, 15), 11: (2, 14), 12: (3, 13)}
+    for y, (a, b) in rows.items():
+        for x in range(a, b):
+            c = dark if y in (9, 12) or x in (a, b - 1) else s["wood"]
+            img.putpixel((x, y), jitter(c, r, 4) + (255,))
+    for i in range(7):  # paddle across the hull
+        img.putpixel((3 + i, 2 + i), jitter(mix(s["wood"], dark, 0.4), r, 3) + (255,))
+    if chest:
+        cw, cd = (162, 120, 60), (108, 76, 38)
+        for y in range(4, 9):
+            for x in range(8, 14):
+                c = cd if y in (4, 8) or x in (8, 13) else cw
+                img.putpixel((x, y), c + (255,))
+        img.putpixel((10, 6), (200, 200, 205, 255)); img.putpixel((11, 6), (200, 200, 205, 255))
+    return img
+
 def main(out):
     os.makedirs(out, exist_ok=True)
     for name, s in SPECIES.items():
@@ -313,6 +421,12 @@ def main(out):
         top.save(os.path.join(out, f"{name}_door_top.png")); bot.save(os.path.join(out, f"{name}_door_bottom.png"))
         trapdoor(s, r, style).save(os.path.join(out, f"{name}_trapdoor.png"))
         door_item(top, bot).save(os.path.join(out, f"{name}_door_item.png"))
+        for suffix, img in (("sign_entity", sign_entity(s, r)), ("hanging_entity", hanging_entity(s, r)),
+                            ("hanging_gui", hanging_gui(s, r)), ("boat_entity", boat_entity(s, r, False)),
+                            ("chest_boat_entity", boat_entity(s, r, True)), ("sign_item", sign_item(s, r)),
+                            ("hanging_sign_item", hanging_item(s, r)), ("boat_item", boat_item(s, r, False)),
+                            ("chest_boat_item", boat_item(s, r, True))):
+            img.save(os.path.join(out, f"{name}_{suffix}.png"))
         if "leaf" in s:
             leaves(s, r).save(os.path.join(out, f"{name}_leaves.png"))
             sapling(s, r).save(os.path.join(out, f"{name}_sapling.png"))

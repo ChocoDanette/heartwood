@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "transportation",
+  "group": "boat",
+  "pattern": [
+    "# #",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "heartwood:maple_planks"
+    }
+  },
+  "result": {
+    "id": "heartwood:maple_boat",
+    "count": 1
+  }
+}

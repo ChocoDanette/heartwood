@@ -4,11 +4,13 @@ import com.chocodanette.heartwood.drying.PlacedLogs;
 import com.chocodanette.heartwood.felling.FellingEvents;
 import com.chocodanette.heartwood.species.Species;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
 @Mod(Heartwood.MOD_ID)
@@ -23,7 +25,16 @@ public class Heartwood {
         PlacedLogs.ATTACHMENTS.register(modBus);
         container.registerConfig(ModConfig.Type.SERVER, Config.SPEC);
         modBus.addListener(Heartwood::addToCreativeTabs);
+        modBus.addListener(Heartwood::addSignBlocks);
         NeoForge.EVENT_BUS.register(FellingEvents.class);
+    }
+
+    /** Lets the vanilla sign block entities accept the species' signs. */
+    private static void addSignBlocks(BlockEntityTypeAddBlocksEvent event) {
+        for (Species.Wood w : Species.ALL) {
+            event.modify(BlockEntityType.SIGN, w.sign().get(), w.wallSign().get());
+            event.modify(BlockEntityType.HANGING_SIGN, w.hangingSign().get(), w.wallHangingSign().get());
+        }
     }
 
     private static void addToCreativeTabs(BuildCreativeModeTabContentsEvent event) {
@@ -40,6 +51,7 @@ public class Heartwood {
                 for (var b : w.blocks()) {
                     if (b != w.leaves() && b != w.sapling()) event.accept(b.get());
                 }
+                for (var item : w.items()) event.accept(item.get());
             }
         }
     }

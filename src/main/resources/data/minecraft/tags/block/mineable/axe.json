@@ -77,6 +77,22 @@
     "heartwood:maple_door",
     "heartwood:maple_trapdoor",
     "heartwood:maple_button",
-    "heartwood:maple_pressure_plate"
+    "heartwood:maple_pressure_plate",
+    "heartwood:ash_sign",
+    "heartwood:ash_wall_sign",
+    "heartwood:ash_hanging_sign",
+    "heartwood:ash_wall_hanging_sign",
+    "heartwood:scots_pine_sign",
+    "heartwood:scots_pine_wall_sign",
+    "heartwood:scots_pine_hanging_sign",
+    "heartwood:scots_pine_wall_hanging_sign",
+    "heartwood:chestnut_sign",
+    "heartwood:chestnut_wall_sign",
+    "heartwood:chestnut_hanging_sign",
+    "heartwood:chestnut_wall_hanging_sign",
+    "heartwood:maple_sign",
+    "heartwood:maple_wall_sign",
+    "heartwood:maple_hanging_sign",
+    "heartwood:maple_wall_hanging_sign"
   ]
 }

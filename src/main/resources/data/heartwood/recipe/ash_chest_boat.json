@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "transportation",
+  "group": "chest_boat",
+  "ingredients": [
+    {
+      "item": "minecraft:chest"
+    },
+    {
+      "item": "heartwood:ash_boat"
+    }
+  ],
+  "result": {
+    "id": "heartwood:ash_chest_boat",
+    "count": 1
+  }
+}

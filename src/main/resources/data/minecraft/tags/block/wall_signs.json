@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "heartwood:ash_wall_sign",
+    "heartwood:scots_pine_wall_sign",
+    "heartwood:chestnut_wall_sign",
+    "heartwood:maple_wall_sign"
+  ]
+}

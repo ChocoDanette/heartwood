@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "heartwood:ash_boat",
+    "heartwood:scots_pine_boat",
+    "heartwood:chestnut_boat",
+    "heartwood:maple_boat"
+  ]
+}

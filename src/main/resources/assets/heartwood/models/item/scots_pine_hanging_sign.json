@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "heartwood:item/scots_pine_hanging_sign"
+  }
+}
