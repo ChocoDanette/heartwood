@@ -96,6 +96,8 @@ public final class Species {
         BlockBehaviour.Properties bark = BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS).mapColor(barkColor)
                 .strength(2.0f).sound(SoundType.WOOD);
 
+        BlockSetType set = BlockSetType.register(new BlockSetType(Heartwood.MOD_ID + ":" + name));
+        WoodType woodType = WoodType.register(new WoodType(Heartwood.MOD_ID + ":" + name, set));
         DeferredBlock<Block> strippedLog = block("stripped_" + name + "_log", () -> new StrippableLogBlock(null, wood));
         DeferredBlock<Block> strippedWood = block("stripped_" + name + "_wood", () -> new StrippableLogBlock(null, wood));
         DeferredBlock<Block> log = block(name + "_log", () -> new StrippableLogBlock(strippedLog, bark));
@@ -105,8 +107,6 @@ public final class Species {
         DeferredBlock<Block> slab = block(name + "_slab", () -> new SlabBlock(wood));
         DeferredBlock<Block> fence = block(name + "_fence", () -> new FenceBlock(wood));
         DeferredBlock<Block> gate = block(name + "_fence_gate", () -> new FenceGateBlock(woodType, wood));
-        BlockSetType set = BlockSetType.register(new BlockSetType(Heartwood.MOD_ID + ":" + name));
-        WoodType woodType = WoodType.register(new WoodType(Heartwood.MOD_ID + ":" + name, set));
         DeferredBlock<Block> door = ModBlocks.BLOCKS.register(name + "_door",
                 () -> new DoorBlock(set, BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_DOOR).mapColor(woodColor)));
         ModBlocks.ITEMS.register(name + "_door", () -> new DoubleHighBlockItem(door.get(), new Item.Properties()));
