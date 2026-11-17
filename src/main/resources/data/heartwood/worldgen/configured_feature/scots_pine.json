@@ -36,20 +36,33 @@
       }
     },
     "trunk_placer": {
-      "type": "minecraft:straight_trunk_placer",
-      "base_height": 10,
-      "height_rand_a": 4,
-      "height_rand_b": 2
+      "type": "heartwood:organic_trunk_placer",
+      "base_height": 12,
+      "height_rand_a": 5,
+      "height_rand_b": 0,
+      "branches": {
+        "lean": 2,
+        "count": {
+          "type": "minecraft:uniform",
+          "min_inclusive": 3,
+          "max_inclusive": 5
+        },
+        "length": {
+          "type": "minecraft:uniform",
+          "min_inclusive": 2,
+          "max_inclusive": 3
+        },
+        "start": 0.75,
+        "slope": 0.35,
+        "fork": 0.2
+      }
     },
     "foliage_placer": {
-      "type": "minecraft:pine_foliage_placer",
+      "type": "heartwood:cluster_foliage_placer",
       "radius": 2,
-      "offset": 1,
-      "height": {
-        "type": "minecraft:uniform",
-        "min_inclusive": 3,
-        "max_inclusive": 4
-      }
+      "offset": 0,
+      "height": 2,
+      "irregularity": 0.35
     },
     "decorators": []
   }

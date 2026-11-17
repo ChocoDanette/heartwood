@@ -23,6 +23,8 @@ public class Heartwood {
         ModBlocks.BLOCK_ENTITIES.register(modBus);
         ModBlocks.ENTITY_TYPES.register(modBus);
         PlacedLogs.ATTACHMENTS.register(modBus);
+        com.chocodanette.heartwood.species.TreeShapes.TRUNK_PLACERS.register(modBus);
+        com.chocodanette.heartwood.species.TreeShapes.FOLIAGE_PLACERS.register(modBus);
         container.registerConfig(ModConfig.Type.SERVER, Config.SPEC);
         modBus.addListener(Heartwood::addToCreativeTabs);
         modBus.addListener(Heartwood::addSignBlocks);
