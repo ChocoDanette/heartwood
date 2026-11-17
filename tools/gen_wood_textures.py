@@ -201,6 +201,106 @@ def sapling(s, r):
                     img.putpixel((x, y), jitter(leaf, r, 10) + (255,))
     return img
 
+# Door / trapdoor styles: "panel" (framed panels, glazed top) or "rustic" (vertical boards, Z brace).
+DOOR_STYLE = {"beech": "panel", "ash": "panel", "maple": "panel",
+              "scots_pine": "rustic", "chestnut": "rustic", "teak": "rustic"}
+IRON, IRON_LIGHT = (58, 58, 62), (140, 140, 146)
+
+def _board(s, r, x, y, seams):
+    c = s["wood"]
+    if x in seams:
+        c = s["wood_dark"]
+    elif r.random() < 0.12:
+        c = mix(s["wood"], s["wood_dark"], 0.5)
+    return jitter(c, r, 4) + (255,)
+
+def door_halves(s, r, style):
+    """Returns (top, bottom) 16x16 RGBA textures."""
+    frame = mix(s["wood_dark"], (0, 0, 0), 0.15)
+    top, bot = Image.new("RGBA", (16, 16)), Image.new("RGBA", (16, 16))
+    if style == "rustic":
+        seams = {0, 5, 10, 15}
+        for img in (top, bot):
+            for y in range(16):
+                for x in range(16):
+                    img.putpixel((x, y), _board(s, r, x, y, seams))
+        # Ledges (horizontal rails) and a diagonal brace on the lower half.
+        for img, rows in ((top, (3, 4)), (bot, (11, 12))):
+            for y in rows:
+                for x in range(1, 15):
+                    img.putpixel((x, y), jitter(frame if y == rows[1] else s["wood_dark"], r, 3) + (255,))
+        for img, (y0, y1) in ((top, (5, 15)), (bot, (0, 10))):
+            for y in range(y0, y1 + 1):
+                x = 2 + round((y - y0) * 11 / (y1 - y0)) if img is top else 2 + round((y - y0 + 6) * 11 / 16)
+                for dx in (0, 1):
+                    if 0 < x + dx < 15:
+                        img.putpixel((x + dx, y), jitter(s["wood_dark"], r, 3) + (255,))
+        # Small window slit in the top half.
+        for y in range(7, 10):
+            for x in range(6, 10):
+                top.putpixel((x, y), (0, 0, 0, 0))
+    else:
+        for img in (top, bot):
+            for y in range(16):
+                for x in range(16):
+                    img.putpixel((x, y), jitter(s["wood"], r, 4) + (255,))
+            for y in range(16):
+                for x in (0, 1, 14, 15):
+                    img.putpixel((x, y), jitter(s["wood_dark"] if x in (0, 15) else s["wood"], r, 3) + (255,))
+        # Glazed top: four panes in a frame.
+        for y in range(2, 13):
+            for x in range(3, 13):
+                if x in (7, 8) or y == 7:
+                    top.putpixel((x, y), jitter(s["wood_dark"], r, 3) + (255,))
+                else:
+                    top.putpixel((x, y), (0, 0, 0, 0))
+        for x in range(2, 14):
+            top.putpixel((x, 1), jitter(frame, r, 3) + (255,)); top.putpixel((x, 13), jitter(frame, r, 3) + (255,))
+        # Two sunken panels on the bottom.
+        for y0, y1 in ((2, 7), (9, 14)):
+            for y in range(y0, y1 + 1):
+                for x in range(3, 13):
+                    edge = y in (y0, y1) or x in (3, 12)
+                    c = s["wood_dark"] if edge else mix(s["wood"], s["wood_dark"], 0.2)
+                    bot.putpixel((x, y), jitter(c, r, 3) + (255,))
+    # Iron handle on the opening side (top of the lower half).
+    for y in range(0, 3):
+        bot.putpixel((13, y), IRON + (255,))
+    bot.putpixel((12, 1), IRON_LIGHT + (255,))
+    # Hinges on the other side.
+    for img, y in ((top, 12), (bot, 13)):
+        for x in range(0, 3):
+            img.putpixel((x, y), IRON + (255,))
+    return top, bot
+
+def trapdoor(s, r, style):
+    img = Image.new("RGBA", (16, 16))
+    frame = s["wood_dark"]
+    for y in range(16):
+        for x in range(16):
+            if style == "rustic":
+                img.putpixel((x, y), _board(s, r, x, y, {0, 5, 10, 15}))
+            else:
+                edge = x in (0, 15) or y in (0, 15)
+                img.putpixel((x, y), jitter(frame if edge else s["wood"], r, 4) + (255,))
+    if style == "rustic":
+        for y in (2, 3, 12, 13):
+            for x in range(16):
+                img.putpixel((x, y), jitter(frame, r, 3) + (255,))
+    else:
+        # Four openings, like a grate.
+        for x0, y0 in ((3, 3), (9, 3), (3, 9), (9, 9)):
+            for y in range(y0, y0 + 4):
+                for x in range(x0, x0 + 4):
+                    img.putpixel((x, y), (0, 0, 0, 0))
+    return img
+
+def door_item(top, bot):
+    full = Image.new("RGBA", (16, 32)); full.paste(top, (0, 0)); full.paste(bot, (0, 16))
+    small = full.resize((8, 16), Image.NEAREST)
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); img.paste(small, (4, 0))
+    return img
+
 def main(out):
     os.makedirs(out, exist_ok=True)
     for name, s in SPECIES.items():
@@ -208,6 +308,11 @@ def main(out):
         for suffix, fn in (("bark", bark), ("end", end_grain), ("stripped_side", stripped_side),
                            ("stripped_end", stripped_end), ("planks", planks)):
             fn(s, r).save(os.path.join(out, f"{name}_{suffix}.png"))
+        style = DOOR_STYLE[name]
+        top, bot = door_halves(s, r, style)
+        top.save(os.path.join(out, f"{name}_door_top.png")); bot.save(os.path.join(out, f"{name}_door_bottom.png"))
+        trapdoor(s, r, style).save(os.path.join(out, f"{name}_trapdoor.png"))
+        door_item(top, bot).save(os.path.join(out, f"{name}_door_item.png"))
         if "leaf" in s:
             leaves(s, r).save(os.path.join(out, f"{name}_leaves.png"))
             sapling(s, r).save(os.path.join(out, f"{name}_sapling.png"))

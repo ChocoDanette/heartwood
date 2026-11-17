@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "heartwood:ash_button",
+    "heartwood:scots_pine_button",
+    "heartwood:chestnut_button",
+    "heartwood:maple_button"
+  ]
+}

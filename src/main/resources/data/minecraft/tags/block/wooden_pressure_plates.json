@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "heartwood:ash_pressure_plate",
+    "heartwood:scots_pine_pressure_plate",
+    "heartwood:chestnut_pressure_plate",
+    "heartwood:maple_pressure_plate"
+  ]
+}

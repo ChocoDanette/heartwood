@@ -114,5 +114,21 @@
   "block.heartwood.felled_maple_log": "Felled Maple Log",
   "block.heartwood.green_maple_log": "Green Maple Log",
   "block.heartwood.maple_branches": "Maple Branches",
-  "item.heartwood.green_maple_log": "Green Maple Log"
+  "item.heartwood.green_maple_log": "Green Maple Log",
+  "block.heartwood.ash_door": "Ash Door",
+  "block.heartwood.ash_trapdoor": "Ash Trapdoor",
+  "block.heartwood.ash_button": "Ash Button",
+  "block.heartwood.ash_pressure_plate": "Ash Pressure Plate",
+  "block.heartwood.scots_pine_door": "Scots Pine Door",
+  "block.heartwood.scots_pine_trapdoor": "Scots Pine Trapdoor",
+  "block.heartwood.scots_pine_button": "Scots Pine Button",
+  "block.heartwood.scots_pine_pressure_plate": "Scots Pine Pressure Plate",
+  "block.heartwood.chestnut_door": "Chestnut Door",
+  "block.heartwood.chestnut_trapdoor": "Chestnut Trapdoor",
+  "block.heartwood.chestnut_button": "Chestnut Button",
+  "block.heartwood.chestnut_pressure_plate": "Chestnut Pressure Plate",
+  "block.heartwood.maple_door": "Maple Door",
+  "block.heartwood.maple_trapdoor": "Maple Trapdoor",
+  "block.heartwood.maple_button": "Maple Button",
+  "block.heartwood.maple_pressure_plate": "Maple Pressure Plate"
 }

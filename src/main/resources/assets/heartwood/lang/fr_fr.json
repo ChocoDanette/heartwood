@@ -114,5 +114,21 @@
   "block.heartwood.felled_maple_log": "Tronc abattu d'érable",
   "block.heartwood.green_maple_log": "Bûche verte d'érable",
   "block.heartwood.maple_branches": "Branches d'érable",
-  "item.heartwood.green_maple_log": "Bûche verte d'érable"
+  "item.heartwood.green_maple_log": "Bûche verte d'érable",
+  "block.heartwood.ash_door": "Porte en frêne",
+  "block.heartwood.ash_trapdoor": "Trappe en frêne",
+  "block.heartwood.ash_button": "Bouton en frêne",
+  "block.heartwood.ash_pressure_plate": "Plaque de pression en frêne",
+  "block.heartwood.scots_pine_door": "Porte en pin sylvestre",
+  "block.heartwood.scots_pine_trapdoor": "Trappe en pin sylvestre",
+  "block.heartwood.scots_pine_button": "Bouton en pin sylvestre",
+  "block.heartwood.scots_pine_pressure_plate": "Plaque de pression en pin sylvestre",
+  "block.heartwood.chestnut_door": "Porte en châtaignier",
+  "block.heartwood.chestnut_trapdoor": "Trappe en châtaignier",
+  "block.heartwood.chestnut_button": "Bouton en châtaignier",
+  "block.heartwood.chestnut_pressure_plate": "Plaque de pression en châtaignier",
+  "block.heartwood.maple_door": "Porte en érable",
+  "block.heartwood.maple_trapdoor": "Trappe en érable",
+  "block.heartwood.maple_button": "Bouton en érable",
+  "block.heartwood.maple_pressure_plate": "Plaque de pression en érable"
 }

@@ -61,6 +61,22 @@
     "heartwood:notched_maple_log",
     "heartwood:felled_maple_log",
     "heartwood:green_maple_log",
-    "heartwood:maple_branches"
+    "heartwood:maple_branches",
+    "heartwood:ash_door",
+    "heartwood:ash_trapdoor",
+    "heartwood:ash_button",
+    "heartwood:ash_pressure_plate",
+    "heartwood:scots_pine_door",
+    "heartwood:scots_pine_trapdoor",
+    "heartwood:scots_pine_button",
+    "heartwood:scots_pine_pressure_plate",
+    "heartwood:chestnut_door",
+    "heartwood:chestnut_trapdoor",
+    "heartwood:chestnut_button",
+    "heartwood:chestnut_pressure_plate",
+    "heartwood:maple_door",
+    "heartwood:maple_trapdoor",
+    "heartwood:maple_button",
+    "heartwood:maple_pressure_plate"
   ]
 }

@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "heartwood:ash_trapdoor",
+    "heartwood:scots_pine_trapdoor",
+    "heartwood:chestnut_trapdoor",
+    "heartwood:maple_trapdoor"
+  ]
+}

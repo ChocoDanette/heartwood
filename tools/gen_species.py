@@ -92,10 +92,108 @@ def fence_states(b):
         parts.append({"when": {side: "true"}, "apply": a})
     return {"multipart": parts}
 
+def door_states(b):
+    base = {"east": 0, "south": 90, "west": 180, "north": 270}
+    v = {}
+    for facing, y0 in base.items():
+        for half in ("lower", "upper"):
+            for hinge in ("left", "right"):
+                for open_ in ("false", "true"):
+                    m = b + ("_bottom_" if half == "lower" else "_top_") + hinge + ("_open" if open_ == "true" else "")
+                    y = (y0 + (0 if open_ == "false" else (90 if hinge == "left" else 270))) % 360
+                    e = {"model": blk(m)}
+                    if y: e["y"] = y
+                    for powered in ("false", "true"):
+                        v[f"facing={facing},half={half},hinge={hinge},open={open_},powered={powered}"] = e
+    return {"variants": v}
+
+def trapdoor_states(b):
+    rot = {"north": 0, "east": 90, "south": 180, "west": 270}
+    v = {}
+    for facing, y in rot.items():
+        for half in ("bottom", "top"):
+            for open_ in ("false", "true"):
+                if open_ == "true":
+                    e = {"model": blk(b + "_open")}
+                    if half == "top": e["x"] = 180; yy = (y + 180) % 360
+                    else: yy = y
+                else:
+                    e = {"model": blk(b + "_" + half)}; yy = y
+                if yy: e["y"] = yy
+                for powered in ("false", "true"):
+                    for wl in ("false", "true"):
+                        v[f"facing={facing},half={half},open={open_},powered={powered},waterlogged={wl}"] = e
+    return {"variants": v}
+
+def button_states(b):
+    v = {}
+    floor = {"east": 90, "north": 0, "south": 180, "west": 270}
+    ceil = {"east": 270, "north": 180, "south": 0, "west": 90}
+    for face in ("floor", "wall", "ceiling"):
+        for facing in floor:
+            for powered in ("false", "true"):
+                e = {"model": blk(b + ("_pressed" if powered == "true" else ""))}
+                y = ceil[facing] if face == "ceiling" else floor[facing]
+                if face == "ceiling": e["x"] = 180
+                if face == "wall": e["x"] = 90; e["uvlock"] = True
+                if y: e["y"] = y
+                v[f"face={face},facing={facing},powered={powered}"] = e
+    return {"variants": v}
+
+def door_extras(name, s, en, fr, tags, axe_list, item_tex=None):
+    """Door, trapdoor, button and pressure plate for a Heartwood species."""
+    planks = f"{name}_planks"
+    door, trap, button, plate = f"{name}_door", f"{name}_trapdoor", f"{name}_button", f"{name}_pressure_plate"
+    T = blk
+    for part in ("bottom_left", "bottom_left_open", "bottom_right", "bottom_right_open",
+                 "top_left", "top_left_open", "top_right", "top_right_open"):
+        w(f"assets/{NS}/models/block/{door}_{part}.json", {"parent": f"minecraft:block/door_{part}",
+            "textures": {"bottom": T(door + "_bottom"), "top": T(door + "_top")}, "render_type": "minecraft:cutout"})
+    w(f"assets/{NS}/blockstates/{door}.json", door_states(door))
+    w(f"assets/{NS}/models/item/{door}.json", {"parent": "minecraft:item/generated", "textures": {"layer0": f"{NS}:item/{door}"}})
+    for part in ("bottom", "top", "open"):
+        w(f"assets/{NS}/models/block/{trap}_{part}.json", {"parent": f"minecraft:block/template_orientable_trapdoor_{part}",
+            "textures": {"texture": T(trap)}, "render_type": "minecraft:cutout"})
+    w(f"assets/{NS}/blockstates/{trap}.json", trapdoor_states(trap))
+    w(f"assets/{NS}/models/item/{trap}.json", {"parent": blk(trap + "_bottom")})
+    for suffix, parent in (("", "button"), ("_pressed", "button_pressed"), ("_inventory", "button_inventory")):
+        w(f"assets/{NS}/models/block/{button}{suffix}.json", {"parent": f"minecraft:block/{parent}", "textures": {"texture": T(planks)}})
+    w(f"assets/{NS}/blockstates/{button}.json", button_states(button))
+    w(f"assets/{NS}/models/item/{button}.json", {"parent": blk(button + "_inventory")})
+    for suffix, parent in (("", "pressure_plate_up"), ("_down", "pressure_plate_down")):
+        w(f"assets/{NS}/models/block/{plate}{suffix}.json", {"parent": f"minecraft:block/{parent}", "textures": {"texture": T(planks)}})
+    w(f"assets/{NS}/blockstates/{plate}.json", {"variants": {"powered=false": {"model": blk(plate)}, "powered=true": {"model": blk(plate + "_down")}}})
+    w(f"assets/{NS}/models/item/{plate}.json", {"parent": blk(plate)})
+
+    w(f"data/{NS}/loot_table/blocks/{door}.json", {"type": "minecraft:block", "pools": [{"rolls": 1, "bonus_rolls": 0,
+        "entries": [{"type": "minecraft:item", "name": rl(door), "conditions": [{"condition": "minecraft:block_state_property",
+            "block": rl(door), "properties": {"half": "lower"}}]}], "conditions": [{"condition": "minecraft:survives_explosion"}]}]})
+    for b in (trap, button, plate):
+        w(f"data/{NS}/loot_table/blocks/{b}.json", self_drop(b))
+
+    P = lambda pat, res, n, cat="redstone", group=None: {"type": "minecraft:crafting_shaped", "category": cat, "pattern": pat,
+        "key": {"#": {"item": rl(planks)}}, "result": {"id": rl(res), "count": n}} | ({"group": group} if group else {})
+    w(f"data/{NS}/recipe/{door}.json", P(["##", "##", "##"], door, 3, group="wooden_door"))
+    w(f"data/{NS}/recipe/{trap}.json", P(["###", "###"], trap, 2, group="wooden_trapdoor"))
+    w(f"data/{NS}/recipe/{plate}.json", P(["##"], plate, 1, group="wooden_pressure_plate"))
+    w(f"data/{NS}/recipe/{button}.json", {"type": "minecraft:crafting_shapeless", "category": "redstone", "group": "wooden_button",
+        "ingredients": [{"item": rl(planks)}], "result": {"id": rl(button), "count": 1}})
+
+    tags["wooden_doors"].append(rl(door)); tags["wooden_trapdoors"].append(rl(trap))
+    tags["wooden_buttons"].append(rl(button)); tags["wooden_pressure_plates"].append(rl(plate))
+    axe_list += [door, trap, button, plate]
+
+    E, F = s["en"], s
+    for b, e, f in ((door, f"{E} Door", f"Porte {F['fr_en']}"), (trap, f"{E} Trapdoor", f"Trappe {F['fr_en']}"),
+                    (button, f"{E} Button", f"Bouton {F['fr_en']}"), (plate, f"{E} Pressure Plate", f"Plaque de pression {F['fr_en']}")):
+        en[f"block.{NS}.{b}"] = e; fr[f"block.{NS}.{b}"] = f
+
 def main():
     en, fr = {}, {}
     tags = {k: [] for k in ("logs_that_burn", "planks", "leaves", "saplings", "wooden_stairs", "wooden_slabs",
-                           "wooden_fences", "fence_gates")}
+                           "wooden_fences", "fence_gates",
+                           "wooden_doors", "wooden_trapdoors", "wooden_buttons", "wooden_pressure_plates")}
+    axe_list = []
     for name, s in SPECIES.items():
         log, wood, slog, swood = f"{name}_log", f"{name}_wood", f"stripped_{name}_log", f"stripped_{name}_wood"
         planks, stairs, slab, fence, gate = f"{name}_planks", f"{name}_stairs", f"{name}_slab", f"{name}_fence", f"{name}_fence_gate"
@@ -240,6 +338,7 @@ def main():
                         (f"green_{log}", f"Green {E} Log", f"Bûche verte {F['fr_de']}"),
                         (f"{name}_branches", f"{E} Branches", f"Branches {F['fr_de']}")):
             en[f"block.{NS}.{b}"] = e; fr[f"block.{NS}.{b}"] = f
+        door_extras(name, s, en, fr, tags, axe_list)
         en[f"item.{NS}.green_{log}"] = en[f"block.{NS}.green_{log}"]; fr[f"item.{NS}.green_{log}"] = fr[f"block.{NS}.green_{log}"]
 
     for t, values in tags.items():
@@ -257,6 +356,8 @@ def main():
     for n in SPECIES:
         for b in (f"notched_{n}_log", f"felled_{n}_log", f"green_{n}_log", f"{n}_branches"):
             if rl(b) not in cur["values"]: cur["values"].append(rl(b))
+    for b in axe_list:
+        if rl(b) not in cur["values"]: cur["values"].append(rl(b))
     json.dump(cur, open(p, "w"), indent=2)
 
 if __name__ == "__main__":

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/button_pressed",
+  "textures": {
+    "texture": "heartwood:block/scots_pine_planks"
+  }
+}

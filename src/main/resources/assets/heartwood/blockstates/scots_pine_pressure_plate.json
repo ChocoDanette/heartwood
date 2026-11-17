@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "powered=false": {
+      "model": "heartwood:block/scots_pine_pressure_plate"
+    },
+    "powered=true": {
+      "model": "heartwood:block/scots_pine_pressure_plate_down"
+    }
+  }
+}

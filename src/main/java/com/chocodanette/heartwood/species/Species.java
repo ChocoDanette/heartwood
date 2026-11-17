@@ -6,19 +6,25 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.DoubleHighBlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ButtonBlock;
+import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.FenceBlock;
 import net.minecraft.world.level.block.FenceGateBlock;
 import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.PressurePlateBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
@@ -38,9 +44,12 @@ public final class Species {
                        DeferredBlock<Block> strippedLog, DeferredBlock<Block> strippedWood,
                        DeferredBlock<Block> planks, DeferredBlock<Block> stairs, DeferredBlock<Block> slab,
                        DeferredBlock<Block> fence, DeferredBlock<Block> fenceGate,
+                       DeferredBlock<Block> door, DeferredBlock<Block> trapdoor,
+                       DeferredBlock<Block> button, DeferredBlock<Block> pressurePlate,
                        DeferredBlock<Block> leaves, DeferredBlock<Block> sapling) {
         public List<DeferredBlock<Block>> blocks() {
-            return List.of(log, wood, strippedLog, strippedWood, planks, stairs, slab, fence, fenceGate, leaves, sapling);
+            return List.of(log, wood, strippedLog, strippedWood, planks, stairs, slab, fence, fenceGate,
+                    door, trapdoor, pressurePlate, button, leaves, sapling);
         }
     }
 
@@ -70,6 +79,16 @@ public final class Species {
         DeferredBlock<Block> slab = block(name + "_slab", () -> new SlabBlock(wood));
         DeferredBlock<Block> fence = block(name + "_fence", () -> new FenceBlock(wood));
         DeferredBlock<Block> gate = block(name + "_fence_gate", () -> new FenceGateBlock(WoodType.OAK, wood));
+        BlockSetType set = BlockSetType.register(new BlockSetType(Heartwood.MOD_ID + ":" + name));
+        DeferredBlock<Block> door = ModBlocks.BLOCKS.register(name + "_door",
+                () -> new DoorBlock(set, BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_DOOR).mapColor(woodColor)));
+        ModBlocks.ITEMS.register(name + "_door", () -> new DoubleHighBlockItem(door.get(), new Item.Properties()));
+        DeferredBlock<Block> trapdoor = block(name + "_trapdoor",
+                () -> new TrapDoorBlock(set, BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_TRAPDOOR).mapColor(woodColor)));
+        DeferredBlock<Block> button = block(name + "_button",
+                () -> new ButtonBlock(set, 30, BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_BUTTON)));
+        DeferredBlock<Block> plate = block(name + "_pressure_plate",
+                () -> new PressurePlateBlock(set, BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PRESSURE_PLATE).mapColor(woodColor)));
         DeferredBlock<Block> leaves = block(name + "_leaves", () -> new LeavesBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES)));
         TreeGrower grower = new TreeGrower(Heartwood.MOD_ID + ":" + name, Optional.empty(),
                 Optional.of(ResourceKey.create(Registries.CONFIGURED_FEATURE,
@@ -77,7 +96,8 @@ public final class Species {
         DeferredBlock<Block> sapling = block(name + "_sapling",
                 () -> new SaplingBlock(grower, BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING)));
 
-        Wood w = new Wood(name, foliage, log, woodBlock, strippedLog, strippedWood, planks, stairs, slab, fence, gate, leaves, sapling);
+        Wood w = new Wood(name, foliage, log, woodBlock, strippedLog, strippedWood, planks, stairs, slab, fence, gate,
+                door, trapdoor, button, plate, leaves, sapling);
         ALL.add(w);
         return w;
     }
