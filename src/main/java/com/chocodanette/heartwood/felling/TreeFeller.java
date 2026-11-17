@@ -56,7 +56,7 @@ public final class TreeFeller {
         for (BlockPos p : logs) {
             BlockState s = level.getBlockState(p);
             parts.add(new FallingTreeEntity.Part(p.subtract(cut), s));
-            moved.put(p, felled(rotateLog(s, dir)));
+            moved.put(p, felled(rotateLog(com.chocodanette.heartwood.tree.BoughBlock.fallen(s, dir), dir)));
             height = Math.max(height, p.getY() - cut.getY());
         }
         for (BlockPos p : leaves) {

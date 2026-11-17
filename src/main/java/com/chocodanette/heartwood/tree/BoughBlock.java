@@ -40,6 +40,23 @@ public class BoughBlock extends Block {
         public String getSerializedName() { return name().toLowerCase(java.util.Locale.ROOT); }
     }
 
+    /** The face carved by the felling notch (only on vertical trunk pieces). */
+    public enum Notch implements StringRepresentable {
+        NONE(null), NORTH(Direction.NORTH), SOUTH(Direction.SOUTH), WEST(Direction.WEST), EAST(Direction.EAST);
+
+        public final Direction dir;
+        Notch(Direction dir) { this.dir = dir; }
+
+        public static Notch of(Direction d) {
+            for (Notch n : values()) if (n.dir == d) return n;
+            return NONE;
+        }
+
+        @Override
+        public String getSerializedName() { return name().toLowerCase(java.util.Locale.ROOT); }
+    }
+
+    public static final EnumProperty<Notch> NOTCH = EnumProperty.create("notch", Notch.class);
     public static final IntegerProperty RADIUS = IntegerProperty.create("radius", 1, 8);
     public static final EnumProperty<Parent> PARENT = EnumProperty.create("parent", Parent.class);
     public static final IntegerProperty PARENT_RADIUS = IntegerProperty.create("parent_radius", 1, 8);
@@ -51,7 +68,7 @@ public class BoughBlock extends Block {
     public BoughBlock(Supplier<Block> log, BlockBehaviour.Properties properties) {
         super(properties);
         this.log = log;
-        registerDefaultState(stateDefinition.any().setValue(RADIUS, 8).setValue(PARENT, Parent.DOWN).setValue(PARENT_RADIUS, 8));
+        registerDefaultState(stateDefinition.any().setValue(RADIUS, 8).setValue(PARENT, Parent.DOWN).setValue(PARENT_RADIUS, 8).setValue(NOTCH, Notch.NONE));
     }
 
     /** The log this tree is made of. */
@@ -66,7 +83,7 @@ public class BoughBlock extends Block {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(RADIUS, PARENT, PARENT_RADIUS);
+        builder.add(RADIUS, PARENT, PARENT_RADIUS, NOTCH);
     }
 
     @Override
@@ -101,6 +118,65 @@ public class BoughBlock extends Block {
         // Twigs snap quickly; a full trunk is as hard as a log.
         float scale = 8f / (state.getValue(RADIUS) + 0.0f);
         return super.getDestroyProgress(state, player, level, pos) * Math.min(4f, scale);
+    }
+
+    /** The neighbour this piece hangs from, or null for a root or a loose piece. */
+    public static BlockPos parentPos(BlockState state, BlockPos pos) {
+        Direction d = state.getValue(PARENT).dir;
+        return d == null ? null : pos.relative(d);
+    }
+
+    /** True when this piece belongs to a standing tree: following parents leads down into the ground. */
+    public static boolean isRooted(net.minecraft.world.level.Level level, BlockPos pos) {
+        BlockPos p = pos;
+        BlockState s = level.getBlockState(p);
+        for (int i = 0; i < 256 && s.getBlock() instanceof BoughBlock; i++) {
+            Parent parent = s.getValue(PARENT);
+            if (parent == Parent.NONE) return false;
+            BlockPos next = p.relative(parent.dir);
+            BlockState ns = level.getBlockState(next);
+            if (!(ns.getBlock() instanceof BoughBlock)) return parent == Parent.DOWN && !ns.isAir() && !ns.canBeReplaced();
+            p = next;
+            s = ns;
+        }
+        return false;
+    }
+
+    /** Every piece that hangs from this one, directly or not (twigs first). */
+    public static java.util.List<BlockPos> descendants(net.minecraft.world.level.Level level, BlockPos pos, int max) {
+        java.util.List<BlockPos> out = new java.util.ArrayList<>();
+        java.util.ArrayDeque<BlockPos> queue = new java.util.ArrayDeque<>();
+        queue.add(pos);
+        java.util.Set<BlockPos> seen = new java.util.HashSet<>();
+        seen.add(pos);
+        while (!queue.isEmpty() && out.size() < max) {
+            BlockPos p = queue.poll();
+            for (Direction d : Direction.values()) {
+                BlockPos n = p.relative(d);
+                if (seen.contains(n)) continue;
+                BlockState ns = level.getBlockState(n);
+                if (ns.getBlock() instanceof BoughBlock && p.equals(parentPos(ns, n))) {
+                    seen.add(n);
+                    out.add(n);
+                    queue.add(n);
+                }
+            }
+        }
+        java.util.Collections.reverse(out);
+        return out;
+    }
+
+    /** The state of a piece once its tree has fallen towards dir: the parent side turns with the tree. */
+    public static BlockState fallen(BlockState s, Direction dir) {
+        if (!(s.getBlock() instanceof BoughBlock)) return s;
+        Direction d = s.getValue(PARENT).dir;
+        if (d != null) {
+            if (d == Direction.UP) d = dir;
+            else if (d == Direction.DOWN) d = dir.getOpposite();
+            else if (d == dir) d = Direction.DOWN;
+            else if (d == dir.getOpposite()) d = Direction.UP;
+        }
+        return s.setValue(PARENT, Parent.of(d)).setValue(NOTCH, Notch.NONE);
     }
 
     @Override

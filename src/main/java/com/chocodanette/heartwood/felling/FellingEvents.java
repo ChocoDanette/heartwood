@@ -2,6 +2,7 @@ package com.chocodanette.heartwood.felling;
 
 import com.chocodanette.heartwood.ModBlocks;
 import com.chocodanette.heartwood.drying.PlacedLogs;
+import com.chocodanette.heartwood.tree.BoughBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -39,6 +40,11 @@ public final class FellingEvents {
         // Logs placed by a player (or dried green logs) are dry wood and break the vanilla way.
         if (PlacedLogs.isDry(level, pos)) {
             PlacedLogs.forget(level, pos);
+            return;
+        }
+
+        if (state.getBlock() instanceof BoughBlock bough) {
+            onBreakBough(event, level, pos, state, bough, player, tool);
             return;
         }
 
@@ -86,6 +92,52 @@ public final class FellingEvents {
         level.playSound(null, pos, SoundEvents.AXE_STRIP, SoundSource.BLOCKS, 1.0f, 0.8f);
         level.levelEvent(2001, pos, Block.getId(state)); // break particles
         player.displayClientMessage(Component.translatable("message.heartwood.notch_done"), true);
+    }
+
+    /**
+     * Trees made of boughs. On a standing tree, an axe on a vertical trunk piece at least half a block
+     * thick carves the notch, then the back cut fells the tree; cutting any other piece brings down
+     * everything that hangs from it. On a fallen tree, thick pieces are bucked with an axe once limbed.
+     */
+    private static void onBreakBough(BlockEvent.BreakEvent event, ServerLevel level, BlockPos pos, BlockState state,
+                                     BoughBlock bough, Player player, ItemStack tool) {
+        if (player.isCreative()) return;
+        int radius = state.getValue(BoughBlock.RADIUS);
+        boolean axe = tool.is(ItemTags.AXES);
+        if (!BoughBlock.isRooted(level, pos)) {
+            if (radius >= 4 && hasBranchesAround(level, pos)) {
+                event.setCanceled(true);
+                player.displayClientMessage(Component.translatable("message.heartwood.limb_first"), true);
+            } else if (radius >= 4 && !axe) {
+                event.setCanceled(true);
+                player.displayClientMessage(Component.translatable("message.heartwood.need_axe"), true);
+            }
+            return;
+        }
+        Direction notch = state.getValue(BoughBlock.NOTCH).dir;
+        if (notch != null) {
+            event.setCanceled(true);
+            if (!axe) {
+                player.displayClientMessage(Component.translatable("message.heartwood.need_axe"), true);
+            } else if (hitFace(player, pos) != notch.getOpposite()) {
+                player.displayClientMessage(Component.translatable("message.heartwood.back_cut_side"), true);
+            } else {
+                tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
+                TreeFeller.fell(level, pos, notch, greenOrDry(bough.log()), player);
+            }
+            return;
+        }
+        if (axe && !player.isShiftKeyDown() && radius >= 4 && state.getValue(BoughBlock.PARENT) == BoughBlock.Parent.DOWN) {
+            event.setCanceled(true);
+            tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
+            level.setBlock(pos, state.setValue(BoughBlock.NOTCH, BoughBlock.Notch.of(hitFace(player, pos))), Block.UPDATE_ALL);
+            level.playSound(null, pos, SoundEvents.AXE_STRIP, SoundSource.BLOCKS, 1.0f, 0.8f);
+            level.levelEvent(2001, pos, Block.getId(state));
+            player.displayClientMessage(Component.translatable("message.heartwood.notch_done"), true);
+            return;
+        }
+        // A branch cut off a standing tree takes everything beyond it down with it.
+        for (BlockPos p : BoughBlock.descendants(level, pos, 2000)) level.destroyBlock(p, true, player);
     }
 
     /** The horizontal face of the block the player is hitting; falls back to the face looking at the player. */

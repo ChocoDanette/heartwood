@@ -41,6 +41,30 @@ def model(side, end, r, pr):
     return {"parent": "minecraft:block/block", "ambientocclusion": r >= 4,
             "textures": {"side": side, "end": end, "particle": side}, "elements": elements}
 
+def notch_model(side, end, r, pr):
+    """A vertical trunk piece hanging DOWN from its parent, with a V notch cut into its north face."""
+    lo, hi = 8 - r, 8 + r
+    depth = max(2, round(r * 0.8))
+    elements = []
+    for y in range(lo, hi):
+        yc = y + 0.5
+        d = max(0, round(depth * (1 - abs(yc - 8) / r)))
+        bark = {"uv": [lo, 16 - (y + 1), hi, 16 - y], "texture": "#side"}
+        faces = {"south": bark, "east": {"uv": [lo + d, 16 - (y + 1), hi, 16 - y], "texture": "#side"},
+                 "west": {"uv": [lo, 16 - (y + 1), hi - d, 16 - y], "texture": "#side"},
+                 "north": {"uv": [lo, 16 - (y + 1), hi, 16 - y], "texture": "#end" if d else "#side"},
+                 "up": {"uv": [lo, lo + d, hi, hi], "texture": "#end"},
+                 "down": {"uv": [lo, lo + d, hi, hi], "texture": "#end"}}
+        elements.append({"from": [lo, y, lo + d], "to": [hi, y + 1, hi], "faces": faces})
+    bottom = pr - 8
+    if bottom < lo:
+        sides = {f: {"uv": [lo, 0, hi, lo - bottom], "texture": "#side"} for f in ("north", "south", "east", "west")}
+        elements.append({"from": [lo, bottom, lo], "to": [hi, lo, hi], "faces": sides})
+    return {"parent": "minecraft:block/block", "ambientocclusion": True,
+            "textures": {"side": side, "end": end, "particle": side}, "elements": elements}
+
+NOTCH_Y = {"north": 0, "east": 90, "south": 180, "west": 270}
+
 def main():
     en, fr = {}, {}
     tag = []
@@ -52,11 +76,18 @@ def main():
             w(f"assets/{NS}/models/block/bough/{wood}_{r}.json", model(side, end, r, None))
             for pr in range(r, 9):
                 w(f"assets/{NS}/models/block/bough/{wood}_{r}_{pr}.json", model(side, end, r, pr))
+                if r >= 2:
+                    w(f"assets/{NS}/models/block/bough/{wood}_{r}_{pr}_notch.json", notch_model(side, end, r, pr))
             for pr in range(1, 9):
-                variants[f"parent=none,parent_radius={pr},radius={r}"] = {"model": f"{NS}:block/bough/{wood}_{r}"}
-                for d, rot in ROT.items():
-                    m = f"{NS}:block/bough/{wood}_{r}_{max(r, pr)}"
-                    variants[f"parent={d},parent_radius={pr},radius={r}"] = {"model": m} | rot
+                for notch in ("none", "north", "south", "west", "east"):
+                    key = lambda parent: f"notch={notch},parent={parent},parent_radius={pr},radius={r}"
+                    variants[key("none")] = {"model": f"{NS}:block/bough/{wood}_{r}"}
+                    for d, rot in ROT.items():
+                        m = f"{NS}:block/bough/{wood}_{r}_{max(r, pr)}"
+                        if d == "down" and notch != "none" and r >= 2:
+                            variants[key(d)] = {"model": m + "_notch"} | ({"y": NOTCH_Y[notch]} if NOTCH_Y[notch] else {})
+                        else:
+                            variants[key(d)] = {"model": m} | rot
         w(f"assets/{NS}/blockstates/{b}.json", {"variants": variants})
 
         green = f"{NS}:green_{wood}_log"
