@@ -70,11 +70,8 @@ public class OrganicTrunkPlacer extends TrunkPlacer {
         for (int y = 0; y < height; y++) {
             placeLog(level, setter, random, cur, config, s -> axis(s, Direction.Axis.Y));
             trunk.add(cur.immutable());
-            if (leanAt.contains(y) && y > 0) {
-                cur.move(leanDir);
-                placeLog(level, setter, random, cur, config, s -> axis(s, leanDir.getAxis()));
-                trunk.add(cur.immutable());
-            }
+            // A lean is a diagonal step: the next block sits one block over, touching by an edge.
+            if (leanAt.contains(y) && y > 0) cur.move(leanDir);
             cur.move(Direction.UP);
         }
         BlockPos top = cur.immutable();

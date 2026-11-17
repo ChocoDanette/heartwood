@@ -53,8 +53,8 @@
           "min_inclusive": 3,
           "max_inclusive": 5
         },
-        "start": 0.5,
-        "slope": 0.6,
+        "start": 0.45,
+        "slope": 0.8,
         "fork": 0.35
       }
     },
@@ -62,7 +62,7 @@
       "type": "heartwood:cluster_foliage_placer",
       "radius": 2,
       "offset": 0,
-      "height": 3,
+      "height": 4,
       "irregularity": 0.4
     },
     "decorators": []
