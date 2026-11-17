@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.3
+
+- **Real tree species.** Dark oak becomes **beech** and jungle becomes **teak** (new names in English and French, new textures). Four new European species grow in the overworld: **ash** (forests, flower forests, meadows, rarely plains), **Scots pine** (taigas, windswept forests and hills, groves), **sweet chestnut** (forests, windswept and dark forests) and **maple** (forests, flower and birch forests, meadows). New species only appear in newly generated chunks, or from saplings.
+- **Full wood sets.** Each new species has logs, wood, stripped logs and wood, planks, stairs, slab, fence, fence gate, door, trapdoor, button, pressure plate, sign, hanging sign, boat and boat with chest, leaves and sapling, with the usual recipes and tags.
+- **Textures in the vanilla style, in the real colours of each wood.** Bark keeps a light species pattern (ash net, chestnut twist, pine plates, teak fibres, beech scars, maple flakes). Doors and trapdoors are panelled and glazed for beech, ash and maple, and rustic braced boards for teak, Scots pine and chestnut.
+- All new species work with directional felling, limbing, bucking and green wood drying.
+
 ## 0.4.1
 
 First public release, for Minecraft 1.21.1 (NeoForge). Works on vanilla worlds.

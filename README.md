@@ -18,9 +18,13 @@ Freshly cut wood is green. Place green logs somewhere sheltered (no sky above th
 
 The drying time is set by `dryingDays` in `serverconfig/heartwood-server.toml` (default 1).
 
+## Tree species
+
+Dark oak is renamed **beech** and jungle **teak**, with matching textures. Heartwood also adds **ash**, **Scots pine**, **sweet chestnut** and **maple**, each with a full set of wood blocks, boats and signs. They grow in the overworld forests that suit them and only appear in new chunks.
+
 ## Building
 
-Push to GitHub: the Build workflow compiles the jar and uploads it as an artifact. Pushing a tag `vX.Y.Z` that matches `mod_version` publishes a GitHub release with the jar and the matching section of `CHANGELOG.md`.
+Push to GitHub: the Build workflow compiles the jar and uploads it as an artifact. Running the Release workflow (or pushing a tag `vX.Y.Z` that matches `mod_version`) publishes a GitHub release with the jar and the matching section of `CHANGELOG.md`.
 
 ## License
 
