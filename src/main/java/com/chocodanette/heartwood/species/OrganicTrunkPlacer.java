@@ -26,15 +26,19 @@ import java.util.function.BiConsumer;
  * at its end. The top of the trunk carries one too.
  */
 public class OrganicTrunkPlacer extends TrunkPlacer {
-    /** Branching parameters. start is the fraction of the height where branches begin; slope is rise per block. */
-    public record Branches(int lean, IntProvider count, IntProvider length, float start, float slope, float fork) {
+    /**
+     * Branching parameters. start is the fraction of the height where branches begin; slope is
+     * rise per block; fork is the chance a branch splits; taper shortens higher branches (conifers).
+     */
+    public record Branches(int lean, IntProvider count, IntProvider length, float start, float slope, float fork, float taper) {
         public static final Codec<Branches> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Codec.intRange(0, 4).optionalFieldOf("lean", 0).forGetter(Branches::lean),
                 IntProvider.codec(0, 12).fieldOf("count").forGetter(Branches::count),
                 IntProvider.codec(1, 10).fieldOf("length").forGetter(Branches::length),
                 Codec.floatRange(0f, 1f).fieldOf("start").forGetter(Branches::start),
                 Codec.floatRange(0f, 3f).fieldOf("slope").forGetter(Branches::slope),
-                Codec.floatRange(0f, 1f).optionalFieldOf("fork", 0.3f).forGetter(Branches::fork)
+                Codec.floatRange(0f, 1f).optionalFieldOf("fork", 0.3f).forGetter(Branches::fork),
+                Codec.floatRange(0f, 1f).optionalFieldOf("taper", 0f).forGetter(Branches::taper)
         ).apply(i, Branches::new));
     }
 
@@ -85,7 +89,8 @@ public class OrganicTrunkPlacer extends TrunkPlacer {
             int y = lowest + (height - 1 > lowest ? random.nextInt(height - 1 - lowest) : 0);
             BlockPos from = trunkAt(trunk, origin.getY() + y);
             float bearing = bearing0 + k * Mth.TWO_PI / n + (random.nextFloat() - 0.5f) * 0.9f;
-            int len = branches.length().sample(random);
+            float rel = height - 1 > lowest ? (y - lowest) / (float) (height - 1 - lowest) : 0f;
+            int len = Math.max(1, Math.round(branches.length().sample(random) * (1f - branches.taper() * rel)));
             BlockPos end = branch(level, setter, random, config, from, bearing, branches.slope(), len);
             crowns.add(new FoliagePlacer.FoliageAttachment(end, 0, false));
             if (len >= 3 && random.nextFloat() < branches.fork()) {

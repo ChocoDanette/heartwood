@@ -1,0 +1,70 @@
+{
+  "type": "minecraft:tree",
+  "config": {
+    "decorators": [],
+    "dirt_provider": {
+      "type": "minecraft:simple_state_provider",
+      "state": {
+        "Name": "minecraft:dirt"
+      }
+    },
+    "foliage_placer": {
+      "type": "heartwood:cluster_foliage_placer",
+      "radius": 3,
+      "offset": 0,
+      "height": 3,
+      "irregularity": 0.3
+    },
+    "foliage_provider": {
+      "type": "minecraft:simple_state_provider",
+      "state": {
+        "Name": "minecraft:cherry_leaves",
+        "Properties": {
+          "distance": "7",
+          "persistent": "false",
+          "waterlogged": "false"
+        }
+      }
+    },
+    "force_dirt": false,
+    "ignore_vines": true,
+    "minimum_size": {
+      "type": "minecraft:two_layers_feature_size",
+      "limit": 1,
+      "lower_size": 0,
+      "upper_size": 1
+    },
+    "trunk_placer": {
+      "type": "heartwood:organic_trunk_placer",
+      "base_height": 5,
+      "height_rand_a": 2,
+      "height_rand_b": 0,
+      "branches": {
+        "lean": 1,
+        "count": {
+          "type": "minecraft:uniform",
+          "min_inclusive": 3,
+          "max_inclusive": 4
+        },
+        "length": {
+          "type": "minecraft:uniform",
+          "min_inclusive": 3,
+          "max_inclusive": 4
+        },
+        "start": 0.5,
+        "slope": 0.7,
+        "fork": 0.4,
+        "taper": 0.0
+      }
+    },
+    "trunk_provider": {
+      "type": "minecraft:simple_state_provider",
+      "state": {
+        "Name": "minecraft:cherry_log",
+        "Properties": {
+          "axis": "y"
+        }
+      }
+    }
+  }
+}
