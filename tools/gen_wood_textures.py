@@ -84,6 +84,32 @@ def bark(s, r):
                 grid[y][x % 16] = 0 if r.random() < 0.65 else 1
                 if r.random() < 0.45 and grid[y][(x + 1) % 16] >= 2:
                     grid[y][(x + 1) % 16] = 3
+    # Species motif, drawn softly (mid-dark shade, broken lines) over the vanilla base.
+    def soft(x, y, shade=1, p=0.75):
+        if r.random() < p:
+            grid[y % 16][x % 16] = shade
+            if r.random() < 0.4 and grid[y % 16][(x + 1) % 16] >= 2:
+                grid[y % 16][(x + 1) % 16] = 3
+    if st == "diamond":     # ash: interlaced ridges forming a loose net
+        for base in (2, 10):
+            for y in range(16):
+                off = [0, 1, 1, 2, 2, 1, 1, 0][y % 8]
+                soft(base + off, y); soft(base + 5 - off, y)
+    elif st == "spiral":    # chestnut: furrows twisting around the trunk
+        for x0 in (1, 6, 11):
+            for y in range(16):
+                soft(x0 + y // 4, y, 0 if r.random() < 0.5 else 1)
+    elif st == "plates":    # pine: plates cut by short horizontal cracks
+        for x0 in (0, 4, 9, 13):
+            y = r.randrange(5)
+            while y < 16:
+                for dx in range(1, r.randint(3, 4)):
+                    soft(x0 + dx, y, 1, 0.8)
+                y += r.randint(4, 6)
+    elif st == "fissured":  # teak: long regular fibres
+        for x0 in (3, 7, 11, 15):
+            for y in range(16):
+                soft(x0, y, 1, 0.6)
     if st == "smooth":    # beech: short horizontal marks
         for _ in range(3):
             x, y = r.randrange(16), r.randrange(16)
