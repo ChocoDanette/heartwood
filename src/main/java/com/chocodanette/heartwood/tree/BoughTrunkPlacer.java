@@ -181,9 +181,14 @@ public class BoughTrunkPlacer extends TrunkPlacer {
 
         BlockState logState = config.trunkProvider.getState(random, origin);
         Block bough = ModBlocks.boughFor(logState.getBlock());
+        // A piece blocked by something (often a neighbouring tree) is left out with all it carries,
+        // so no branch ever hangs from another tree.
+        java.util.Set<BlockPos> placed = new java.util.HashSet<>();
         for (BlockPos p : order) {
-            if (!TreeFeature.validTreePos(level, p)) continue;
             BlockPos par = sk.parent.get(p);
+            if (par != null && !placed.contains(par)) continue;
+            if (!TreeFeature.validTreePos(level, p)) continue;
+            placed.add(p);
             Direction toParent = par == null ? Direction.DOWN : Direction.getNearest(
                     par.getX() - p.getX(), par.getY() - p.getY(), par.getZ() - p.getZ());
             int r = radius.get(p);

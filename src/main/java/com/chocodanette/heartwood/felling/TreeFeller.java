@@ -46,8 +46,10 @@ public final class TreeFeller {
      * above is rotated by 90 degrees around the cut, towards dir, then lowered onto the ground.
      */
     public static void fell(ServerLevel level, BlockPos cut, Direction dir, BlockState cutLog, Player player) {
-        Set<BlockPos> logs = findLogs(level, cut);
-        Set<BlockPos> leaves = findLeaves(level, logs, MAX_LEAVES);
+        Set<BlockPos> logs = level.getBlockState(cut).getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock
+                ? new HashSet<>(com.chocodanette.heartwood.tree.BoughBlock.descendants(level, cut, MAX_LOGS))
+                : findLogs(level, cut);
+        Set<BlockPos> leaves = ownLeaves(level, cut, logs, MAX_LEAVES);
 
         // What is seen falling (the standing tree) and what lands (lying trunk and branches).
         List<FallingTreeEntity.Part> parts = new ArrayList<>();
@@ -146,13 +148,82 @@ public final class TreeFeller {
             for (int dx = -1; dx <= 1; dx++) for (int dy = -1; dy <= 1; dy++) for (int dz = -1; dz <= 1; dz++) {
                 BlockPos n = p.offset(dx, dy, dz);
                 if (n.getY() <= cut.getY() || !seen.add(n)) continue;
-                if (level.getBlockState(n).is(BlockTags.LOGS)) {
+                BlockState ns = level.getBlockState(n);
+                if (ns.is(BlockTags.LOGS) && !isOtherTrunk(level, n, ns, cut)) {
                     found.add(n);
                     queue.add(n);
                 }
             }
         }
         return found;
+    }
+
+    /**
+     * True when the log at n is part of another standing trunk: an upright column that goes down
+     * to the ground at or below the cut, away from the cut trunk (a 2x2 trunk stays one tree).
+     */
+    private static boolean isOtherTrunk(ServerLevel level, BlockPos n, BlockState s, BlockPos cut) {
+        if (Math.max(Math.abs(n.getX() - cut.getX()), Math.abs(n.getZ() - cut.getZ())) <= 1) return false;
+        if (s.hasProperty(BlockStateProperties.AXIS) && s.getValue(BlockStateProperties.AXIS) != Direction.Axis.Y) return false;
+        BlockPos p = n;
+        for (int i = 0; i < 64; i++) {
+            BlockPos below = p.below();
+            BlockState b = level.getBlockState(below);
+            if (b.is(BlockTags.LOGS)) { p = below; continue; }
+            return p.getY() <= cut.getY() && !b.isAir() && !b.canBeReplaced();
+        }
+        return false;
+    }
+
+    /**
+     * Leaves of the felled tree only: where its crown touches another tree, each leaf goes with
+     * the closest trunk or branch, so the neighbour keeps its own leaves.
+     */
+    static Set<BlockPos> ownLeaves(ServerLevel level, BlockPos cut, Set<BlockPos> logs, int max) {
+        Set<BlockPos> ours = findLeaves(level, logs, max);
+        if (ours.isEmpty()) return ours;
+        int minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE, minZ = Integer.MAX_VALUE;
+        int maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE, maxZ = Integer.MIN_VALUE;
+        for (BlockPos p : ours) {
+            minX = Math.min(minX, p.getX()); minY = Math.min(minY, p.getY()); minZ = Math.min(minZ, p.getZ());
+            maxX = Math.max(maxX, p.getX()); maxY = Math.max(maxY, p.getY()); maxZ = Math.max(maxZ, p.getZ());
+        }
+        int r = LeavesBlock.DECAY_DISTANCE;
+        Set<BlockPos> others = new HashSet<>();
+        for (BlockPos p : BlockPos.betweenClosed(minX - r, minY - r, minZ - r, maxX + r, maxY + r, maxZ + r)) {
+            if (logs.contains(p) || p.equals(cut)) continue;
+            if (p.getX() == cut.getX() && p.getZ() == cut.getZ() && p.getY() < cut.getY()) continue; // our stump
+            if (level.getBlockState(p).is(BlockTags.LOGS)) others.add(p.immutable());
+        }
+        if (others.isEmpty()) return ours;
+        Map<BlockPos, Integer> mine = leafDistances(level, logs, max);
+        Map<BlockPos, Integer> theirs = leafDistances(level, others, max * 4);
+        ours.removeIf(p -> theirs.containsKey(p) && theirs.get(p) < mine.getOrDefault(p, Integer.MAX_VALUE));
+        return ours;
+    }
+
+    /** Distance (in leaves) from the given logs to every natural leaf they hold. */
+    private static Map<BlockPos, Integer> leafDistances(ServerLevel level, Set<BlockPos> logs, int max) {
+        Map<BlockPos, Integer> dist = new java.util.HashMap<>();
+        ArrayDeque<BlockPos> queue = new ArrayDeque<>();
+        for (BlockPos log : logs) { queue.add(log); dist.put(log, 0); }
+        int leaves = 0;
+        while (!queue.isEmpty() && leaves < max) {
+            BlockPos p = queue.poll();
+            int d = dist.get(p);
+            if (d >= LeavesBlock.DECAY_DISTANCE - 1) continue;
+            for (Direction side : Direction.values()) {
+                BlockPos n = p.relative(side);
+                if (dist.containsKey(n)) continue;
+                BlockState s = level.getBlockState(n);
+                if (s.getBlock() instanceof LeavesBlock && !s.getValue(LeavesBlock.PERSISTENT)) {
+                    dist.put(n, d + 1);
+                    leaves++;
+                    queue.add(n);
+                }
+            }
+        }
+        return dist;
     }
 
     /** Natural (non-persistent) leaves reachable from the logs through leaves, up to the decay distance. */
