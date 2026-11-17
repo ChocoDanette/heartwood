@@ -37,7 +37,7 @@
       }
     },
     "trunk_placer": {
-      "type": "heartwood:organic_trunk_placer",
+      "type": "heartwood:bough_trunk_placer",
       "base_height": 6,
       "height_rand_a": 3,
       "height_rand_b": 0,
@@ -56,6 +56,10 @@
         "start": 0.4,
         "slope": 0.5,
         "fork": 0.45
+      },
+      "girth": {
+        "growth": 1.1,
+        "max_radius": 8
       }
     },
     "foliage_placer": {

@@ -1,0 +1,1860 @@
+{
+  "variants": {
+    "parent=none,parent_radius=1,radius=1": {
+      "model": "heartwood:block/bough/oak_1"
+    },
+    "parent=up,parent_radius=1,radius=1": {
+      "model": "heartwood:block/bough/oak_1_1"
+    },
+    "parent=down,parent_radius=1,radius=1": {
+      "model": "heartwood:block/bough/oak_1_1",
+      "x": 180
+    },
+    "parent=north,parent_radius=1,radius=1": {
+      "model": "heartwood:block/bough/oak_1_1",
+      "x": 90
+    },
+    "parent=south,parent_radius=1,radius=1": {
+      "model": "heartwood:block/bough/oak_1_1",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=1,radius=1": {
+      "model": "heartwood:block/bough/oak_1_1",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=1,radius=1": {
+      "model": "heartwood:block/bough/oak_1_1",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=2,radius=1": {
+      "model": "heartwood:block/bough/oak_1"
+    },
+    "parent=up,parent_radius=2,radius=1": {
+      "model": "heartwood:block/bough/oak_1_2"
+    },
+    "parent=down,parent_radius=2,radius=1": {
+      "model": "heartwood:block/bough/oak_1_2",
+      "x": 180
+    },
+    "parent=north,parent_radius=2,radius=1": {
+      "model": "heartwood:block/bough/oak_1_2",
+      "x": 90
+    },
+    "parent=south,parent_radius=2,radius=1": {
+      "model": "heartwood:block/bough/oak_1_2",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=2,radius=1": {
+      "model": "heartwood:block/bough/oak_1_2",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=2,radius=1": {
+      "model": "heartwood:block/bough/oak_1_2",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=3,radius=1": {
+      "model": "heartwood:block/bough/oak_1"
+    },
+    "parent=up,parent_radius=3,radius=1": {
+      "model": "heartwood:block/bough/oak_1_3"
+    },
+    "parent=down,parent_radius=3,radius=1": {
+      "model": "heartwood:block/bough/oak_1_3",
+      "x": 180
+    },
+    "parent=north,parent_radius=3,radius=1": {
+      "model": "heartwood:block/bough/oak_1_3",
+      "x": 90
+    },
+    "parent=south,parent_radius=3,radius=1": {
+      "model": "heartwood:block/bough/oak_1_3",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=3,radius=1": {
+      "model": "heartwood:block/bough/oak_1_3",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=3,radius=1": {
+      "model": "heartwood:block/bough/oak_1_3",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=4,radius=1": {
+      "model": "heartwood:block/bough/oak_1"
+    },
+    "parent=up,parent_radius=4,radius=1": {
+      "model": "heartwood:block/bough/oak_1_4"
+    },
+    "parent=down,parent_radius=4,radius=1": {
+      "model": "heartwood:block/bough/oak_1_4",
+      "x": 180
+    },
+    "parent=north,parent_radius=4,radius=1": {
+      "model": "heartwood:block/bough/oak_1_4",
+      "x": 90
+    },
+    "parent=south,parent_radius=4,radius=1": {
+      "model": "heartwood:block/bough/oak_1_4",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=4,radius=1": {
+      "model": "heartwood:block/bough/oak_1_4",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=4,radius=1": {
+      "model": "heartwood:block/bough/oak_1_4",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=5,radius=1": {
+      "model": "heartwood:block/bough/oak_1"
+    },
+    "parent=up,parent_radius=5,radius=1": {
+      "model": "heartwood:block/bough/oak_1_5"
+    },
+    "parent=down,parent_radius=5,radius=1": {
+      "model": "heartwood:block/bough/oak_1_5",
+      "x": 180
+    },
+    "parent=north,parent_radius=5,radius=1": {
+      "model": "heartwood:block/bough/oak_1_5",
+      "x": 90
+    },
+    "parent=south,parent_radius=5,radius=1": {
+      "model": "heartwood:block/bough/oak_1_5",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=5,radius=1": {
+      "model": "heartwood:block/bough/oak_1_5",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=5,radius=1": {
+      "model": "heartwood:block/bough/oak_1_5",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=6,radius=1": {
+      "model": "heartwood:block/bough/oak_1"
+    },
+    "parent=up,parent_radius=6,radius=1": {
+      "model": "heartwood:block/bough/oak_1_6"
+    },
+    "parent=down,parent_radius=6,radius=1": {
+      "model": "heartwood:block/bough/oak_1_6",
+      "x": 180
+    },
+    "parent=north,parent_radius=6,radius=1": {
+      "model": "heartwood:block/bough/oak_1_6",
+      "x": 90
+    },
+    "parent=south,parent_radius=6,radius=1": {
+      "model": "heartwood:block/bough/oak_1_6",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=6,radius=1": {
+      "model": "heartwood:block/bough/oak_1_6",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=6,radius=1": {
+      "model": "heartwood:block/bough/oak_1_6",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=7,radius=1": {
+      "model": "heartwood:block/bough/oak_1"
+    },
+    "parent=up,parent_radius=7,radius=1": {
+      "model": "heartwood:block/bough/oak_1_7"
+    },
+    "parent=down,parent_radius=7,radius=1": {
+      "model": "heartwood:block/bough/oak_1_7",
+      "x": 180
+    },
+    "parent=north,parent_radius=7,radius=1": {
+      "model": "heartwood:block/bough/oak_1_7",
+      "x": 90
+    },
+    "parent=south,parent_radius=7,radius=1": {
+      "model": "heartwood:block/bough/oak_1_7",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=7,radius=1": {
+      "model": "heartwood:block/bough/oak_1_7",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=7,radius=1": {
+      "model": "heartwood:block/bough/oak_1_7",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=8,radius=1": {
+      "model": "heartwood:block/bough/oak_1"
+    },
+    "parent=up,parent_radius=8,radius=1": {
+      "model": "heartwood:block/bough/oak_1_8"
+    },
+    "parent=down,parent_radius=8,radius=1": {
+      "model": "heartwood:block/bough/oak_1_8",
+      "x": 180
+    },
+    "parent=north,parent_radius=8,radius=1": {
+      "model": "heartwood:block/bough/oak_1_8",
+      "x": 90
+    },
+    "parent=south,parent_radius=8,radius=1": {
+      "model": "heartwood:block/bough/oak_1_8",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=8,radius=1": {
+      "model": "heartwood:block/bough/oak_1_8",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=8,radius=1": {
+      "model": "heartwood:block/bough/oak_1_8",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=1,radius=2": {
+      "model": "heartwood:block/bough/oak_2"
+    },
+    "parent=up,parent_radius=1,radius=2": {
+      "model": "heartwood:block/bough/oak_2_2"
+    },
+    "parent=down,parent_radius=1,radius=2": {
+      "model": "heartwood:block/bough/oak_2_2",
+      "x": 180
+    },
+    "parent=north,parent_radius=1,radius=2": {
+      "model": "heartwood:block/bough/oak_2_2",
+      "x": 90
+    },
+    "parent=south,parent_radius=1,radius=2": {
+      "model": "heartwood:block/bough/oak_2_2",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=1,radius=2": {
+      "model": "heartwood:block/bough/oak_2_2",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=1,radius=2": {
+      "model": "heartwood:block/bough/oak_2_2",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=2,radius=2": {
+      "model": "heartwood:block/bough/oak_2"
+    },
+    "parent=up,parent_radius=2,radius=2": {
+      "model": "heartwood:block/bough/oak_2_2"
+    },
+    "parent=down,parent_radius=2,radius=2": {
+      "model": "heartwood:block/bough/oak_2_2",
+      "x": 180
+    },
+    "parent=north,parent_radius=2,radius=2": {
+      "model": "heartwood:block/bough/oak_2_2",
+      "x": 90
+    },
+    "parent=south,parent_radius=2,radius=2": {
+      "model": "heartwood:block/bough/oak_2_2",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=2,radius=2": {
+      "model": "heartwood:block/bough/oak_2_2",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=2,radius=2": {
+      "model": "heartwood:block/bough/oak_2_2",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=3,radius=2": {
+      "model": "heartwood:block/bough/oak_2"
+    },
+    "parent=up,parent_radius=3,radius=2": {
+      "model": "heartwood:block/bough/oak_2_3"
+    },
+    "parent=down,parent_radius=3,radius=2": {
+      "model": "heartwood:block/bough/oak_2_3",
+      "x": 180
+    },
+    "parent=north,parent_radius=3,radius=2": {
+      "model": "heartwood:block/bough/oak_2_3",
+      "x": 90
+    },
+    "parent=south,parent_radius=3,radius=2": {
+      "model": "heartwood:block/bough/oak_2_3",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=3,radius=2": {
+      "model": "heartwood:block/bough/oak_2_3",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=3,radius=2": {
+      "model": "heartwood:block/bough/oak_2_3",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=4,radius=2": {
+      "model": "heartwood:block/bough/oak_2"
+    },
+    "parent=up,parent_radius=4,radius=2": {
+      "model": "heartwood:block/bough/oak_2_4"
+    },
+    "parent=down,parent_radius=4,radius=2": {
+      "model": "heartwood:block/bough/oak_2_4",
+      "x": 180
+    },
+    "parent=north,parent_radius=4,radius=2": {
+      "model": "heartwood:block/bough/oak_2_4",
+      "x": 90
+    },
+    "parent=south,parent_radius=4,radius=2": {
+      "model": "heartwood:block/bough/oak_2_4",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=4,radius=2": {
+      "model": "heartwood:block/bough/oak_2_4",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=4,radius=2": {
+      "model": "heartwood:block/bough/oak_2_4",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=5,radius=2": {
+      "model": "heartwood:block/bough/oak_2"
+    },
+    "parent=up,parent_radius=5,radius=2": {
+      "model": "heartwood:block/bough/oak_2_5"
+    },
+    "parent=down,parent_radius=5,radius=2": {
+      "model": "heartwood:block/bough/oak_2_5",
+      "x": 180
+    },
+    "parent=north,parent_radius=5,radius=2": {
+      "model": "heartwood:block/bough/oak_2_5",
+      "x": 90
+    },
+    "parent=south,parent_radius=5,radius=2": {
+      "model": "heartwood:block/bough/oak_2_5",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=5,radius=2": {
+      "model": "heartwood:block/bough/oak_2_5",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=5,radius=2": {
+      "model": "heartwood:block/bough/oak_2_5",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=6,radius=2": {
+      "model": "heartwood:block/bough/oak_2"
+    },
+    "parent=up,parent_radius=6,radius=2": {
+      "model": "heartwood:block/bough/oak_2_6"
+    },
+    "parent=down,parent_radius=6,radius=2": {
+      "model": "heartwood:block/bough/oak_2_6",
+      "x": 180
+    },
+    "parent=north,parent_radius=6,radius=2": {
+      "model": "heartwood:block/bough/oak_2_6",
+      "x": 90
+    },
+    "parent=south,parent_radius=6,radius=2": {
+      "model": "heartwood:block/bough/oak_2_6",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=6,radius=2": {
+      "model": "heartwood:block/bough/oak_2_6",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=6,radius=2": {
+      "model": "heartwood:block/bough/oak_2_6",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=7,radius=2": {
+      "model": "heartwood:block/bough/oak_2"
+    },
+    "parent=up,parent_radius=7,radius=2": {
+      "model": "heartwood:block/bough/oak_2_7"
+    },
+    "parent=down,parent_radius=7,radius=2": {
+      "model": "heartwood:block/bough/oak_2_7",
+      "x": 180
+    },
+    "parent=north,parent_radius=7,radius=2": {
+      "model": "heartwood:block/bough/oak_2_7",
+      "x": 90
+    },
+    "parent=south,parent_radius=7,radius=2": {
+      "model": "heartwood:block/bough/oak_2_7",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=7,radius=2": {
+      "model": "heartwood:block/bough/oak_2_7",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=7,radius=2": {
+      "model": "heartwood:block/bough/oak_2_7",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=8,radius=2": {
+      "model": "heartwood:block/bough/oak_2"
+    },
+    "parent=up,parent_radius=8,radius=2": {
+      "model": "heartwood:block/bough/oak_2_8"
+    },
+    "parent=down,parent_radius=8,radius=2": {
+      "model": "heartwood:block/bough/oak_2_8",
+      "x": 180
+    },
+    "parent=north,parent_radius=8,radius=2": {
+      "model": "heartwood:block/bough/oak_2_8",
+      "x": 90
+    },
+    "parent=south,parent_radius=8,radius=2": {
+      "model": "heartwood:block/bough/oak_2_8",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=8,radius=2": {
+      "model": "heartwood:block/bough/oak_2_8",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=8,radius=2": {
+      "model": "heartwood:block/bough/oak_2_8",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=1,radius=3": {
+      "model": "heartwood:block/bough/oak_3"
+    },
+    "parent=up,parent_radius=1,radius=3": {
+      "model": "heartwood:block/bough/oak_3_3"
+    },
+    "parent=down,parent_radius=1,radius=3": {
+      "model": "heartwood:block/bough/oak_3_3",
+      "x": 180
+    },
+    "parent=north,parent_radius=1,radius=3": {
+      "model": "heartwood:block/bough/oak_3_3",
+      "x": 90
+    },
+    "parent=south,parent_radius=1,radius=3": {
+      "model": "heartwood:block/bough/oak_3_3",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=1,radius=3": {
+      "model": "heartwood:block/bough/oak_3_3",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=1,radius=3": {
+      "model": "heartwood:block/bough/oak_3_3",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=2,radius=3": {
+      "model": "heartwood:block/bough/oak_3"
+    },
+    "parent=up,parent_radius=2,radius=3": {
+      "model": "heartwood:block/bough/oak_3_3"
+    },
+    "parent=down,parent_radius=2,radius=3": {
+      "model": "heartwood:block/bough/oak_3_3",
+      "x": 180
+    },
+    "parent=north,parent_radius=2,radius=3": {
+      "model": "heartwood:block/bough/oak_3_3",
+      "x": 90
+    },
+    "parent=south,parent_radius=2,radius=3": {
+      "model": "heartwood:block/bough/oak_3_3",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=2,radius=3": {
+      "model": "heartwood:block/bough/oak_3_3",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=2,radius=3": {
+      "model": "heartwood:block/bough/oak_3_3",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=3,radius=3": {
+      "model": "heartwood:block/bough/oak_3"
+    },
+    "parent=up,parent_radius=3,radius=3": {
+      "model": "heartwood:block/bough/oak_3_3"
+    },
+    "parent=down,parent_radius=3,radius=3": {
+      "model": "heartwood:block/bough/oak_3_3",
+      "x": 180
+    },
+    "parent=north,parent_radius=3,radius=3": {
+      "model": "heartwood:block/bough/oak_3_3",
+      "x": 90
+    },
+    "parent=south,parent_radius=3,radius=3": {
+      "model": "heartwood:block/bough/oak_3_3",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=3,radius=3": {
+      "model": "heartwood:block/bough/oak_3_3",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=3,radius=3": {
+      "model": "heartwood:block/bough/oak_3_3",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=4,radius=3": {
+      "model": "heartwood:block/bough/oak_3"
+    },
+    "parent=up,parent_radius=4,radius=3": {
+      "model": "heartwood:block/bough/oak_3_4"
+    },
+    "parent=down,parent_radius=4,radius=3": {
+      "model": "heartwood:block/bough/oak_3_4",
+      "x": 180
+    },
+    "parent=north,parent_radius=4,radius=3": {
+      "model": "heartwood:block/bough/oak_3_4",
+      "x": 90
+    },
+    "parent=south,parent_radius=4,radius=3": {
+      "model": "heartwood:block/bough/oak_3_4",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=4,radius=3": {
+      "model": "heartwood:block/bough/oak_3_4",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=4,radius=3": {
+      "model": "heartwood:block/bough/oak_3_4",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=5,radius=3": {
+      "model": "heartwood:block/bough/oak_3"
+    },
+    "parent=up,parent_radius=5,radius=3": {
+      "model": "heartwood:block/bough/oak_3_5"
+    },
+    "parent=down,parent_radius=5,radius=3": {
+      "model": "heartwood:block/bough/oak_3_5",
+      "x": 180
+    },
+    "parent=north,parent_radius=5,radius=3": {
+      "model": "heartwood:block/bough/oak_3_5",
+      "x": 90
+    },
+    "parent=south,parent_radius=5,radius=3": {
+      "model": "heartwood:block/bough/oak_3_5",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=5,radius=3": {
+      "model": "heartwood:block/bough/oak_3_5",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=5,radius=3": {
+      "model": "heartwood:block/bough/oak_3_5",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=6,radius=3": {
+      "model": "heartwood:block/bough/oak_3"
+    },
+    "parent=up,parent_radius=6,radius=3": {
+      "model": "heartwood:block/bough/oak_3_6"
+    },
+    "parent=down,parent_radius=6,radius=3": {
+      "model": "heartwood:block/bough/oak_3_6",
+      "x": 180
+    },
+    "parent=north,parent_radius=6,radius=3": {
+      "model": "heartwood:block/bough/oak_3_6",
+      "x": 90
+    },
+    "parent=south,parent_radius=6,radius=3": {
+      "model": "heartwood:block/bough/oak_3_6",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=6,radius=3": {
+      "model": "heartwood:block/bough/oak_3_6",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=6,radius=3": {
+      "model": "heartwood:block/bough/oak_3_6",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=7,radius=3": {
+      "model": "heartwood:block/bough/oak_3"
+    },
+    "parent=up,parent_radius=7,radius=3": {
+      "model": "heartwood:block/bough/oak_3_7"
+    },
+    "parent=down,parent_radius=7,radius=3": {
+      "model": "heartwood:block/bough/oak_3_7",
+      "x": 180
+    },
+    "parent=north,parent_radius=7,radius=3": {
+      "model": "heartwood:block/bough/oak_3_7",
+      "x": 90
+    },
+    "parent=south,parent_radius=7,radius=3": {
+      "model": "heartwood:block/bough/oak_3_7",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=7,radius=3": {
+      "model": "heartwood:block/bough/oak_3_7",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=7,radius=3": {
+      "model": "heartwood:block/bough/oak_3_7",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=8,radius=3": {
+      "model": "heartwood:block/bough/oak_3"
+    },
+    "parent=up,parent_radius=8,radius=3": {
+      "model": "heartwood:block/bough/oak_3_8"
+    },
+    "parent=down,parent_radius=8,radius=3": {
+      "model": "heartwood:block/bough/oak_3_8",
+      "x": 180
+    },
+    "parent=north,parent_radius=8,radius=3": {
+      "model": "heartwood:block/bough/oak_3_8",
+      "x": 90
+    },
+    "parent=south,parent_radius=8,radius=3": {
+      "model": "heartwood:block/bough/oak_3_8",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=8,radius=3": {
+      "model": "heartwood:block/bough/oak_3_8",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=8,radius=3": {
+      "model": "heartwood:block/bough/oak_3_8",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=1,radius=4": {
+      "model": "heartwood:block/bough/oak_4"
+    },
+    "parent=up,parent_radius=1,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4"
+    },
+    "parent=down,parent_radius=1,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4",
+      "x": 180
+    },
+    "parent=north,parent_radius=1,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4",
+      "x": 90
+    },
+    "parent=south,parent_radius=1,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=1,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=1,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=2,radius=4": {
+      "model": "heartwood:block/bough/oak_4"
+    },
+    "parent=up,parent_radius=2,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4"
+    },
+    "parent=down,parent_radius=2,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4",
+      "x": 180
+    },
+    "parent=north,parent_radius=2,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4",
+      "x": 90
+    },
+    "parent=south,parent_radius=2,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=2,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=2,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=3,radius=4": {
+      "model": "heartwood:block/bough/oak_4"
+    },
+    "parent=up,parent_radius=3,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4"
+    },
+    "parent=down,parent_radius=3,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4",
+      "x": 180
+    },
+    "parent=north,parent_radius=3,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4",
+      "x": 90
+    },
+    "parent=south,parent_radius=3,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=3,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=3,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=4,radius=4": {
+      "model": "heartwood:block/bough/oak_4"
+    },
+    "parent=up,parent_radius=4,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4"
+    },
+    "parent=down,parent_radius=4,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4",
+      "x": 180
+    },
+    "parent=north,parent_radius=4,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4",
+      "x": 90
+    },
+    "parent=south,parent_radius=4,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=4,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=4,radius=4": {
+      "model": "heartwood:block/bough/oak_4_4",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=5,radius=4": {
+      "model": "heartwood:block/bough/oak_4"
+    },
+    "parent=up,parent_radius=5,radius=4": {
+      "model": "heartwood:block/bough/oak_4_5"
+    },
+    "parent=down,parent_radius=5,radius=4": {
+      "model": "heartwood:block/bough/oak_4_5",
+      "x": 180
+    },
+    "parent=north,parent_radius=5,radius=4": {
+      "model": "heartwood:block/bough/oak_4_5",
+      "x": 90
+    },
+    "parent=south,parent_radius=5,radius=4": {
+      "model": "heartwood:block/bough/oak_4_5",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=5,radius=4": {
+      "model": "heartwood:block/bough/oak_4_5",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=5,radius=4": {
+      "model": "heartwood:block/bough/oak_4_5",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=6,radius=4": {
+      "model": "heartwood:block/bough/oak_4"
+    },
+    "parent=up,parent_radius=6,radius=4": {
+      "model": "heartwood:block/bough/oak_4_6"
+    },
+    "parent=down,parent_radius=6,radius=4": {
+      "model": "heartwood:block/bough/oak_4_6",
+      "x": 180
+    },
+    "parent=north,parent_radius=6,radius=4": {
+      "model": "heartwood:block/bough/oak_4_6",
+      "x": 90
+    },
+    "parent=south,parent_radius=6,radius=4": {
+      "model": "heartwood:block/bough/oak_4_6",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=6,radius=4": {
+      "model": "heartwood:block/bough/oak_4_6",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=6,radius=4": {
+      "model": "heartwood:block/bough/oak_4_6",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=7,radius=4": {
+      "model": "heartwood:block/bough/oak_4"
+    },
+    "parent=up,parent_radius=7,radius=4": {
+      "model": "heartwood:block/bough/oak_4_7"
+    },
+    "parent=down,parent_radius=7,radius=4": {
+      "model": "heartwood:block/bough/oak_4_7",
+      "x": 180
+    },
+    "parent=north,parent_radius=7,radius=4": {
+      "model": "heartwood:block/bough/oak_4_7",
+      "x": 90
+    },
+    "parent=south,parent_radius=7,radius=4": {
+      "model": "heartwood:block/bough/oak_4_7",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=7,radius=4": {
+      "model": "heartwood:block/bough/oak_4_7",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=7,radius=4": {
+      "model": "heartwood:block/bough/oak_4_7",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=8,radius=4": {
+      "model": "heartwood:block/bough/oak_4"
+    },
+    "parent=up,parent_radius=8,radius=4": {
+      "model": "heartwood:block/bough/oak_4_8"
+    },
+    "parent=down,parent_radius=8,radius=4": {
+      "model": "heartwood:block/bough/oak_4_8",
+      "x": 180
+    },
+    "parent=north,parent_radius=8,radius=4": {
+      "model": "heartwood:block/bough/oak_4_8",
+      "x": 90
+    },
+    "parent=south,parent_radius=8,radius=4": {
+      "model": "heartwood:block/bough/oak_4_8",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=8,radius=4": {
+      "model": "heartwood:block/bough/oak_4_8",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=8,radius=4": {
+      "model": "heartwood:block/bough/oak_4_8",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=1,radius=5": {
+      "model": "heartwood:block/bough/oak_5"
+    },
+    "parent=up,parent_radius=1,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5"
+    },
+    "parent=down,parent_radius=1,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 180
+    },
+    "parent=north,parent_radius=1,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 90
+    },
+    "parent=south,parent_radius=1,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=1,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=1,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=2,radius=5": {
+      "model": "heartwood:block/bough/oak_5"
+    },
+    "parent=up,parent_radius=2,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5"
+    },
+    "parent=down,parent_radius=2,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 180
+    },
+    "parent=north,parent_radius=2,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 90
+    },
+    "parent=south,parent_radius=2,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=2,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=2,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=3,radius=5": {
+      "model": "heartwood:block/bough/oak_5"
+    },
+    "parent=up,parent_radius=3,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5"
+    },
+    "parent=down,parent_radius=3,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 180
+    },
+    "parent=north,parent_radius=3,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 90
+    },
+    "parent=south,parent_radius=3,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=3,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=3,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=4,radius=5": {
+      "model": "heartwood:block/bough/oak_5"
+    },
+    "parent=up,parent_radius=4,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5"
+    },
+    "parent=down,parent_radius=4,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 180
+    },
+    "parent=north,parent_radius=4,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 90
+    },
+    "parent=south,parent_radius=4,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=4,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=4,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=5,radius=5": {
+      "model": "heartwood:block/bough/oak_5"
+    },
+    "parent=up,parent_radius=5,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5"
+    },
+    "parent=down,parent_radius=5,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 180
+    },
+    "parent=north,parent_radius=5,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 90
+    },
+    "parent=south,parent_radius=5,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=5,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=5,radius=5": {
+      "model": "heartwood:block/bough/oak_5_5",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=6,radius=5": {
+      "model": "heartwood:block/bough/oak_5"
+    },
+    "parent=up,parent_radius=6,radius=5": {
+      "model": "heartwood:block/bough/oak_5_6"
+    },
+    "parent=down,parent_radius=6,radius=5": {
+      "model": "heartwood:block/bough/oak_5_6",
+      "x": 180
+    },
+    "parent=north,parent_radius=6,radius=5": {
+      "model": "heartwood:block/bough/oak_5_6",
+      "x": 90
+    },
+    "parent=south,parent_radius=6,radius=5": {
+      "model": "heartwood:block/bough/oak_5_6",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=6,radius=5": {
+      "model": "heartwood:block/bough/oak_5_6",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=6,radius=5": {
+      "model": "heartwood:block/bough/oak_5_6",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=7,radius=5": {
+      "model": "heartwood:block/bough/oak_5"
+    },
+    "parent=up,parent_radius=7,radius=5": {
+      "model": "heartwood:block/bough/oak_5_7"
+    },
+    "parent=down,parent_radius=7,radius=5": {
+      "model": "heartwood:block/bough/oak_5_7",
+      "x": 180
+    },
+    "parent=north,parent_radius=7,radius=5": {
+      "model": "heartwood:block/bough/oak_5_7",
+      "x": 90
+    },
+    "parent=south,parent_radius=7,radius=5": {
+      "model": "heartwood:block/bough/oak_5_7",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=7,radius=5": {
+      "model": "heartwood:block/bough/oak_5_7",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=7,radius=5": {
+      "model": "heartwood:block/bough/oak_5_7",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=8,radius=5": {
+      "model": "heartwood:block/bough/oak_5"
+    },
+    "parent=up,parent_radius=8,radius=5": {
+      "model": "heartwood:block/bough/oak_5_8"
+    },
+    "parent=down,parent_radius=8,radius=5": {
+      "model": "heartwood:block/bough/oak_5_8",
+      "x": 180
+    },
+    "parent=north,parent_radius=8,radius=5": {
+      "model": "heartwood:block/bough/oak_5_8",
+      "x": 90
+    },
+    "parent=south,parent_radius=8,radius=5": {
+      "model": "heartwood:block/bough/oak_5_8",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=8,radius=5": {
+      "model": "heartwood:block/bough/oak_5_8",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=8,radius=5": {
+      "model": "heartwood:block/bough/oak_5_8",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=1,radius=6": {
+      "model": "heartwood:block/bough/oak_6"
+    },
+    "parent=up,parent_radius=1,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6"
+    },
+    "parent=down,parent_radius=1,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 180
+    },
+    "parent=north,parent_radius=1,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90
+    },
+    "parent=south,parent_radius=1,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=1,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=1,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=2,radius=6": {
+      "model": "heartwood:block/bough/oak_6"
+    },
+    "parent=up,parent_radius=2,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6"
+    },
+    "parent=down,parent_radius=2,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 180
+    },
+    "parent=north,parent_radius=2,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90
+    },
+    "parent=south,parent_radius=2,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=2,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=2,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=3,radius=6": {
+      "model": "heartwood:block/bough/oak_6"
+    },
+    "parent=up,parent_radius=3,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6"
+    },
+    "parent=down,parent_radius=3,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 180
+    },
+    "parent=north,parent_radius=3,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90
+    },
+    "parent=south,parent_radius=3,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=3,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=3,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=4,radius=6": {
+      "model": "heartwood:block/bough/oak_6"
+    },
+    "parent=up,parent_radius=4,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6"
+    },
+    "parent=down,parent_radius=4,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 180
+    },
+    "parent=north,parent_radius=4,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90
+    },
+    "parent=south,parent_radius=4,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=4,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=4,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=5,radius=6": {
+      "model": "heartwood:block/bough/oak_6"
+    },
+    "parent=up,parent_radius=5,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6"
+    },
+    "parent=down,parent_radius=5,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 180
+    },
+    "parent=north,parent_radius=5,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90
+    },
+    "parent=south,parent_radius=5,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=5,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=5,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=6,radius=6": {
+      "model": "heartwood:block/bough/oak_6"
+    },
+    "parent=up,parent_radius=6,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6"
+    },
+    "parent=down,parent_radius=6,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 180
+    },
+    "parent=north,parent_radius=6,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90
+    },
+    "parent=south,parent_radius=6,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=6,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=6,radius=6": {
+      "model": "heartwood:block/bough/oak_6_6",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=7,radius=6": {
+      "model": "heartwood:block/bough/oak_6"
+    },
+    "parent=up,parent_radius=7,radius=6": {
+      "model": "heartwood:block/bough/oak_6_7"
+    },
+    "parent=down,parent_radius=7,radius=6": {
+      "model": "heartwood:block/bough/oak_6_7",
+      "x": 180
+    },
+    "parent=north,parent_radius=7,radius=6": {
+      "model": "heartwood:block/bough/oak_6_7",
+      "x": 90
+    },
+    "parent=south,parent_radius=7,radius=6": {
+      "model": "heartwood:block/bough/oak_6_7",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=7,radius=6": {
+      "model": "heartwood:block/bough/oak_6_7",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=7,radius=6": {
+      "model": "heartwood:block/bough/oak_6_7",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=8,radius=6": {
+      "model": "heartwood:block/bough/oak_6"
+    },
+    "parent=up,parent_radius=8,radius=6": {
+      "model": "heartwood:block/bough/oak_6_8"
+    },
+    "parent=down,parent_radius=8,radius=6": {
+      "model": "heartwood:block/bough/oak_6_8",
+      "x": 180
+    },
+    "parent=north,parent_radius=8,radius=6": {
+      "model": "heartwood:block/bough/oak_6_8",
+      "x": 90
+    },
+    "parent=south,parent_radius=8,radius=6": {
+      "model": "heartwood:block/bough/oak_6_8",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=8,radius=6": {
+      "model": "heartwood:block/bough/oak_6_8",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=8,radius=6": {
+      "model": "heartwood:block/bough/oak_6_8",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=1,radius=7": {
+      "model": "heartwood:block/bough/oak_7"
+    },
+    "parent=up,parent_radius=1,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7"
+    },
+    "parent=down,parent_radius=1,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 180
+    },
+    "parent=north,parent_radius=1,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90
+    },
+    "parent=south,parent_radius=1,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=1,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=1,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=2,radius=7": {
+      "model": "heartwood:block/bough/oak_7"
+    },
+    "parent=up,parent_radius=2,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7"
+    },
+    "parent=down,parent_radius=2,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 180
+    },
+    "parent=north,parent_radius=2,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90
+    },
+    "parent=south,parent_radius=2,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=2,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=2,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=3,radius=7": {
+      "model": "heartwood:block/bough/oak_7"
+    },
+    "parent=up,parent_radius=3,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7"
+    },
+    "parent=down,parent_radius=3,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 180
+    },
+    "parent=north,parent_radius=3,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90
+    },
+    "parent=south,parent_radius=3,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=3,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=3,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=4,radius=7": {
+      "model": "heartwood:block/bough/oak_7"
+    },
+    "parent=up,parent_radius=4,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7"
+    },
+    "parent=down,parent_radius=4,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 180
+    },
+    "parent=north,parent_radius=4,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90
+    },
+    "parent=south,parent_radius=4,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=4,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=4,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=5,radius=7": {
+      "model": "heartwood:block/bough/oak_7"
+    },
+    "parent=up,parent_radius=5,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7"
+    },
+    "parent=down,parent_radius=5,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 180
+    },
+    "parent=north,parent_radius=5,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90
+    },
+    "parent=south,parent_radius=5,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=5,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=5,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=6,radius=7": {
+      "model": "heartwood:block/bough/oak_7"
+    },
+    "parent=up,parent_radius=6,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7"
+    },
+    "parent=down,parent_radius=6,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 180
+    },
+    "parent=north,parent_radius=6,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90
+    },
+    "parent=south,parent_radius=6,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=6,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=6,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=7,radius=7": {
+      "model": "heartwood:block/bough/oak_7"
+    },
+    "parent=up,parent_radius=7,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7"
+    },
+    "parent=down,parent_radius=7,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 180
+    },
+    "parent=north,parent_radius=7,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90
+    },
+    "parent=south,parent_radius=7,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=7,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=7,radius=7": {
+      "model": "heartwood:block/bough/oak_7_7",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=8,radius=7": {
+      "model": "heartwood:block/bough/oak_7"
+    },
+    "parent=up,parent_radius=8,radius=7": {
+      "model": "heartwood:block/bough/oak_7_8"
+    },
+    "parent=down,parent_radius=8,radius=7": {
+      "model": "heartwood:block/bough/oak_7_8",
+      "x": 180
+    },
+    "parent=north,parent_radius=8,radius=7": {
+      "model": "heartwood:block/bough/oak_7_8",
+      "x": 90
+    },
+    "parent=south,parent_radius=8,radius=7": {
+      "model": "heartwood:block/bough/oak_7_8",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=8,radius=7": {
+      "model": "heartwood:block/bough/oak_7_8",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=8,radius=7": {
+      "model": "heartwood:block/bough/oak_7_8",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=1,radius=8": {
+      "model": "heartwood:block/bough/oak_8"
+    },
+    "parent=up,parent_radius=1,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8"
+    },
+    "parent=down,parent_radius=1,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 180
+    },
+    "parent=north,parent_radius=1,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90
+    },
+    "parent=south,parent_radius=1,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=1,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=1,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=2,radius=8": {
+      "model": "heartwood:block/bough/oak_8"
+    },
+    "parent=up,parent_radius=2,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8"
+    },
+    "parent=down,parent_radius=2,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 180
+    },
+    "parent=north,parent_radius=2,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90
+    },
+    "parent=south,parent_radius=2,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=2,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=2,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=3,radius=8": {
+      "model": "heartwood:block/bough/oak_8"
+    },
+    "parent=up,parent_radius=3,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8"
+    },
+    "parent=down,parent_radius=3,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 180
+    },
+    "parent=north,parent_radius=3,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90
+    },
+    "parent=south,parent_radius=3,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=3,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=3,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=4,radius=8": {
+      "model": "heartwood:block/bough/oak_8"
+    },
+    "parent=up,parent_radius=4,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8"
+    },
+    "parent=down,parent_radius=4,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 180
+    },
+    "parent=north,parent_radius=4,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90
+    },
+    "parent=south,parent_radius=4,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=4,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=4,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=5,radius=8": {
+      "model": "heartwood:block/bough/oak_8"
+    },
+    "parent=up,parent_radius=5,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8"
+    },
+    "parent=down,parent_radius=5,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 180
+    },
+    "parent=north,parent_radius=5,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90
+    },
+    "parent=south,parent_radius=5,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=5,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=5,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=6,radius=8": {
+      "model": "heartwood:block/bough/oak_8"
+    },
+    "parent=up,parent_radius=6,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8"
+    },
+    "parent=down,parent_radius=6,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 180
+    },
+    "parent=north,parent_radius=6,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90
+    },
+    "parent=south,parent_radius=6,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=6,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=6,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=7,radius=8": {
+      "model": "heartwood:block/bough/oak_8"
+    },
+    "parent=up,parent_radius=7,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8"
+    },
+    "parent=down,parent_radius=7,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 180
+    },
+    "parent=north,parent_radius=7,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90
+    },
+    "parent=south,parent_radius=7,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=7,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=7,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 270
+    },
+    "parent=none,parent_radius=8,radius=8": {
+      "model": "heartwood:block/bough/oak_8"
+    },
+    "parent=up,parent_radius=8,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8"
+    },
+    "parent=down,parent_radius=8,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 180
+    },
+    "parent=north,parent_radius=8,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90
+    },
+    "parent=south,parent_radius=8,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 180
+    },
+    "parent=east,parent_radius=8,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 90
+    },
+    "parent=west,parent_radius=8,radius=8": {
+      "model": "heartwood:block/bough/oak_8_8",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

@@ -49,7 +49,9 @@ public final class ModBlocks {
     public static final List<DeferredBlock<GreenLogBlock>> ALL_GREEN = new ArrayList<>();
     public static final List<DeferredItem<GreenLogItem>> ALL_GREEN_ITEMS = new ArrayList<>();
     public static final List<DeferredBlock<BranchesBlock>> ALL_BRANCHES = new ArrayList<>();
-    private static Map<Block, Block> notchedByLog, felledByLog, branchesByLeaves, greenByLog;
+    private static final List<Link> BOUGHS = new ArrayList<>();
+    public static final List<DeferredBlock<com.chocodanette.heartwood.tree.BoughBlock>> ALL_BOUGHS = new ArrayList<>();
+    private static Map<Block, Block> notchedByLog, felledByLog, branchesByLeaves, greenByLog, boughByLog;
 
     static {
         Species.init();
@@ -57,7 +59,16 @@ public final class ModBlocks {
             log(w.name() + "_log", w.log()::get);
             green(w.name() + "_log", w.log()::get);
             branches(w.name(), w.leaves()::get);
+            bough(w.name(), w.log()::get);
         }
+        bough("oak", () -> Blocks.OAK_LOG);
+        bough("spruce", () -> Blocks.SPRUCE_LOG);
+        bough("birch", () -> Blocks.BIRCH_LOG);
+        bough("jungle", () -> Blocks.JUNGLE_LOG);
+        bough("acacia", () -> Blocks.ACACIA_LOG);
+        bough("dark_oak", () -> Blocks.DARK_OAK_LOG);
+        bough("mangrove", () -> Blocks.MANGROVE_LOG);
+        bough("cherry", () -> Blocks.CHERRY_LOG);
 
         log("oak_log", () -> Blocks.OAK_LOG);
         log("spruce_log", () -> Blocks.SPRUCE_LOG);
@@ -139,6 +150,22 @@ public final class ModBlocks {
                         .pushReaction(PushReaction.DESTROY)));
         BRANCHES.add(new Link(leaves, block));
         ALL_BRANCHES.add(block);
+    }
+
+    private static void bough(String name, Supplier<Block> log) {
+        DeferredBlock<com.chocodanette.heartwood.tree.BoughBlock> block = BLOCKS.register(name + "_bough",
+                () -> new com.chocodanette.heartwood.tree.BoughBlock(log, BlockBehaviour.Properties.ofFullCopy(log.get())
+                        .mapColor(log.get().defaultMapColor())
+                        .noOcclusion()
+                        .dynamicShape()));
+        BOUGHS.add(new Link(log, block));
+        ALL_BOUGHS.add(block);
+    }
+
+    /** The variable-thickness tree piece made of this log, or null. */
+    public static Block boughFor(Block log) {
+        if (boughByLog == null) boughByLog = index(BOUGHS);
+        return boughByLog.get(log);
     }
 
     private static Map<Block, Block> index(List<Link> links) {

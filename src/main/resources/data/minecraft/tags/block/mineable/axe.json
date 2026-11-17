@@ -93,6 +93,18 @@
     "heartwood:maple_sign",
     "heartwood:maple_wall_sign",
     "heartwood:maple_hanging_sign",
-    "heartwood:maple_wall_hanging_sign"
+    "heartwood:maple_wall_hanging_sign",
+    "heartwood:oak_bough",
+    "heartwood:spruce_bough",
+    "heartwood:birch_bough",
+    "heartwood:jungle_bough",
+    "heartwood:acacia_bough",
+    "heartwood:dark_oak_bough",
+    "heartwood:mangrove_bough",
+    "heartwood:cherry_bough",
+    "heartwood:ash_bough",
+    "heartwood:scots_pine_bough",
+    "heartwood:chestnut_bough",
+    "heartwood:maple_bough"
   ]
 }

@@ -16,6 +16,8 @@ public final class TreeShapes {
 
     public static final DeferredHolder<TrunkPlacerType<?>, TrunkPlacerType<OrganicTrunkPlacer>> ORGANIC_TRUNK =
             TRUNK_PLACERS.register("organic_trunk_placer", () -> new TrunkPlacerType<>(OrganicTrunkPlacer.CODEC));
+    public static final DeferredHolder<TrunkPlacerType<?>, TrunkPlacerType<com.chocodanette.heartwood.tree.BoughTrunkPlacer>> BOUGH_TRUNK =
+            TRUNK_PLACERS.register("bough_trunk_placer", () -> new TrunkPlacerType<>(com.chocodanette.heartwood.tree.BoughTrunkPlacer.CODEC));
     public static final DeferredHolder<FoliagePlacerType<?>, FoliagePlacerType<ClusterFoliagePlacer>> CLUSTER_FOLIAGE =
             FOLIAGE_PLACERS.register("cluster_foliage_placer", () -> new FoliagePlacerType<>(ClusterFoliagePlacer.CODEC));
 

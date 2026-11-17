@@ -154,5 +154,17 @@
   "block.heartwood.maple_hanging_sign": "Pancarte suspendue en érable",
   "block.heartwood.maple_wall_hanging_sign": "Pancarte suspendue en érable",
   "item.heartwood.maple_boat": "Bateau en érable",
-  "item.heartwood.maple_chest_boat": "Bateau en érable avec coffre"
+  "item.heartwood.maple_chest_boat": "Bateau en érable avec coffre",
+  "block.heartwood.oak_bough": "Branche de chêne",
+  "block.heartwood.spruce_bough": "Branche d'épicéa",
+  "block.heartwood.birch_bough": "Branche de bouleau",
+  "block.heartwood.jungle_bough": "Branche de teck",
+  "block.heartwood.acacia_bough": "Branche d'acacia",
+  "block.heartwood.dark_oak_bough": "Branche de hêtre",
+  "block.heartwood.mangrove_bough": "Branche de palétuvier",
+  "block.heartwood.cherry_bough": "Branche de cerisier",
+  "block.heartwood.ash_bough": "Branche de frêne",
+  "block.heartwood.scots_pine_bough": "Branche de pin sylvestre",
+  "block.heartwood.chestnut_bough": "Branche de châtaignier",
+  "block.heartwood.maple_bough": "Branche d'érable"
 }

@@ -1,4 +1,6 @@
-"""Generates the resources (models, blockstates, loot, recipes, tags, worldgen, lang)
+"""Run tools/gen_boughs.py after this script (it adds the boughs to the log tags).
+
+Generates the resources (models, blockstates, loot, recipes, tags, worldgen, lang)
 for the species declared in Species.java. Run from the repository root:
     python3 tools/gen_species.py
 """
@@ -10,26 +12,26 @@ SPECIES = {
     "ash": dict(en="Ash", fr="frêne", fr_de="de frêne", fr_en="en frêne",
                 biomes=["minecraft:forest", "minecraft:flower_forest", "minecraft:meadow", "minecraft:plains"],
                 count=1, chance_plains=True,
-                trunk={"type": "heartwood:organic_trunk_placer", "base_height": 9, "height_rand_a": 5, "height_rand_b": 0, "branches": {"lean": 1, "count": {"type": "minecraft:uniform", "min_inclusive": 4, "max_inclusive": 6}, "length": {"type": "minecraft:uniform", "min_inclusive": 3, "max_inclusive": 5}, "start": 0.45, "slope": 0.8, "fork": 0.35}},
+                trunk={"type": "heartwood:bough_trunk_placer", "base_height": 9, "height_rand_a": 5, "height_rand_b": 0, "branches": {"lean": 1, "count": {"type": "minecraft:uniform", "min_inclusive": 4, "max_inclusive": 6}, "length": {"type": "minecraft:uniform", "min_inclusive": 3, "max_inclusive": 5}, "start": 0.45, "slope": 0.8, "fork": 0.35}, "girth": {"growth": 1.0, "max_radius": 7}},
                 foliage={"type": "heartwood:cluster_foliage_placer", "radius": 2, "offset": 0, "height": 4, "irregularity": 0.4},
                 size={"type": "minecraft:two_layers_feature_size", "limit": 0, "lower_size": 0, "upper_size": 0, "min_clipped_height": 4}),
     "scots_pine": dict(en="Scots Pine", fr="pin sylvestre", fr_de="de pin sylvestre", fr_en="en pin sylvestre",
                 biomes=["minecraft:taiga", "minecraft:old_growth_pine_taiga", "minecraft:windswept_forest",
                         "minecraft:windswept_hills", "minecraft:grove"],
                 count=2, chance_plains=False,
-                trunk={"type": "heartwood:organic_trunk_placer", "base_height": 12, "height_rand_a": 5, "height_rand_b": 0, "branches": {"lean": 2, "count": {"type": "minecraft:uniform", "min_inclusive": 3, "max_inclusive": 5}, "length": {"type": "minecraft:uniform", "min_inclusive": 2, "max_inclusive": 3}, "start": 0.75, "slope": 0.35, "fork": 0.2}},
+                trunk={"type": "heartwood:bough_trunk_placer", "base_height": 12, "height_rand_a": 5, "height_rand_b": 0, "branches": {"lean": 2, "count": {"type": "minecraft:uniform", "min_inclusive": 3, "max_inclusive": 5}, "length": {"type": "minecraft:uniform", "min_inclusive": 2, "max_inclusive": 3}, "start": 0.75, "slope": 0.35, "fork": 0.2}, "girth": {"growth": 0.9, "max_radius": 7}},
                 foliage={"type": "heartwood:cluster_foliage_placer", "radius": 2, "offset": 0, "height": 2, "irregularity": 0.35},
                 size={"type": "minecraft:two_layers_feature_size", "limit": 2, "lower_size": 0, "upper_size": 2}),
     "chestnut": dict(en="Chestnut", fr="châtaignier", fr_de="de châtaignier", fr_en="en châtaignier",
                 biomes=["minecraft:forest", "minecraft:windswept_forest", "minecraft:dark_forest"],
                 count=1, chance_plains=False,
-                trunk={"type": "heartwood:organic_trunk_placer", "base_height": 6, "height_rand_a": 3, "height_rand_b": 0, "branches": {"lean": 1, "count": {"type": "minecraft:uniform", "min_inclusive": 5, "max_inclusive": 7}, "length": {"type": "minecraft:uniform", "min_inclusive": 4, "max_inclusive": 6}, "start": 0.4, "slope": 0.5, "fork": 0.45}},
+                trunk={"type": "heartwood:bough_trunk_placer", "base_height": 6, "height_rand_a": 3, "height_rand_b": 0, "branches": {"lean": 1, "count": {"type": "minecraft:uniform", "min_inclusive": 5, "max_inclusive": 7}, "length": {"type": "minecraft:uniform", "min_inclusive": 4, "max_inclusive": 6}, "start": 0.4, "slope": 0.5, "fork": 0.45}, "girth": {"growth": 1.1, "max_radius": 8}},
                 foliage={"type": "heartwood:cluster_foliage_placer", "radius": 3, "offset": 0, "height": 3, "irregularity": 0.35},
                 size={"type": "minecraft:two_layers_feature_size", "limit": 0, "lower_size": 0, "upper_size": 0, "min_clipped_height": 4}),
     "maple": dict(en="Maple", fr="érable", fr_de="d'érable", fr_en="en érable",
                 biomes=["minecraft:forest", "minecraft:flower_forest", "minecraft:birch_forest", "minecraft:meadow"],
                 count=1, chance_plains=False,
-                trunk={"type": "heartwood:organic_trunk_placer", "base_height": 7, "height_rand_a": 3, "height_rand_b": 0, "branches": {"lean": 1, "count": {"type": "minecraft:uniform", "min_inclusive": 4, "max_inclusive": 6}, "length": {"type": "minecraft:uniform", "min_inclusive": 2, "max_inclusive": 4}, "start": 0.45, "slope": 0.85, "fork": 0.3}},
+                trunk={"type": "heartwood:bough_trunk_placer", "base_height": 7, "height_rand_a": 3, "height_rand_b": 0, "branches": {"lean": 1, "count": {"type": "minecraft:uniform", "min_inclusive": 4, "max_inclusive": 6}, "length": {"type": "minecraft:uniform", "min_inclusive": 2, "max_inclusive": 4}, "start": 0.45, "slope": 0.85, "fork": 0.3}, "girth": {"growth": 1.0, "max_radius": 7}},
                 foliage={"type": "heartwood:cluster_foliage_placer", "radius": 3, "offset": 0, "height": 4, "irregularity": 0.3},
                 size={"type": "minecraft:two_layers_feature_size", "limit": 1, "lower_size": 0, "upper_size": 2}),
 }
