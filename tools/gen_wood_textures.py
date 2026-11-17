@@ -54,74 +54,50 @@ def mix(a, b, t):
 def _px(c, r, amt=3):
     return jitter(c, r, amt)
 
+# Bark furrows per species: (count, length range, drift). Drift > 0 makes furrows lean
+# a little (chestnut's twist), drift < 0 lets them wander both ways (ash's interlacing).
+BARK = {"smooth": (2, (4, 9), 0), "flaky": (3, (5, 10), 0), "diamond": (4, (6, 12), -1),
+        "spiral": (5, (8, 16), 1), "plates": (4, (5, 11), 0), "fissured": (5, (10, 16), 0)}
+
 def bark(s, r):
-    """Log side in the vanilla manner: vertical streaks of 2-7 px in a 5-shade palette,
-    with darker furrows; each species shapes the furrows its own way."""
+    """Log side drawn like vanilla oak: low-contrast vertical streaks in the mid shades,
+    long thin dark furrows with a lighter edge on their right, and a few species marks."""
     P, st = s["barkp"], s["style"]
-    img = Image.new("RGB", (16, 16))
+    count, (lo, hi), drift = BARK[st]
     grid = [[2] * 16 for _ in range(16)]
-    # Base: vertical streaks of the mid shades.
     for x in range(16):
-        y = 0
-        while y < 16:
-            ln = r.randint(2, 7)
-            shade = r.choice((1, 2, 2, 3, 3, 4) if st in ("smooth", "flaky") else (1, 2, 2, 2, 3, 3))
+        y = r.randrange(16)
+        for _ in range(4):
+            ln = r.randint(3, 8)
+            shade = r.choice((2, 2, 3, 1)) if st not in ("smooth", "flaky") else r.choice((2, 3, 3))
             for k in range(ln):
                 grid[(y + k) % 16][x] = shade
             y += ln
-    if st == "smooth":
-        # Beech: very even; a few short horizontal dark marks (lenticels, branch scars).
-        for y in range(16):
-            for x in range(16):
-                grid[y][x] = max(2, grid[y][x])
-        for _ in range(4):
+    xs = r.sample(range(0, 16, 2), count) if count <= 8 else list(range(0, 16, 2))
+    for x0 in xs:
+        for _ in range(2):
+            x, y0, ln = x0, r.randrange(16), r.randint(lo, hi)
+            for k in range(ln):
+                y = (y0 + k) % 16
+                if drift > 0 and k and k % 5 == 0: x += 1
+                if drift < 0 and r.random() < 0.15: x += r.choice((-1, 1))
+                grid[y][x % 16] = 0 if r.random() < 0.65 else 1
+                if r.random() < 0.45 and grid[y][(x + 1) % 16] >= 2:
+                    grid[y][(x + 1) % 16] = 3
+    if st == "smooth":    # beech: short horizontal marks
+        for _ in range(3):
             x, y = r.randrange(16), r.randrange(16)
-            for dx in range(r.randint(2, 4)):
-                grid[y][(x + dx) % 16] = 1
-        grid[r.randrange(16)][r.randrange(16)] = 0
-    elif st == "flaky":
-        # Maple: smooth grey with lighter, warmer patches where bark has flaked.
-        for _ in range(5):
-            x0, y0, w_, h_ = r.randrange(16), r.randrange(16), r.randint(2, 4), r.randint(2, 3)
-            for dy in range(h_):
-                for dx in range(w_):
-                    grid[(y0 + dy) % 16][(x0 + dx) % 16] = 4
-            for dx in range(w_):
-                grid[(y0 + h_) % 16][(x0 + dx) % 16] = 1
-    elif st == "diamond":
-        # Ash: two furrows per 8 px that wander left and right, meeting to form diamonds.
-        for base in (1, 9):
-            for y in range(16):
-                off = [0, 1, 2, 3, 3, 2, 1, 0][y % 8]
-                for x in (base + off, base + 6 - off):
-                    grid[y][x % 16] = 0 if r.random() < 0.6 else 1
-    elif st == "spiral":
-        # Chestnut: deep furrows twisting diagonally around the trunk.
-        for x0 in (0, 5, 10):
-            for y in range(16):
-                x = (x0 + y // 3) % 16
-                grid[y][x] = 0
-                if r.random() < 0.5: grid[y][(x + 1) % 16] = 1
-    elif st == "plates":
-        # Scots pine: plates separated by dark vertical and horizontal cracks, bright orange tops.
-        x = 0
-        while x < 16:
-            wdt = r.randint(3, 5)
-            for y in range(16):
-                grid[y][x % 16] = 0 if r.random() < 0.6 else 1
-            y = r.randrange(4)
-            while y < 16:
-                for dx in range(1, wdt):
-                    if r.random() < 0.7: grid[y][(x + dx) % 16] = 1
-                    if y + 1 < 16 and r.random() < 0.4: grid[y + 1][(x + dx) % 16] = 4
-                y += r.randint(4, 7)
-            x += wdt
-    else:
-        # Teak: long, narrow, regular furrows (fibrous bark).
-        for x0 in (1, 5, 8, 12):
-            for y in range(16):
-                if r.random() < 0.85: grid[y][x0] = 0
-                if r.random() < 0.3: grid[y][(x0 + 1) % 16] = 1
+            grid[y][x] = grid[y][(x + 1) % 16] = 1
+    elif st == "flaky":   # maple: a few lighter flakes
+        for _ in range(3):
+            x, y = r.randrange(16), r.randrange(16)
+            for dx, dy in ((0, 0), (1, 0), (0, 1)):
+                grid[(y + dy) % 16][(x + dx) % 16] = 4
+    elif st == "plates":  # pine: bright orange flakes between furrows
+        for _ in range(10):
+            x, y = r.randrange(16), r.randrange(16)
+            if grid[y][x] >= 2: grid[y][x] = 4
+    img = Image.new("RGB", (16, 16))
     for y in range(16):
         for x in range(16):
             img.putpixel((x, y), _px(P[grid[y][x]], r, 2))
