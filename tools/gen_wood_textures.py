@@ -7,19 +7,42 @@ so the output is reproducible.
 import math, random, sys, os
 from PIL import Image
 
+# Real colours, as 5-shade palettes from darkest to lightest.
+# bark: outer bark; wood: sawn/stripped wood; heart: optional darker heartwood for end grain.
 SPECIES = {
-    # name: bark, bark_dark, wood, wood_dark, style
-    "beech": dict(bark=(150, 150, 142), bark_dark=(112, 112, 106), wood=(214, 182, 150), wood_dark=(190, 156, 124), style="smooth"),
-    "ash":   dict(bark=(138, 136, 124), bark_dark=(100, 98, 90),   wood=(226, 210, 172), wood_dark=(200, 182, 142), style="diamond",
-                  leaf="pinnate", sapling_leaf=(96, 140, 60)),
-    "scots_pine": dict(bark=(150, 92, 60), bark_dark=(96, 58, 40), wood=(220, 178, 118), wood_dark=(190, 146, 88), style="plates",
-                  leaf="needles", sapling_leaf=(56, 98, 60)),
-    "chestnut": dict(bark=(118, 108, 96), bark_dark=(76, 68, 60), wood=(204, 164, 104), wood_dark=(174, 134, 78), style="spiral",
-                  leaf="long", sapling_leaf=(90, 132, 56)),
-    "maple": dict(bark=(132, 124, 112), bark_dark=(96, 88, 80), wood=(232, 214, 184), wood_dark=(208, 188, 156), style="flaky",
-                  leaf="lobed", sapling_leaf=(104, 146, 58)),
-    "teak":  dict(bark=(112, 94, 74),   bark_dark=(78, 64, 50),    wood=(176, 124, 64),  wood_dark=(146, 98, 48),  style="fissured"),
+    # Beech: smooth silver-grey bark; pale pinkish-buff wood.
+    "beech": dict(bark=[(92, 90, 84), (116, 114, 107), (138, 136, 128), (157, 155, 147), (176, 174, 166)],
+                  wood=[(170, 128, 98), (192, 150, 118), (212, 172, 140), (226, 190, 158), (238, 206, 176)],
+                  style="smooth"),
+    # Ash: pale grey bark with interlaced diamond ridges; creamy white-tan wood.
+    "ash":   dict(bark=[(84, 82, 74), (108, 105, 96), (130, 127, 116), (150, 147, 136), (170, 167, 156)],
+                  wood=[(178, 160, 122), (200, 183, 145), (218, 202, 166), (232, 218, 184), (243, 232, 202)],
+                  style="diamond", leaf="pinnate", sapling_leaf=(96, 140, 60)),
+    # Scots pine: orange-red flaky plates; yellowish sapwood, reddish heartwood.
+    "scots_pine": dict(bark=[(88, 50, 34), (124, 70, 44), (160, 92, 56), (190, 116, 70), (214, 142, 90)],
+                  wood=[(184, 136, 80), (206, 160, 100), (222, 182, 122), (234, 200, 142), (244, 216, 162)],
+                  heart=[(160, 98, 58), (182, 118, 72)],
+                  style="plates", leaf="needles", sapling_leaf=(56, 98, 60)),
+    # Sweet chestnut: grey-brown bark with deep spiralling fissures; light brown wood.
+    "chestnut": dict(bark=[(64, 56, 48), (88, 78, 68), (110, 99, 87), (130, 119, 106), (148, 138, 124)],
+                  wood=[(150, 112, 70), (172, 132, 86), (192, 152, 104), (208, 170, 122), (222, 188, 142)],
+                  heart=[(134, 96, 58), (154, 114, 72)],
+                  style="spiral", leaf="long", sapling_leaf=(90, 132, 56)),
+    # Sycamore maple: pinkish-grey bark flaking off in orange-buff patches; very pale cream wood.
+    "maple": dict(bark=[(98, 90, 86), (122, 113, 108), (144, 135, 128), (164, 155, 146), (184, 168, 146)],
+                  wood=[(196, 180, 150), (214, 200, 172), (230, 218, 192), (240, 230, 208), (248, 241, 224)],
+                  style="flaky", leaf="lobed", sapling_leaf=(104, 146, 58)),
+    # Teak: grey-brown fibrous bark with long furrows; golden-brown wood.
+    "teak":  dict(bark=[(70, 60, 50), (94, 82, 68), (116, 103, 87), (136, 122, 104), (154, 140, 120)],
+                  wood=[(128, 82, 40), (150, 100, 52), (172, 120, 64), (190, 138, 78), (206, 156, 94)],
+                  heart=[(118, 74, 36), (138, 90, 46)],
+                  style="fissured"),
 }
+for _s in SPECIES.values():
+    _s["barkp"], _s["woodp"] = _s["bark"], _s["wood"]
+    # Single colours used by doors, signs and boats.
+    _s["bark_dark"], _s["bark"] = _s["barkp"][1], _s["barkp"][2]
+    _s["wood_dark"], _s["wood"] = _s["woodp"][1], _s["woodp"][3]
 
 def jitter(c, r, amt):
     n = r.randint(-amt, amt)
@@ -28,115 +51,151 @@ def jitter(c, r, amt):
 def mix(a, b, t):
     return tuple(round(x + (y - x) * t) for x, y in zip(a, b))
 
+def _px(c, r, amt=3):
+    return jitter(c, r, amt)
+
 def bark(s, r):
+    """Log side in the vanilla manner: vertical streaks of 2-7 px in a 5-shade palette,
+    with darker furrows; each species shapes the furrows its own way."""
+    P, st = s["barkp"], s["style"]
     img = Image.new("RGB", (16, 16))
-    if s["style"] == "smooth":
-        # Smooth grey bark: soft mottling, a few short horizontal lenticels.
+    grid = [[2] * 16 for _ in range(16)]
+    # Base: vertical streaks of the mid shades.
+    for x in range(16):
+        y = 0
+        while y < 16:
+            ln = r.randint(2, 7)
+            shade = r.choice((1, 2, 2, 3, 3, 4) if st in ("smooth", "flaky") else (1, 2, 2, 2, 3, 3))
+            for k in range(ln):
+                grid[(y + k) % 16][x] = shade
+            y += ln
+    if st == "smooth":
+        # Beech: very even; a few short horizontal dark marks (lenticels, branch scars).
         for y in range(16):
             for x in range(16):
-                t = 0.5 + 0.5 * math.sin(x * 0.9 + r.random()) * math.sin(y * 0.5 + 1.3)
-                img.putpixel((x, y), jitter(mix(s["bark"], s["bark_dark"], 0.25 * t), r, 6))
+                grid[y][x] = max(2, grid[y][x])
+        for _ in range(4):
+            x, y = r.randrange(16), r.randrange(16)
+            for dx in range(r.randint(2, 4)):
+                grid[y][(x + dx) % 16] = 1
+        grid[r.randrange(16)][r.randrange(16)] = 0
+    elif st == "flaky":
+        # Maple: smooth grey with lighter, warmer patches where bark has flaked.
         for _ in range(5):
-            x, y = r.randrange(0, 14), r.randrange(0, 16)
-            for dx in range(r.randint(2, 3)):
-                img.putpixel(((x + dx) % 16, y), jitter(s["bark_dark"], r, 4))
-    elif s["style"] == "diamond":
-        # Ash: interlaced ridges forming a diamond (net) pattern.
-        for y in range(16):
-            for x in range(16):
-                a = (x + y) % 6 == 0 or (x - y) % 6 == 0
-                c = s["bark_dark"] if a and r.random() < 0.8 else s["bark"]
-                img.putpixel((x, y), jitter(c, r, 6))
-    elif s["style"] == "plates":
-        # Scots pine: thick reddish plates separated by dark cracks.
-        # Irregular columns, each cut by cracks at irregular heights.
-        cols, x = [], 0
-        while x < 16:
-            wdt = r.randint(3, 5); cols.append((x, min(16, x + wdt))); x += wdt
-        for x0, x1 in cols:
-            cracks, y = set(), r.randrange(0, 4)
-            while y < 16:
-                cracks.add(y); y += r.randint(3, 6)
-            for x in range(x0, x1):
-                for y in range(16):
-                    edge = x == x0 and r.random() < 0.9
-                    crack = y in cracks and r.random() < 0.85
-                    c = s["bark_dark"] if edge or crack else mix(s["bark"], (205, 135, 85), 0.3 * r.random())
-                    img.putpixel((x, y), jitter(c, r, 5))
-    elif s["style"] == "spiral":
-        # Chestnut: deep fissures twisting diagonally around the trunk.
-        for y in range(16):
-            for x in range(16):
-                f = (x + y // 3) % 4 == 0
-                c = s["bark_dark"] if f and r.random() < 0.9 else s["bark"]
-                img.putpixel((x, y), jitter(c, r, 7))
-    elif s["style"] == "flaky":
-        # Maple (sycamore): smooth bark flaking off in small patches.
-        for y in range(16):
-            for x in range(16):
-                img.putpixel((x, y), jitter(s["bark"], r, 6))
-        for _ in range(7):
-            x0, y0 = r.randrange(16), r.randrange(16)
-            for dx in range(r.randint(2, 3)):
-                for dy in range(r.randint(1, 2)):
-                    img.putpixel(((x0 + dx) % 16, (y0 + dy) % 16), jitter(mix(s["bark"], (190, 170, 130), 0.5), r, 6))
-            img.putpixel(((x0 - 1) % 16, y0), jitter(s["bark_dark"], r, 4))
-    else:
-        # Fissured bark: vertical ridges with dark furrows.
-        furrows = sorted(r.sample(range(16), 4))
-        for x in range(16):
+            x0, y0, w_, h_ = r.randrange(16), r.randrange(16), r.randint(2, 4), r.randint(2, 3)
+            for dy in range(h_):
+                for dx in range(w_):
+                    grid[(y0 + dy) % 16][(x0 + dx) % 16] = 4
+            for dx in range(w_):
+                grid[(y0 + h_) % 16][(x0 + dx) % 16] = 1
+    elif st == "diamond":
+        # Ash: two furrows per 8 px that wander left and right, meeting to form diamonds.
+        for base in (1, 9):
             for y in range(16):
-                c = s["bark"]
-                if x in furrows and r.random() < 0.85:
-                    c = s["bark_dark"]
-                elif (x - 1) in furrows:
-                    c = mix(s["bark"], (255, 255, 255), 0.08)
-                img.putpixel((x, y), jitter(c, r, 7))
+                off = [0, 1, 2, 3, 3, 2, 1, 0][y % 8]
+                for x in (base + off, base + 6 - off):
+                    grid[y][x % 16] = 0 if r.random() < 0.6 else 1
+    elif st == "spiral":
+        # Chestnut: deep furrows twisting diagonally around the trunk.
+        for x0 in (0, 5, 10):
+            for y in range(16):
+                x = (x0 + y // 3) % 16
+                grid[y][x] = 0
+                if r.random() < 0.5: grid[y][(x + 1) % 16] = 1
+    elif st == "plates":
+        # Scots pine: plates separated by dark vertical and horizontal cracks, bright orange tops.
+        x = 0
+        while x < 16:
+            wdt = r.randint(3, 5)
+            for y in range(16):
+                grid[y][x % 16] = 0 if r.random() < 0.6 else 1
+            y = r.randrange(4)
+            while y < 16:
+                for dx in range(1, wdt):
+                    if r.random() < 0.7: grid[y][(x + dx) % 16] = 1
+                    if y + 1 < 16 and r.random() < 0.4: grid[y + 1][(x + dx) % 16] = 4
+                y += r.randint(4, 7)
+            x += wdt
+    else:
+        # Teak: long, narrow, regular furrows (fibrous bark).
+        for x0 in (1, 5, 8, 12):
+            for y in range(16):
+                if r.random() < 0.85: grid[y][x0] = 0
+                if r.random() < 0.3: grid[y][(x0 + 1) % 16] = 1
+    for y in range(16):
+        for x in range(16):
+            img.putpixel((x, y), _px(P[grid[y][x]], r, 2))
+    return img
+
+def _rings(s, r, bark_rim):
+    """End grain in the vanilla manner: 1 px rim, then rounded-square growth rings drawn
+    as thin darker lines on a light ground; heartwood tints the centre when the species has one."""
+    W, B = s["woodp"], s["barkp"]
+    heart = s.get("heart")
+    img = Image.new("RGB", (16, 16))
+    for y in range(16):
+        for x in range(16):
+            dx, dy = abs(x - 7.5), abs(y - 7.5)
+            if max(dx, dy) > 7:
+                c = B[r.choice((1, 2, 2, 3))] if bark_rim else W[1]
+            else:
+                d = 0.65 * max(dx, dy) + 0.35 * math.hypot(dx, dy)
+                inner = heart is not None and d < 3.6
+                ground = heart[1] if inner else (W[3] if int(d) % 2 else W[4] if d > 4 else W[3])
+                line = heart[0] if inner else W[2]
+                ring_line = abs(d - round(d / 2) * 2) < 0.45 and d > 0.9
+                c = line if ring_line else ground
+                if d < 0.9: c = line
+            img.putpixel((x, y), _px(c, r, 2))
     return img
 
 def end_grain(s, r):
-    img = Image.new("RGB", (16, 16))
-    for y in range(16):
-        for x in range(16):
-            dx, dy = x - 7.5, y - 7.5
-            d = max(abs(dx), abs(dy))  # square rings, like vanilla
-            if d >= 7:
-                c = jitter(s["bark"], r, 6)
-            else:
-                ring = int(math.hypot(dx, dy) * 0.95 + 0.3) in (1, 3, 5)
-                c = jitter(s["wood_dark"] if ring else s["wood"], r, 5)
-            img.putpixel((x, y), c)
-    return img
+    return _rings(s, r, True)
 
 def stripped_end(s, r):
-    img = end_grain(s, r)
-    for y in range(16):
-        for x in range(16):
-            if max(abs(x - 7.5), abs(y - 7.5)) >= 7:
-                img.putpixel((x, y), jitter(s["wood_dark"], r, 5))
-    return img
+    return _rings(s, r, False)
 
 def stripped_side(s, r):
+    """Stripped log side: long vertical grain streaks in the wood palette."""
+    W = s["woodp"]
     img = Image.new("RGB", (16, 16))
-    lines = set(r.sample(range(16), 5))
     for x in range(16):
+        y = 0
+        while y < 16:
+            ln = r.randint(3, 8)
+            shade = r.choice((2, 3, 3, 3, 3, 4))
+            if x in (0, 15) and r.random() < 0.5: shade = 2
+            for k in range(ln):
+                img.putpixel((x, (y + k) % 16), _px(W[shade], r, 2))
+            y += ln
+    for x in (3, 8, 12):
         for y in range(16):
-            c = s["wood_dark"] if x in lines and r.random() < 0.7 else s["wood"]
-            img.putpixel((x, y), jitter(c, r, 5))
+            if r.random() < 0.6: img.putpixel((x, y), _px(W[1], r, 2))
     return img
 
 def planks(s, r):
+    """Planks in the vanilla layout: four 4 px boards, dark seam at the bottom of each,
+    one end joint per board, horizontal grain streaks inside."""
+    W = s["woodp"]
     img = Image.new("RGB", (16, 16))
-    seams = {0: 3, 1: 11, 2: 6, 3: 14}
-    for y in range(16):
-        board = y // 4
+    joints = {0: 9, 1: 3, 2: 12, 3: 6}
+    for b in range(4):
+        for yy in range(4):
+            y = b * 4 + yy
+            x = 0
+            while x < 16:
+                ln = r.randint(2, 6)
+                shade = r.choice((2, 3, 3, 3, 3, 3)) if yy < 3 else 1
+                if yy == 0 and r.random() < 0.25: shade = 4
+                for k in range(ln):
+                    if x + k < 16:
+                        img.putpixel((x + k, y), _px(W[shade], r, 2))
+                x += ln
+        for yy in range(3):
+            img.putpixel((joints[b], b * 4 + yy), _px(W[1], r, 2))
+    for y in range(3, 16, 4):
         for x in range(16):
-            c = s["wood"]
-            if y % 4 == 3 or x == seams[board]:
-                c = s["wood_dark"]
-            elif r.random() < 0.15:
-                c = mix(s["wood"], s["wood_dark"], 0.5)
-            img.putpixel((x, y), jitter(c, r, 4))
+            img.putpixel((x, y), _px(W[0] if r.random() < 0.3 else W[1], r, 2))
     return img
 
 def leaves(s, r):
