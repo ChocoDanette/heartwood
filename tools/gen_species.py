@@ -315,14 +315,12 @@ def main():
                 "enchantment": "minecraft:fortune", "chances": [0.02, 0.022222223, 0.025, 0.033333335, 0.1]}],
                 "functions": [{"function": "minecraft:set_count", "count": {"type": "minecraft:uniform", "min": 1, "max": 2}, "add": False},
                               {"function": "minecraft:explosion_decay"}]}]}]})
-        axe = {"condition": "minecraft:match_tool", "predicate": {"items": "#minecraft:axes"}}
+        # A fallen crown gives a stick now and then, and seeds, whatever it is broken with.
         w(f"data/{NS}/loot_table/blocks/{name}_branches.json", {"type": "minecraft:block", "pools": [
-            {"rolls": 1, "entries": [{"type": "minecraft:alternatives", "children": [
-                {"type": "minecraft:item", "name": "minecraft:stick", "conditions": [axe],
-                 "functions": [{"function": "minecraft:set_count", "count": {"type": "minecraft:uniform", "min": 1, "max": 3}}]},
-                {"type": "minecraft:item", "name": "minecraft:stick", "conditions": [{"condition": "minecraft:random_chance", "chance": 0.5}]}]}]},
+            {"rolls": 1, "entries": [{"type": "minecraft:item", "name": "minecraft:stick"}],
+             "conditions": [{"condition": "minecraft:random_chance", "chance": 0.15}]},
             {"rolls": 1, "entries": [{"type": "minecraft:item", "name": rl(sapling)}],
-             "conditions": [axe, {"condition": "minecraft:random_chance", "chance": 0.08}]}]})
+             "conditions": [{"condition": "minecraft:random_chance", "chance": 0.1}]}]})
 
         # Recipes
         logs_tag = f"#{NS}:{name}_logs"
