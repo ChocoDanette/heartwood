@@ -100,7 +100,8 @@ public class BoughTrunkPlacer extends TrunkPlacer {
         Direction leanDir = Direction.Plane.HORIZONTAL.getRandomDirection(random);
         int leans = branches.lean() > 0 ? random.nextInt(branches.lean() + 1) : 0;
         List<Integer> leanAt = new ArrayList<>();
-        for (int k = 0; k < leans; k++) leanAt.add(height / 3 + random.nextInt(Math.max(1, height * 2 / 3 - 1)));
+        // Never at the foot: the first piece of a trunk always stands straight.
+        for (int k = 0; k < leans; k++) leanAt.add(Math.max(2, height / 3 + random.nextInt(Math.max(1, height * 2 / 3 - 1))));
         BlockPos cur = origin;
         List<BlockPos> trunk = new ArrayList<>();
         trunk.add(cur);

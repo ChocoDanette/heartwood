@@ -139,7 +139,7 @@ public final class GrowingTrees extends SavedData {
         t.leanDir = Direction.Plane.HORIZONTAL.getRandomDirection(random);
         int leans = placer.branches().lean() > 0 ? random.nextInt(placer.branches().lean() + 1) : 0;
         for (int k = 0; k < leans; k++) {
-            t.leanAt.add(t.targetHeight / 3 + random.nextInt(Math.max(1, t.targetHeight * 2 / 3 - 1)));
+            t.leanAt.add(Math.max(2, t.targetHeight / 3 + random.nextInt(Math.max(1, t.targetHeight * 2 / 3 - 1))));
         }
         t.next = level.getGameTime() + interval(random);
         if (seed == null) comeUp(level, root, t, config);
@@ -281,7 +281,8 @@ public final class GrowingTrees extends SavedData {
 
     private static void growTrunk(ServerLevel level, BlockPos root, Tree t, Block bough, BlockPos top, int height) {
         // A leaning trunk steps sideways once at each of its lean heights, then carries on up.
-        boolean lean = t.leanAt.remove(height);
+        // The first piece of a trunk always stands straight: no elbow at the foot.
+        boolean lean = t.leanAt.remove(height) && height >= 2;
         BlockPos next = lean ? top.relative(t.leanDir) : top.above();
         if (!TreeFeature.validTreePos(level, next)) { t.trunkAlive = false; return; }
         place(level, bough, next, top);
