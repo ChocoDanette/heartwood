@@ -125,16 +125,32 @@ public final class FellingEvents {
         int radius = state.getValue(BoughBlock.RADIUS);
         boolean axe = tool.is(ItemTags.AXES);
         if (!BoughBlock.isRooted(level, pos)) {
-            // Fallen tree. Limbing: a thin piece comes off with the twigs it carries.
-            if (radius < THICK) {
+            // Fallen tree. Its trunk is bucked only once every branch is off; branches come off
+            // with all they carry (thick ones with an axe).
+            FallenTree tree = FallenTree.of(level, pos);
+            if (!tree.stemSet.contains(pos)) {
+                if (radius >= THICK && !axe) {
+                    event.setCanceled(true);
+                    player.displayClientMessage(Component.translatable("message.heartwood.need_axe_branch"), true);
+                    return;
+                }
                 for (BlockPos p : BoughBlock.descendants(level, pos, 2000)) level.destroyBlock(p, true, player);
                 return;
             }
-            // Bucking: a thick piece needs an axe, once its leaves and thin branches are off.
-            if (hasBranchesAround(level, pos) || hasThinBoughs(level, pos)) {
+            if (!tree.limbed()) {
                 event.setCanceled(true);
-                player.displayClientMessage(Component.translatable("message.heartwood.limb_first"), true);
-            } else if (!axe) {
+                player.displayClientMessage(Component.translatable("message.heartwood.limb_tree_first",
+                        tree.branches.size() + (tree.leafy.isEmpty() ? 0 : 1)), true);
+                // Show where the branches still are.
+                java.util.List<BlockPos> marks = new java.util.ArrayList<>(tree.branches);
+                for (int i = 0; i < tree.leafy.size(); i += 4) marks.add(tree.leafy.get(i));
+                for (BlockPos m : marks) {
+                    level.sendParticles(net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER,
+                            m.getX() + 0.5, m.getY() + 0.5, m.getZ() + 0.5, 6, 0.3, 0.3, 0.3, 0.0);
+                }
+                return;
+            }
+            if (!axe) {
                 event.setCanceled(true);
                 player.displayClientMessage(Component.translatable("message.heartwood.need_axe"), true);
             }

@@ -137,6 +137,7 @@ public class BoughBlock extends Block {
         BlockPos p = pos;
         BlockState s = level.getBlockState(p);
         for (int i = 0; i < 256 && s.getBlock() instanceof BoughBlock; i++) {
+            if (com.chocodanette.heartwood.drying.PlacedLogs.isFallen(level, p)) return false;
             Parent parent = s.getValue(PARENT);
             if (parent == Parent.NONE) return false;
             BlockPos next = p.relative(parent.dir);
@@ -253,7 +254,10 @@ public class BoughBlock extends Block {
 
     @Override
     protected void onRemove(BlockState state, net.minecraft.world.level.Level level, BlockPos pos, BlockState newState, boolean moving) {
-        if (!level.isClientSide && state.getValue(RADIUS) > 8 && !newState.is(state.getBlock())) TrunkShellBlock.clear(level, pos);
+        if (!level.isClientSide && !newState.is(state.getBlock())) {
+            if (state.getValue(RADIUS) > 8) TrunkShellBlock.clear(level, pos);
+            com.chocodanette.heartwood.drying.PlacedLogs.setFallen(level, pos, false);
+        }
         super.onRemove(state, level, pos, newState, moving);
     }
 

@@ -27,6 +27,21 @@ public final class PlacedLogs {
     public static final Supplier<AttachmentType<Set<Long>>> DRY_LOGS = ATTACHMENTS.register("dry_logs",
             () -> AttachmentType.<Set<Long>>builder(() -> new HashSet<>()).serialize(CODEC).build());
 
+    /** Tree pieces lying on the ground after a fall (they never count as a standing tree). */
+    public static final Supplier<AttachmentType<Set<Long>>> FALLEN = ATTACHMENTS.register("fallen_pieces",
+            () -> AttachmentType.<Set<Long>>builder(() -> new HashSet<>()).serialize(CODEC).build());
+
+    public static boolean isFallen(Level level, BlockPos pos) {
+        LevelChunk chunk = level.getChunkAt(pos);
+        return chunk.hasData(FALLEN) && chunk.getData(FALLEN).contains(pos.asLong());
+    }
+
+    public static void setFallen(Level level, BlockPos pos, boolean fallen) {
+        LevelChunk chunk = level.getChunkAt(pos);
+        if (fallen ? chunk.getData(FALLEN).add(pos.asLong())
+                : chunk.hasData(FALLEN) && chunk.getData(FALLEN).remove(pos.asLong())) chunk.setUnsaved(true);
+    }
+
     public static boolean isDry(Level level, BlockPos pos) {
         LevelChunk chunk = level.getChunkAt(pos);
         return chunk.hasData(DRY_LOGS) && chunk.getData(DRY_LOGS).contains(pos.asLong());

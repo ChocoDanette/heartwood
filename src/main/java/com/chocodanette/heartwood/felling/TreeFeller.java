@@ -106,6 +106,9 @@ public final class TreeFeller {
             if (there.isAir() || there.canBeReplaced() || isTrunk(s) && isCrown(there)) {
                 if (!there.isAir()) Block.dropResources(there, level, p);
                 level.setBlock(p, s, Block.UPDATE_ALL);
+                if (s.getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock) {
+                    com.chocodanette.heartwood.drying.PlacedLogs.setFallen(level, p, true);
+                }
                 if (level.random.nextInt(3) == 0) {
                     level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, s),
                             p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5, 6, 0.4, 0.3, 0.4, 0.1);
