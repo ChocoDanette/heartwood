@@ -113,6 +113,16 @@ public final class TreeFeller {
                 Block.dropResources(s, level, p.above());
             }
         }
+        // Pieces whose parent could not land (blocked by terrain) lose the arm reaching for it.
+        for (BlockPos t : target.keySet()) {
+            BlockPos p = t.below(drop);
+            BlockState s = level.getBlockState(p);
+            if (!(s.getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock)) continue;
+            BlockPos par = com.chocodanette.heartwood.tree.BoughBlock.parentPos(s, p);
+            if (par == null) continue;
+            BlockState fixed = com.chocodanette.heartwood.tree.BoughBlock.reconnect(s, level.getBlockState(par));
+            if (fixed != s) level.setBlock(p, fixed, Block.UPDATE_CLIENTS);
+        }
         hurt(level, target.keySet(), drop, target, source);
 
         BlockPos middle = cut.relative(dir, Math.max(1, target.size() > 0 ? 4 : 1));

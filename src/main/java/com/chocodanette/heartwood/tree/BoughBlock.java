@@ -179,6 +179,26 @@ public class BoughBlock extends Block {
         return s.setValue(PARENT, Parent.of(d)).setValue(NOTCH, Notch.NONE);
     }
 
+    /** When the piece it hangs from changes or goes away, the joint follows (or the arm disappears). */
+    @Override
+    protected BlockState updateShape(BlockState state, Direction dir, BlockState neighbor,
+                                     net.minecraft.world.level.LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+        return dir == state.getValue(PARENT).dir ? reconnect(state, neighbor) : state;
+    }
+
+    /**
+     * The piece's state given what now stands on its parent side: another piece (the arm meets its
+     * core), the ground under a trunk, or nothing, in which case the piece keeps only its core.
+     */
+    public static BlockState reconnect(BlockState state, BlockState parent) {
+        if (!(state.getBlock() instanceof BoughBlock)) return state;
+        Direction d = state.getValue(PARENT).dir;
+        if (d == null) return state;
+        if (parent.getBlock() instanceof BoughBlock) return state.setValue(PARENT_RADIUS, parent.getValue(RADIUS));
+        if (d == Direction.DOWN && !parent.isAir() && !parent.canBeReplaced()) return state;
+        return state.setValue(PARENT, Parent.NONE).setValue(NOTCH, Notch.NONE);
+    }
+
     @Override
     protected boolean useShapeForLightOcclusion(BlockState state) {
         return true;
