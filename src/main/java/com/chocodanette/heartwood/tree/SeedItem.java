@@ -42,7 +42,7 @@ public class SeedItem extends Item {
             return InteractionResult.PASS;
         }
         if (level instanceof ServerLevel server) {
-            server.setBlock(pos, ModBlocks.SEED_MOUND.get().defaultBlockState(), Block.UPDATE_ALL);
+            server.setBlock(pos, ModBlocks.SEED_MOUND.get().on(server.getBlockState(ground)), Block.UPDATE_ALL);
             GrowingTrees.get(server).plant(server, pos, ResourceKey.create(Registries.CONFIGURED_FEATURE, pick(server)),
                     BuiltInRegistries.ITEM.getKey(this));
             server.playSound(null, pos, SoundEvents.ROOTED_DIRT_PLACE, SoundSource.BLOCKS, 1.0f, 1.0f);

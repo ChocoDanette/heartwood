@@ -20,10 +20,43 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * Digging it up gives the seed back.
  */
 public class SeedMoundBlock extends Block {
+    /** What the mound is made of: the ground the seed was planted in. */
+    public enum Ground implements net.minecraft.util.StringRepresentable {
+        DIRT, GRASS, COARSE_DIRT, PODZOL, MYCELIUM, ROOTED_DIRT, MUD, MOSS;
+
+        public static Ground of(BlockState ground) {
+            if (ground.is(Blocks.GRASS_BLOCK)) return GRASS;
+            if (ground.is(Blocks.COARSE_DIRT)) return COARSE_DIRT;
+            if (ground.is(Blocks.PODZOL)) return PODZOL;
+            if (ground.is(Blocks.MYCELIUM)) return MYCELIUM;
+            if (ground.is(Blocks.ROOTED_DIRT)) return ROOTED_DIRT;
+            if (ground.is(Blocks.MUD) || ground.is(Blocks.MUDDY_MANGROVE_ROOTS)) return MUD;
+            if (ground.is(Blocks.MOSS_BLOCK)) return MOSS;
+            return DIRT;
+        }
+
+        @Override
+        public String getSerializedName() { return name().toLowerCase(java.util.Locale.ROOT); }
+    }
+
+    public static final net.minecraft.world.level.block.state.properties.EnumProperty<Ground> GROUND =
+            net.minecraft.world.level.block.state.properties.EnumProperty.create("ground", Ground.class);
+
     private static final VoxelShape SHAPE = Shapes.or(Block.box(3, 0, 3, 13, 2, 13), Block.box(5, 2, 5, 11, 3, 11));
 
     public SeedMoundBlock(Properties properties) {
         super(properties);
+        registerDefaultState(stateDefinition.any().setValue(GROUND, Ground.DIRT));
+    }
+
+    @Override
+    protected void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(GROUND);
+    }
+
+    /** The mound for a seed planted in this ground. */
+    public BlockState on(BlockState ground) {
+        return defaultBlockState().setValue(GROUND, Ground.of(ground));
     }
 
     @Override
@@ -44,7 +77,8 @@ public class SeedMoundBlock extends Block {
     @Override
     protected BlockState updateShape(BlockState state, Direction dir, BlockState neighbor, LevelAccessor level,
                                      BlockPos pos, BlockPos neighborPos) {
-        return dir == Direction.DOWN && !canSurvive(state, level, pos) ? Blocks.AIR.defaultBlockState() : state;
+        if (dir != Direction.DOWN) return state;
+        return canSurvive(state, level, pos) ? state.setValue(GROUND, Ground.of(neighbor)) : Blocks.AIR.defaultBlockState();
     }
 
     @Override

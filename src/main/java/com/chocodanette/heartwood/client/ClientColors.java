@@ -40,6 +40,10 @@ public final class ClientColors {
                         ? BiomeColors.getAverageFoliageColor(level, pos) : FoliageColor.getDefaultColor(), leaves, branches);
             }
         }
+        // A seed mound planted in grass keeps a grassy top.
+        event.register((state, level, pos, tint) -> level != null && pos != null
+                        ? BiomeColors.getAverageGrassColor(level, pos) : net.minecraft.world.level.GrassColor.getDefaultColor(),
+                ModBlocks.SEED_MOUND.get());
         event.register((state, level, pos, tint) -> FoliageColor.getBirchColor(), block("birch"));
         event.register((state, level, pos, tint) -> FoliageColor.getMangroveColor(), block("mangrove"));
         event.register((state, level, pos, tint) -> level != null && pos != null

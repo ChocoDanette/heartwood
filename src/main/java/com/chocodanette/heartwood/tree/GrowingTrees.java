@@ -74,6 +74,8 @@ public final class GrowingTrees extends SavedData {
         List<BlockPos> trunk = new ArrayList<>();
         boolean trunkAlive = true;
         List<Branch> branches = new ArrayList<>();
+        long crownSeed;
+        Set<Long> leaves = new HashSet<>();   // the leaves this tree grew
     }
 
     private final Map<BlockPos, Tree> trees = new LinkedHashMap<>();
@@ -131,6 +133,7 @@ public final class GrowingTrees extends SavedData {
         Tree t = new Tree();
         t.feature = key;
         t.seed = seed;
+        t.crownSeed = random.nextLong();
         t.targetHeight = Math.max(2, placer.getTreeHeight(random));
         t.targetBranches = placer.branches().count().sample(random);
         t.leanDir = Direction.Plane.HORIZONTAL.getRandomDirection(random);
@@ -376,45 +379,64 @@ public final class GrowingTrees extends SavedData {
     }
 
     /** Leaves on the tips, as a small tuft on a shoot and as crowns that widen as the tree matures. */
-    private static void foliage(ServerLevel level, Tree t, TreeConfiguration config, float maturity, RandomSource random) {
-        Set<BlockPos> leaves = new HashSet<>();
+    private static void foliage(ServerLevel level, Tree t, TreeConfiguration config, float maturity, RandomSource unused) {
+        // Work out the crown the tree should have now (the same tip always gives the same tuft), then
+        // add the leaves it lacks and take away those it has outgrown: a crown follows its branches.
+        Map<BlockPos, BlockState> want = new LinkedHashMap<>();
         FoliagePlacer.FoliageSetter setter = new FoliagePlacer.FoliageSetter() {
             @Override
             public void set(BlockPos pos, BlockState state) {
-                if (level.isEmptyBlock(pos) || level.getBlockState(pos).canBeReplaced()) {
-                    level.setBlock(pos, state, Block.UPDATE_ALL);
-                    leaves.add(pos.immutable());
+                BlockState there = level.getBlockState(pos);
+                if (there.isAir() || there.canBeReplaced() || t.leaves.contains(pos.asLong()) && there.getBlock() instanceof LeavesBlock) {
+                    want.putIfAbsent(pos.immutable(), state);
                 }
             }
 
             @Override
             public boolean isSet(BlockPos pos) {
-                return leaves.contains(pos);
+                return want.containsKey(pos);
             }
         };
         BlockPos top = t.trunk.get(t.trunk.size() - 1);
         if (t.trunk.size() <= 2 && t.branches.isEmpty()) {
-            setter.set(top.above(), config.foliageProvider.getState(random, top.above()));
-            Direction side = Direction.Plane.HORIZONTAL.getRandomDirection(random);
-            if (t.trunk.size() == 2) setter.set(top.relative(side), config.foliageProvider.getState(random, top.relative(side)));
+            RandomSource r = RandomSource.create(t.crownSeed);
+            setter.set(top.above(), config.foliageProvider.getState(r, top.above()));
+            Direction side = Direction.Plane.HORIZONTAL.getRandomDirection(r);
+            if (t.trunk.size() == 2) setter.set(top.relative(side), config.foliageProvider.getState(r, top.relative(side)));
         } else {
             List<BlockPos> tips = new ArrayList<>();
             if (level.getBlockState(top).getBlock() instanceof BoughBlock) tips.add(top.above());
             for (Branch b : t.branches) if (b.len > 0 && level.getBlockState(b.tip).getBlock() instanceof BoughBlock) tips.add(b.tip);
-            int offset = maturity < 0.35f ? -2 : maturity < 0.7f ? -1 : 0;
+            int offset = maturity < 0.25f ? -2 : maturity < 0.6f ? -1 : 0;
             int height = t.trunk.size();
-            int fh = Math.max(1, Math.round(config.foliagePlacer.foliageHeight(random, height, config) * (0.3f + 0.7f * maturity)));
-            int fr = config.foliagePlacer.foliageRadius(random, height - fh);
+            RandomSource sizes = RandomSource.create(t.crownSeed ^ (offset * 31L + height));
+            int fh = Math.max(1, Math.round(config.foliagePlacer.foliageHeight(sizes, height, config) * (0.3f + 0.7f * maturity)));
+            int fr = config.foliagePlacer.foliageRadius(sizes, height - fh);
             for (BlockPos tip : tips) {
-                config.foliagePlacer.createFoliage(level, setter, random, config, height,
+                RandomSource r = RandomSource.create(t.crownSeed ^ tip.asLong() * 0x9E3779B97F4A7C15L ^ offset);
+                config.foliagePlacer.createFoliage(level, setter, r, config, height,
                         new FoliagePlacer.FoliageAttachment(tip, offset, false), fh, fr);
             }
         }
-        // New leaves work out their distance to the wood, so they don't decay.
-        for (BlockPos p : leaves) {
+
+        Set<Long> keep = new HashSet<>();
+        for (Map.Entry<BlockPos, BlockState> e : want.entrySet()) keep.add(e.getKey().asLong());
+        for (long old : t.leaves) {
+            if (keep.contains(old)) continue;
+            BlockPos p = BlockPos.of(old);
             BlockState s = level.getBlockState(p);
-            if (s.getBlock() instanceof LeavesBlock) level.scheduleTick(p, s.getBlock(), 1);
+            if (s.getBlock() instanceof LeavesBlock && !s.getValue(LeavesBlock.PERSISTENT)) {
+                level.setBlock(p, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+            }
         }
+        for (Map.Entry<BlockPos, BlockState> e : want.entrySet()) {
+            BlockPos p = e.getKey();
+            if (level.getBlockState(p).getBlock() instanceof LeavesBlock) continue;
+            level.setBlock(p, e.getValue(), Block.UPDATE_ALL);
+            // New leaves work out their distance to the wood, so they don't decay.
+            level.scheduleTick(p, e.getValue().getBlock(), 1);
+        }
+        t.leaves = keep;
     }
 
     @Override
@@ -433,6 +455,8 @@ public final class GrowingTrees extends SavedData {
             c.putIntArray("lean_at", t.leanAt.stream().mapToInt(Integer::intValue).toArray());
             c.putLongArray("trunk", t.trunk.stream().mapToLong(BlockPos::asLong).toArray());
             c.putBoolean("trunk_alive", t.trunkAlive);
+            c.putLong("crown_seed", t.crownSeed);
+            c.putLongArray("leaves", t.leaves.stream().mapToLong(Long::longValue).toArray());
             ListTag bl = new ListTag();
             for (Branch b : t.branches) {
                 CompoundTag bc = new CompoundTag();
@@ -470,6 +494,8 @@ public final class GrowingTrees extends SavedData {
             for (int y : c.getIntArray("lean_at")) t.leanAt.add(y);
             for (long p : c.getLongArray("trunk")) t.trunk.add(BlockPos.of(p));
             t.trunkAlive = c.getBoolean("trunk_alive");
+            t.crownSeed = c.contains("crown_seed") ? c.getLong("crown_seed") : c.getLong("pos");
+            for (long l : c.getLongArray("leaves")) t.leaves.add(l);
             for (Tag be : c.getList("branches", Tag.TAG_COMPOUND)) {
                 CompoundTag bc = (CompoundTag) be;
                 Branch b = new Branch();

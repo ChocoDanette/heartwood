@@ -1,20 +1,146 @@
 {
   "variants": {
-    "": [
+    "ground=dirt": [
       {
-        "model": "heartwood:block/seed_mound",
+        "model": "heartwood:block/seed_mound_dirt",
         "y": 0
       },
       {
-        "model": "heartwood:block/seed_mound",
+        "model": "heartwood:block/seed_mound_dirt",
         "y": 90
       },
       {
-        "model": "heartwood:block/seed_mound",
+        "model": "heartwood:block/seed_mound_dirt",
         "y": 180
       },
       {
-        "model": "heartwood:block/seed_mound",
+        "model": "heartwood:block/seed_mound_dirt",
+        "y": 270
+      }
+    ],
+    "ground=grass": [
+      {
+        "model": "heartwood:block/seed_mound_grass",
+        "y": 0
+      },
+      {
+        "model": "heartwood:block/seed_mound_grass",
+        "y": 90
+      },
+      {
+        "model": "heartwood:block/seed_mound_grass",
+        "y": 180
+      },
+      {
+        "model": "heartwood:block/seed_mound_grass",
+        "y": 270
+      }
+    ],
+    "ground=coarse_dirt": [
+      {
+        "model": "heartwood:block/seed_mound_coarse_dirt",
+        "y": 0
+      },
+      {
+        "model": "heartwood:block/seed_mound_coarse_dirt",
+        "y": 90
+      },
+      {
+        "model": "heartwood:block/seed_mound_coarse_dirt",
+        "y": 180
+      },
+      {
+        "model": "heartwood:block/seed_mound_coarse_dirt",
+        "y": 270
+      }
+    ],
+    "ground=podzol": [
+      {
+        "model": "heartwood:block/seed_mound_podzol",
+        "y": 0
+      },
+      {
+        "model": "heartwood:block/seed_mound_podzol",
+        "y": 90
+      },
+      {
+        "model": "heartwood:block/seed_mound_podzol",
+        "y": 180
+      },
+      {
+        "model": "heartwood:block/seed_mound_podzol",
+        "y": 270
+      }
+    ],
+    "ground=mycelium": [
+      {
+        "model": "heartwood:block/seed_mound_mycelium",
+        "y": 0
+      },
+      {
+        "model": "heartwood:block/seed_mound_mycelium",
+        "y": 90
+      },
+      {
+        "model": "heartwood:block/seed_mound_mycelium",
+        "y": 180
+      },
+      {
+        "model": "heartwood:block/seed_mound_mycelium",
+        "y": 270
+      }
+    ],
+    "ground=rooted_dirt": [
+      {
+        "model": "heartwood:block/seed_mound_rooted_dirt",
+        "y": 0
+      },
+      {
+        "model": "heartwood:block/seed_mound_rooted_dirt",
+        "y": 90
+      },
+      {
+        "model": "heartwood:block/seed_mound_rooted_dirt",
+        "y": 180
+      },
+      {
+        "model": "heartwood:block/seed_mound_rooted_dirt",
+        "y": 270
+      }
+    ],
+    "ground=mud": [
+      {
+        "model": "heartwood:block/seed_mound_mud",
+        "y": 0
+      },
+      {
+        "model": "heartwood:block/seed_mound_mud",
+        "y": 90
+      },
+      {
+        "model": "heartwood:block/seed_mound_mud",
+        "y": 180
+      },
+      {
+        "model": "heartwood:block/seed_mound_mud",
+        "y": 270
+      }
+    ],
+    "ground=moss": [
+      {
+        "model": "heartwood:block/seed_mound_moss",
+        "y": 0
+      },
+      {
+        "model": "heartwood:block/seed_mound_moss",
+        "y": 90
+      },
+      {
+        "model": "heartwood:block/seed_mound_moss",
+        "y": 180
+      },
+      {
+        "model": "heartwood:block/seed_mound_moss",
         "y": 270
       }
     ]

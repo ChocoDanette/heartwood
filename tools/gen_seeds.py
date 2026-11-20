@@ -176,19 +176,27 @@ def main():
         en[f"item.{NS}.{name}"] = e; fr[f"item.{NS}.{name}"] = f
     en[f"block.{NS}.seed_mound"] = "Planted Seed"; fr[f"block.{NS}.seed_mound"] = "Semis"
 
-    # The planted seed: a small mound of earth.
-    dirt = "minecraft:block/dirt"
-    face = lambda: {d: {"texture": "#dirt"} for d in ("north", "south", "east", "west", "up")}
-    w(f"assets/{NS}/models/block/seed_mound.json", {
-        "parent": "minecraft:block/block", "ambientocclusion": False,
-        "textures": {"dirt": dirt, "particle": dirt},
-        "elements": [
-            {"from": [3, 0, 3], "to": [13, 2, 13], "faces": face()},
-            {"from": [5, 2, 5], "to": [11, 3, 11], "faces": face()},
-            {"from": [4, 0, 6], "to": [12, 2.5, 10], "faces": face()},
-        ]})
-    w(f"assets/{NS}/blockstates/seed_mound.json", {"variants": {
-        f"": [{"model": f"{NS}:block/seed_mound", "y": y} for y in (0, 90, 180, 270)]}})
+    # The planted seed: a small mound of the ground it was planted in.
+    grounds = {"dirt": ("dirt", "dirt", False), "grass": ("grass_block_top", "dirt", True),
+               "coarse_dirt": ("coarse_dirt", "coarse_dirt", False), "podzol": ("podzol_top", "dirt", False),
+               "mycelium": ("mycelium_top", "dirt", False), "rooted_dirt": ("rooted_dirt", "rooted_dirt", False),
+               "mud": ("mud", "mud", False), "moss": ("moss_block", "moss_block", False)}
+    variants = {}
+    for g, (top, side, tint) in grounds.items():
+        up = {"texture": "#top"} | ({"tintindex": 0} if tint else {})
+        faces = lambda: {d: {"texture": "#side"} for d in ("north", "south", "east", "west")} | {"up": dict(up)}
+        w(f"assets/{NS}/models/block/seed_mound_{g}.json", {
+            "parent": "minecraft:block/block", "ambientocclusion": False,
+            "textures": {"top": f"minecraft:block/{top}", "side": f"minecraft:block/{side}", "particle": f"minecraft:block/{side}"},
+            "elements": [
+                {"from": [3, 0, 3], "to": [13, 2, 13], "faces": faces()},
+                {"from": [5, 2, 5], "to": [11, 3, 11], "faces": faces()},
+                {"from": [4, 0, 6], "to": [12, 2.5, 10], "faces": faces()},
+            ]})
+        variants[f"ground={g}"] = [{"model": f"{NS}:block/seed_mound_{g}", "y": y} for y in (0, 90, 180, 270)]
+    old_model = os.path.join(R, f"assets/{NS}/models/block/seed_mound.json")
+    if os.path.exists(old_model): os.remove(old_model)
+    w(f"assets/{NS}/blockstates/seed_mound.json", {"variants": variants})
 
     # Seeds compost like saplings.
     w("data/neoforge/data_maps/item/compostables.json",

@@ -2,8 +2,9 @@
   "parent": "minecraft:block/block",
   "ambientocclusion": false,
   "textures": {
-    "dirt": "minecraft:block/dirt",
-    "particle": "minecraft:block/dirt"
+    "top": "minecraft:block/moss_block",
+    "side": "minecraft:block/moss_block",
+    "particle": "minecraft:block/moss_block"
   },
   "elements": [
     {
@@ -19,19 +20,19 @@
       ],
       "faces": {
         "north": {
-          "texture": "#dirt"
+          "texture": "#side"
         },
         "south": {
-          "texture": "#dirt"
+          "texture": "#side"
         },
         "east": {
-          "texture": "#dirt"
+          "texture": "#side"
         },
         "west": {
-          "texture": "#dirt"
+          "texture": "#side"
         },
         "up": {
-          "texture": "#dirt"
+          "texture": "#top"
         }
       }
     },
@@ -48,19 +49,19 @@
       ],
       "faces": {
         "north": {
-          "texture": "#dirt"
+          "texture": "#side"
         },
         "south": {
-          "texture": "#dirt"
+          "texture": "#side"
         },
         "east": {
-          "texture": "#dirt"
+          "texture": "#side"
         },
         "west": {
-          "texture": "#dirt"
+          "texture": "#side"
         },
         "up": {
-          "texture": "#dirt"
+          "texture": "#top"
         }
       }
     },
@@ -77,19 +78,19 @@
       ],
       "faces": {
         "north": {
-          "texture": "#dirt"
+          "texture": "#side"
         },
         "south": {
-          "texture": "#dirt"
+          "texture": "#side"
         },
         "east": {
-          "texture": "#dirt"
+          "texture": "#side"
         },
         "west": {
-          "texture": "#dirt"
+          "texture": "#side"
         },
         "up": {
-          "texture": "#dirt"
+          "texture": "#top"
         }
       }
     }
