@@ -171,14 +171,17 @@ public final class FellingEvents {
         for (BlockPos p : BoughBlock.descendants(level, pos, 2000)) level.destroyBlock(p, true, player);
     }
 
-    /** The horizontal face of the block the player is hitting; falls back to the face looking at the player. */
+    /** The horizontal face of the block the player is hitting; otherwise the side of the block facing the player. */
     private static Direction hitFace(Player player, BlockPos pos) {
         HitResult hit = player.pick(player.blockInteractionRange(), 1.0f, false);
         if (hit instanceof BlockHitResult blockHit && blockHit.getType() == HitResult.Type.BLOCK
                 && blockHit.getBlockPos().equals(pos) && blockHit.getDirection().getAxis().isHorizontal()) {
             return blockHit.getDirection();
         }
-        return player.getDirection().getOpposite();
+        // Hitting the shell of a thick trunk, or a block in the way: the side of the trunk facing the player.
+        double dx = player.getX() - (pos.getX() + 0.5), dz = player.getZ() - (pos.getZ() + 0.5);
+        if (dx * dx + dz * dz < 1.0E-4) return player.getDirection().getOpposite();
+        return Math.abs(dx) > Math.abs(dz) ? (dx > 0 ? Direction.EAST : Direction.WEST) : (dz > 0 ? Direction.SOUTH : Direction.NORTH);
     }
 
     /** True when a thin bough (a twig or small branch) still hangs from this piece. */
