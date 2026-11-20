@@ -27,6 +27,8 @@ import net.neoforged.neoforge.event.level.BlockEvent;
  * Sneaking, or breaking without an axe, breaks one block; natural wood always gives green logs.
  */
 public final class FellingEvents {
+    /** From this radius on (half a block across), a bough is timber: it gives logs and needs an axe. */
+    private static final int THICK = 4;
 
     @SubscribeEvent
     public static void onBreak(BlockEvent.BreakEvent event) {
@@ -105,13 +107,24 @@ public final class FellingEvents {
         int radius = state.getValue(BoughBlock.RADIUS);
         boolean axe = tool.is(ItemTags.AXES);
         if (!BoughBlock.isRooted(level, pos)) {
-            if (radius >= 4 && hasBranchesAround(level, pos)) {
+            // Fallen tree. Limbing: a thin piece comes off with the twigs it carries.
+            if (radius < THICK) {
+                for (BlockPos p : BoughBlock.descendants(level, pos, 2000)) level.destroyBlock(p, true, player);
+                return;
+            }
+            // Bucking: a thick piece needs an axe, once its leaves and thin branches are off.
+            if (hasBranchesAround(level, pos) || hasThinBoughs(level, pos)) {
                 event.setCanceled(true);
                 player.displayClientMessage(Component.translatable("message.heartwood.limb_first"), true);
-            } else if (radius >= 4 && !axe) {
+            } else if (!axe) {
                 event.setCanceled(true);
                 player.displayClientMessage(Component.translatable("message.heartwood.need_axe"), true);
             }
+            return;
+        }
+        if (radius >= THICK && !axe) {
+            event.setCanceled(true);
+            player.displayClientMessage(Component.translatable("message.heartwood.need_axe_branch"), true);
             return;
         }
         Direction notch = state.getValue(BoughBlock.NOTCH).dir;
@@ -127,7 +140,7 @@ public final class FellingEvents {
             }
             return;
         }
-        if (axe && !player.isShiftKeyDown() && radius >= 4 && state.getValue(BoughBlock.PARENT) == BoughBlock.Parent.DOWN) {
+        if (axe && !player.isShiftKeyDown() && radius >= THICK && state.getValue(BoughBlock.PARENT) == BoughBlock.Parent.DOWN) {
             event.setCanceled(true);
             tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
             level.setBlock(pos, state.setValue(BoughBlock.NOTCH, BoughBlock.Notch.of(hitFace(player, pos))), Block.UPDATE_ALL);
@@ -148,6 +161,17 @@ public final class FellingEvents {
             return blockHit.getDirection();
         }
         return player.getDirection().getOpposite();
+    }
+
+    /** True when a thin bough (a twig or small branch) still hangs from this piece. */
+    private static boolean hasThinBoughs(ServerLevel level, BlockPos pos) {
+        for (Direction d : Direction.values()) {
+            BlockPos n = pos.relative(d);
+            BlockState s = level.getBlockState(n);
+            if (s.getBlock() instanceof BoughBlock && s.getValue(BoughBlock.RADIUS) < THICK
+                    && pos.equals(BoughBlock.parentPos(s, n))) return true;
+        }
+        return false;
     }
 
     /** True when branches still touch this trunk section (including diagonally). */

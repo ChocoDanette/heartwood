@@ -93,12 +93,19 @@ def main():
         green = f"{NS}:green_{wood}_log"
         radius = lambda lo, hi: {"condition": "minecraft:block_state_property", "block": f"{NS}:{b}",
                                  "properties": {"radius": {"min": str(lo), "max": str(hi)}}}
+        # Bucking by thickness: twigs give sticks, poles a log one time in two, thick pieces a green log.
+        sticks = lambda n: {"type": "minecraft:item", "name": "minecraft:stick"} | (
+            {"functions": [{"function": "minecraft:set_count", "count": n}]} if n != 1 else {})
+        boom = {"condition": "minecraft:survives_explosion"}
         w(f"data/{NS}/loot_table/blocks/{b}.json", {"type": "minecraft:block", "pools": [
-            {"rolls": 1, "conditions": [radius(1, 3), {"condition": "minecraft:survives_explosion"}],
-             "entries": [{"type": "minecraft:item", "name": "minecraft:stick",
-                          "functions": [{"function": "minecraft:set_count", "count": {"type": "minecraft:uniform", "min": 1, "max": 2}}]}]},
-            {"rolls": 1, "conditions": [radius(4, 8), {"condition": "minecraft:survives_explosion"}],
-             "entries": [{"type": "minecraft:item", "name": green}]}]})
+            {"rolls": 1, "conditions": [radius(1, 1), boom, {"condition": "minecraft:random_chance", "chance": 0.5}],
+             "entries": [sticks(1)]},
+            {"rolls": 1, "conditions": [radius(2, 2), boom], "entries": [sticks(1)]},
+            {"rolls": 1, "conditions": [radius(3, 3), boom], "entries": [sticks(2)]},
+            {"rolls": 1, "conditions": [radius(4, 4), boom], "entries": [{"type": "minecraft:alternatives", "children": [
+                {"type": "minecraft:item", "name": green, "conditions": [{"condition": "minecraft:random_chance", "chance": 0.5}]},
+                sticks(3)]}]},
+            {"rolls": 1, "conditions": [radius(5, 8), boom], "entries": [{"type": "minecraft:item", "name": green}]}]})
         tag.append(f"{NS}:{b}")
         en[f"block.{NS}.{b}"] = f"{e} Bough"; fr[f"block.{NS}.{b}"] = f"Branche {f}"
 

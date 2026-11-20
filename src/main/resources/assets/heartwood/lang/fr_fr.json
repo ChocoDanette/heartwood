@@ -32,6 +32,7 @@
   "block.heartwood.azalea_branches": "Branches d'azalée",
   "block.heartwood.flowering_azalea_branches": "Branches d'azalée fleurie",
   "message.heartwood.limb_first": "Ébranchez d'abord le tronc : coupez les branches à la hache.",
+  "message.heartwood.need_axe_branch": "Il faut une hache pour couper une branche aussi épaisse.",
   "message.heartwood.need_axe": "Il faut une hache pour débiter le tronc.",
   "block.heartwood.green_oak_log": "Bûche verte de chêne",
   "item.heartwood.green_oak_log": "Bûche verte de chêne",

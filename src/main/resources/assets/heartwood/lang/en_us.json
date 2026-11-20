@@ -32,6 +32,7 @@
   "block.heartwood.azalea_branches": "Azalea Branches",
   "block.heartwood.flowering_azalea_branches": "Flowering Azalea Branches",
   "message.heartwood.limb_first": "Limb the trunk first: cut the branches off with an axe.",
+  "message.heartwood.need_axe_branch": "You need an axe to cut a branch this thick.",
   "message.heartwood.need_axe": "You need an axe to buck the trunk.",
   "block.heartwood.green_oak_log": "Green Oak Log",
   "item.heartwood.green_oak_log": "Green Oak Log",
