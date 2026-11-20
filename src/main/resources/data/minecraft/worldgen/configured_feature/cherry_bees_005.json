@@ -63,7 +63,8 @@
       },
       "girth": {
         "growth": 0.9,
-        "max_radius": 6
+        "max_radius": 6,
+        "trunk_radius": 10
       }
     },
     "trunk_provider": {

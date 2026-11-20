@@ -56,6 +56,8 @@ public final class GrowingTrees extends SavedData {
     private static final int CHECK_EVERY = 100;
     /** Most steps a tree catches up on in one check, so a long absence is spread over a few seconds. */
     private static final int MAX_STEPS_PER_CHECK = 4;
+    /** Once grown, the foot of the trunk gains a pixel of radius every this many steps (about 3 days). */
+    private static final int STEPS_PER_PIXEL = 6;
 
     private static final class Branch {
         BlockPos from, tip;
@@ -243,7 +245,9 @@ public final class GrowingTrees extends SavedData {
         boolean branchCan = t.branches.stream().filter(b -> !b.forked).count() < t.targetBranches && !branchFrom.isEmpty();
         int wTrunk = trunkCan ? 3 : 0, wBranch = branchCan ? 2 : 0, wExtend = growing.isEmpty() ? 0 : 2, wFill = 1;
         float maturity = maturity(t, shape);
-        if (!trunkCan && !branchCan && growing.isEmpty() && maturity >= 1f) return false;
+        int oldAge = Math.round(t.age - matureSteps(t, shape));
+        if (!trunkCan && !branchCan && growing.isEmpty() && maturity >= 1f
+                && (oldAge > 0 && fullGirth(level, root, placer.girth()) || oldAge > 400)) return false;
 
         int roll = random.nextInt(wTrunk + wBranch + wExtend + wFill);
         if (roll < wTrunk) {
@@ -254,16 +258,20 @@ public final class GrowingTrees extends SavedData {
             extendBranch(level, t, shape, bough, growing.get(random.nextInt(growing.size())), random);
         }
         // Every step: the wood thickens with age and the crown fills out.
-        thicken(level, root, placer.girth(), maturity);
+        thicken(level, root, placer.girth(), maturity, oldAge);
         foliage(level, t, config, maturity, random);
         return true;
     }
 
     /** How grown the tree is, from 0 to 1, by the number of steps it has taken. */
     private static float maturity(Tree t, OrganicTrunkPlacer.Branches shape) {
+        return Math.min(1f, t.age / Math.max(1f, matureSteps(t, shape)));
+    }
+
+    /** Roughly how many steps the tree takes to reach its full height and spread. */
+    private static float matureSteps(Tree t, OrganicTrunkPlacer.Branches shape) {
         float avgLen = (shape.length().getMinValue() + shape.length().getMaxValue()) / 2f;
-        float steps = 1.6f * (t.targetHeight + t.targetBranches * avgLen * (1f + shape.fork() / 2f));
-        return Math.min(1f, t.age / Math.max(1f, steps));
+        return 1.6f * (t.targetHeight + t.targetBranches * avgLen * (1f + shape.fork() / 2f));
     }
 
     /** The seed comes up: a one-piece shoot with a few leaves. */
@@ -351,7 +359,7 @@ public final class GrowingTrees extends SavedData {
     }
 
     /** Pipe model over the whole tree as it stands: thicker towards the root, and with age. */
-    private static void thicken(ServerLevel level, BlockPos root, BoughTrunkPlacer.Girth girth, float maturity) {
+    private static void thicken(ServerLevel level, BlockPos root, BoughTrunkPlacer.Girth girth, float maturity, int oldAge) {
         List<BlockPos> pieces = new ArrayList<>(BoughBlock.descendants(level, root, 4000));   // twigs first
         pieces.add(root);
         Map<BlockPos, Float> area = new HashMap<>();
@@ -363,20 +371,49 @@ public final class GrowingTrees extends SavedData {
             parent.put(p, par);
             if (par != null) area.merge(par, a, Float::sum);
         }
+        // The upright part of the trunk (up to its first lean) keeps thickening once the tree is
+        // grown, a pixel every few steps, most at the foot: big species end up over a block across.
+        int column = 0;
+        java.util.Set<BlockPos> upright = new HashSet<>();
+        for (int i = pieces.size() - 1; i >= 0; i--) {
+            BlockPos p = pieces.get(i), par = parent.get(p);
+            if (par == null || upright.contains(par) && par.equals(p.below())) {
+                upright.add(p);
+                column = Math.max(column, p.getY() - root.getY() + 1);
+            }
+        }
+        int extra = Math.max(0, oldAge / STEPS_PER_PIXEL);
         float k = 0.25f + 0.75f * maturity;
         Map<BlockPos, Integer> radius = new HashMap<>();
         for (int i = pieces.size() - 1; i >= 0; i--) {   // root first
             BlockPos p = pieces.get(i);
             int r = Mth.clamp(Math.round((float) Math.sqrt(area.get(p) * k)), 1, girth.maxRadius());
+            if (upright.contains(p) && extra > 0) {
+                float rel = (p.getY() - root.getY()) / Math.max(1f, column * 0.7f);
+                r = Math.min(girth.trunk(), r + Math.round(extra * Math.max(0f, 1f - rel)));
+                if (r > 8 && !roomFor(level, p)) r = 8;
+            }
             BlockPos par = parent.get(p);
             if (par != null && radius.containsKey(par)) r = Math.min(r, radius.get(par));
             BlockState s = level.getBlockState(p);
             r = Math.max(r, s.getValue(BoughBlock.RADIUS));   // wood never gets thinner
             radius.put(p, r);
-            int pr = par != null && radius.containsKey(par) ? radius.get(par) : s.getValue(BoughBlock.PARENT_RADIUS);
-            BlockState n = s.setValue(BoughBlock.RADIUS, r).setValue(BoughBlock.PARENT_RADIUS, pr);
+            int pr = par != null && radius.containsKey(par) ? Math.min(8, radius.get(par)) : s.getValue(BoughBlock.PARENT_RADIUS);
+            BlockState n = s.setValue(BoughBlock.RADIUS, r).setValue(BoughBlock.PARENT_RADIUS, Math.max(Math.min(8, r), pr));
             if (n != s) level.setBlock(p, n, Block.UPDATE_CLIENTS);
         }
+    }
+
+    /** True when the ring around an upright trunk piece is free for its shells. */
+    private static boolean roomFor(ServerLevel level, BlockPos p) {
+        for (BlockPos q : BoughBlock.ring(p, Direction.Axis.Y)) if (!BoughBlock.shellFits(level, q, p)) return false;
+        return true;
+    }
+
+    /** True when the foot of the trunk has reached the species' full girth. */
+    private static boolean fullGirth(ServerLevel level, BlockPos root, BoughTrunkPlacer.Girth girth) {
+        BlockState s = level.getBlockState(root);
+        return !(s.getBlock() instanceof BoughBlock) || s.getValue(BoughBlock.RADIUS) >= girth.trunk() || !roomFor(level, root);
     }
 
     /** Leaves on the tips, as a small tuft on a shoot and as crowns that widen as the tree matures. */

@@ -59,7 +59,8 @@
       },
       "girth": {
         "growth": 1.1,
-        "max_radius": 8
+        "max_radius": 8,
+        "trunk_radius": 16
       }
     },
     "foliage_placer": {

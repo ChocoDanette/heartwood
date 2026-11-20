@@ -34,12 +34,21 @@ import java.util.function.BiConsumer;
  * section of a piece is the sum of its children's plus a little growth (pipe model).
  */
 public class BoughTrunkPlacer extends TrunkPlacer {
-    /** Thickness: growth added per piece (in squared pixels) and the largest radius (8 = full block). */
-    public record Girth(float growth, int maxRadius) {
+    /**
+     * Thickness: growth added per piece (in squared pixels), the largest radius of the pipe model
+     * (8 = full block), and the radius an old trunk can reach at its foot (up to 16, two blocks across).
+     */
+    public record Girth(float growth, int maxRadius, int trunkRadius) {
         public static final Codec<Girth> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Codec.floatRange(0f, 8f).fieldOf("growth").forGetter(Girth::growth),
-                Codec.intRange(1, 8).fieldOf("max_radius").forGetter(Girth::maxRadius)
+                Codec.intRange(1, 8).fieldOf("max_radius").forGetter(Girth::maxRadius),
+                Codec.intRange(0, BoughBlock.MAX_RADIUS).optionalFieldOf("trunk_radius", 0).forGetter(Girth::trunkRadius)
         ).apply(i, Girth::new));
+
+        /** The thickest the trunk gets. */
+        public int trunk() {
+            return Math.max(maxRadius, trunkRadius);
+        }
     }
 
     public static final MapCodec<BoughTrunkPlacer> CODEC = RecordCodecBuilder.mapCodec(i ->
@@ -184,6 +193,31 @@ public class BoughTrunkPlacer extends TrunkPlacer {
             radius.put(p, r);
         }
 
+        // Old trees: the upright foot of the trunk has kept thickening, more for big species.
+        if (girth.trunk() > girth.maxRadius()) {
+            int column = 0;
+            java.util.Set<BlockPos> upright = new java.util.HashSet<>();
+            for (BlockPos p : order) {
+                BlockPos par = sk.parent.get(p);
+                if (par == null || upright.contains(par) && par.equals(p.below())) {
+                    upright.add(p);
+                    column = Math.max(column, p.getY() - origin.getY() + 1);
+                }
+            }
+            int extra = random.nextInt(girth.trunk() - girth.maxRadius() + 1) + random.nextInt(3);
+            for (BlockPos p : order) {
+                if (!upright.contains(p)) continue;
+                float rel = (p.getY() - origin.getY()) / Math.max(1f, column * 0.7f);
+                int r = Math.min(girth.trunk(), radius.get(p) + Math.round(extra * Math.max(0f, 1f - rel)));
+                if (r > 8) {
+                    for (BlockPos q : BoughBlock.ring(p, Direction.Axis.Y)) {
+                        if (!sk.parent.containsKey(q) && !TreeFeature.validTreePos(level, q)) { r = 8; break; }
+                    }
+                }
+                radius.put(p, r);
+            }
+        }
+
         BlockState logState = config.trunkProvider.getState(random, origin);
         Block bough = ModBlocks.boughFor(logState.getBlock());
         // A piece blocked by something (often a neighbouring tree) is left out with all it carries,
@@ -203,6 +237,15 @@ public class BoughTrunkPlacer extends TrunkPlacer {
             } else {
                 setter.accept(p, logState.hasProperty(RotatedPillarBlock.AXIS)
                         ? logState.setValue(RotatedPillarBlock.AXIS, toParent.getAxis()) : logState);
+            }
+        }
+        // The shells around trunk pieces over a block thick.
+        if (bough != null) {
+            for (BlockPos p : placed) {
+                if (radius.get(p) <= 8) continue;
+                for (BlockPos q : BoughBlock.ring(p, Direction.Axis.Y)) {
+                    if (!sk.parent.containsKey(q) && TreeFeature.validTreePos(level, q)) setter.accept(q, TrunkShellBlock.pointingTo(q, p));
+                }
             }
         }
     }

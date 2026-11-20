@@ -22,6 +22,9 @@ import java.util.function.Supplier;
  * RADIUS is the half-thickness in pixels (1 = twig, 8 = full block). Each piece knows the side
  * of its parent (towards the roots) and the parent's radius, so that it can draw the joint:
  * its own core, plus an arm reaching the surface of the parent's core.
+ * A trunk can grow thicker than a block (RADIUS 9 to 16, up to two blocks across): it is then
+ * drawn round across its neighbours, and invisible {@link TrunkShellBlock}s fill the ring of
+ * blocks around it so that it can be hit and walked into.
  */
 public class BoughBlock extends Block {
     public enum Parent implements StringRepresentable {
@@ -56,12 +59,14 @@ public class BoughBlock extends Block {
         public String getSerializedName() { return name().toLowerCase(java.util.Locale.ROOT); }
     }
 
+    /** Thickest piece: a trunk two blocks across. Pieces over 8 overflow into a ring of shells. */
+    public static final int MAX_RADIUS = 16;
     public static final EnumProperty<Notch> NOTCH = EnumProperty.create("notch", Notch.class);
-    public static final IntegerProperty RADIUS = IntegerProperty.create("radius", 1, 8);
+    public static final IntegerProperty RADIUS = IntegerProperty.create("radius", 1, MAX_RADIUS);
     public static final EnumProperty<Parent> PARENT = EnumProperty.create("parent", Parent.class);
     public static final IntegerProperty PARENT_RADIUS = IntegerProperty.create("parent_radius", 1, 8);
 
-    private static final VoxelShape[][][] SHAPES = new VoxelShape[9][Parent.values().length][9];
+    private static final VoxelShape[][][] SHAPES = new VoxelShape[MAX_RADIUS + 1][Parent.values().length][9];
 
     private final Supplier<Block> log;
 
@@ -78,7 +83,7 @@ public class BoughBlock extends Block {
 
     public static BlockState state(Block bough, int radius, Direction parent, int parentRadius) {
         return bough.defaultBlockState().setValue(RADIUS, radius).setValue(PARENT, Parent.of(parent))
-                .setValue(PARENT_RADIUS, Math.max(radius, Math.min(8, parentRadius)));
+                .setValue(PARENT_RADIUS, Math.min(8, Math.max(radius, parentRadius)));
     }
 
     @Override
@@ -97,6 +102,7 @@ public class BoughBlock extends Block {
     }
 
     private static VoxelShape shape(int r, Parent p, int pr) {
+        if (r >= 8) return Shapes.block();
         double lo = 8 - r, hi = 8 + r;
         VoxelShape core = Block.box(lo, lo, lo, hi, hi, hi);
         if (p == Parent.NONE || r == 8) return core;
@@ -194,9 +200,59 @@ public class BoughBlock extends Block {
         if (!(state.getBlock() instanceof BoughBlock)) return state;
         Direction d = state.getValue(PARENT).dir;
         if (d == null) return state;
-        if (parent.getBlock() instanceof BoughBlock) return state.setValue(PARENT_RADIUS, parent.getValue(RADIUS));
+        if (parent.getBlock() instanceof BoughBlock) return state.setValue(PARENT_RADIUS, Math.min(8, parent.getValue(RADIUS)));
         if (d == Direction.DOWN && !parent.isAir() && !parent.canBeReplaced()) return state;
         return state.setValue(PARENT, Parent.NONE).setValue(NOTCH, Notch.NONE);
+    }
+
+    /** The axis a piece lies along: towards its parent (upright when it has none). */
+    public static Direction.Axis axis(BlockState state) {
+        Direction d = state.getValue(PARENT).dir;
+        return d == null ? Direction.Axis.Y : d.getAxis();
+    }
+
+    /** The eight blocks around a piece, square to its axis: where the shells of a thick piece go. */
+    public static java.util.List<BlockPos> ring(BlockPos pos, Direction.Axis axis) {
+        java.util.List<BlockPos> out = new java.util.ArrayList<>(8);
+        for (int a = -1; a <= 1; a++) {
+            for (int b = -1; b <= 1; b++) {
+                if (a == 0 && b == 0) continue;
+                out.add(switch (axis) {
+                    case Y -> pos.offset(a, 0, b);
+                    case X -> pos.offset(0, a, b);
+                    case Z -> pos.offset(a, b, 0);
+                });
+            }
+        }
+        return out;
+    }
+
+    /** True when a shell of the piece at core may stand at pos (nothing solid is in the way). */
+    public static boolean shellFits(net.minecraft.world.level.LevelReader level, BlockPos pos, BlockPos core) {
+        BlockState s = level.getBlockState(pos);
+        if (s.getBlock() instanceof TrunkShellBlock) return core.equals(TrunkShellBlock.core(s, pos));
+        return s.isAir() || s.canBeReplaced() || s.is(net.minecraft.tags.BlockTags.LEAVES) || s.getBlock() instanceof BoughBlock;
+    }
+
+    @Override
+    protected void onPlace(BlockState state, net.minecraft.world.level.Level level, BlockPos pos, BlockState old, boolean moving) {
+        super.onPlace(state, level, pos, old, moving);
+        if (level.isClientSide) return;
+        boolean wasThick = old.getBlock() instanceof BoughBlock && old.getValue(RADIUS) > 8;
+        if (wasThick && (state.getValue(RADIUS) <= 8 || axis(old) != axis(state))) TrunkShellBlock.clear(level, pos);
+        if (state.getValue(RADIUS) > 8) {
+            for (BlockPos p : ring(pos, axis(state))) {
+                BlockState there = level.getBlockState(p);
+                if (there.getBlock() instanceof BoughBlock || there.getBlock() instanceof TrunkShellBlock) continue;
+                if (shellFits(level, p, pos)) level.setBlock(p, TrunkShellBlock.pointingTo(p, pos), Block.UPDATE_ALL);
+            }
+        }
+    }
+
+    @Override
+    protected void onRemove(BlockState state, net.minecraft.world.level.Level level, BlockPos pos, BlockState newState, boolean moving) {
+        if (!level.isClientSide && state.getValue(RADIUS) > 8 && !newState.is(state.getBlock())) TrunkShellBlock.clear(level, pos);
+        super.onRemove(state, level, pos, newState, moving);
     }
 
     @Override

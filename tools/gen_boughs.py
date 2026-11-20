@@ -21,11 +21,14 @@ WOODS = {
 ROT = {"up": {}, "down": {"x": 180}, "north": {"x": 90}, "south": {"x": 90, "y": 180},
        "east": {"x": 90, "y": 90}, "west": {"x": 90, "y": 270}}
 
-def w(path, data):
+def w(path, data, compact=False):
     path = os.path.join(R, path)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+        if compact:
+            json.dump(data, f, separators=(",", ":"), ensure_ascii=False)
+        else:
+            json.dump(data, f, indent=2, ensure_ascii=False)
 
 def model(side, end, r, pr):
     lo, hi = 8 - r, 8 + r
@@ -65,6 +68,40 @@ def notch_model(side, end, r, pr):
 
 NOTCH_Y = {"north": 0, "east": 90, "south": 180, "west": 270}
 
+def _segments(a0, a1):
+    """Splits [a0, a1] at the block edges so that each part maps onto a 16-pixel texture."""
+    cuts = sorted({a0, a1} | {c for c in (0, 8, 16) if a0 < c < a1})
+    return [(cuts[i], cuts[i + 1]) for i in range(len(cuts) - 1)]
+
+def _u(a0, a1):
+    shift = -16 * ((a0 + a1) / 2 // 16)
+    return a0 + shift, a1 + shift
+
+def thick_model(side, end, r, notch=False):
+    """A trunk piece over a block thick (r = 9..16): a full-height box 2r across, drawn over its
+    neighbours, split so the bark is not stretched; optionally with a V notch in its north face."""
+    lo, hi = 8 - r, 8 + r
+    depth = max(2, round(r * 0.8))
+    slices = [(y, y + 1) for y in range(16)] if notch else [(0, 16)]
+    elements = []
+    for y0, y1 in slices:
+        d = round(depth * (1 - abs((y0 + y1) / 2 - 8) / 8)) if notch else 0
+        zl = lo + d
+        for x0, x1 in _segments(lo, hi):
+            for z0, z1 in _segments(zl, hi):
+                ux0, ux1 = _u(x0, x1); uz0, uz1 = _u(z0, z1)
+                v = [16 - y1, 16 - y0]
+                faces = {}
+                if z0 == zl: faces["north"] = {"uv": [ux0, v[0], ux1, v[1]], "texture": "#end" if d else "#side"}
+                if z1 == hi: faces["south"] = {"uv": [ux0, v[0], ux1, v[1]], "texture": "#side"}
+                if x0 == lo: faces["west"] = {"uv": [uz0, v[0], uz1, v[1]], "texture": "#side"}
+                if x1 == hi: faces["east"] = {"uv": [uz0, v[0], uz1, v[1]], "texture": "#side"}
+                if notch or y1 == 16: faces["up"] = {"uv": [ux0, uz0, ux1, uz1], "texture": "#end"}
+                if notch or y0 == 0: faces["down"] = {"uv": [ux0, uz0, ux1, uz1], "texture": "#end"}
+                elements.append({"from": [x0, y0, z0], "to": [x1, y1, z1], "faces": faces})
+    return {"parent": "minecraft:block/block", "ambientocclusion": True,
+            "textures": {"side": side, "end": end, "particle": side}, "elements": elements}
+
 def main():
     en, fr = {}, {}
     tag = []
@@ -88,7 +125,21 @@ def main():
                             variants[key(d)] = {"model": m + "_notch"} | ({"y": NOTCH_Y[notch]} if NOTCH_Y[notch] else {})
                         else:
                             variants[key(d)] = {"model": m} | rot
-        w(f"assets/{NS}/blockstates/{b}.json", {"variants": variants})
+        # Trunk pieces over a block thick: the same round trunk whatever their joint.
+        for r in range(9, 17):
+            w(f"assets/{NS}/models/block/bough/{wood}_{r}.json", thick_model(side, end, r))
+            w(f"assets/{NS}/models/block/bough/{wood}_{r}_notch.json", thick_model(side, end, r, notch=True))
+            m = f"{NS}:block/bough/{wood}_{r}"
+            for pr in range(1, 9):
+                for notch in ("none", "north", "south", "west", "east"):
+                    key = lambda parent: f"notch={notch},parent={parent},parent_radius={pr},radius={r}"
+                    variants[key("none")] = {"model": m}
+                    for d, rot in ROT.items():
+                        if d == "down" and notch != "none":
+                            variants[key(d)] = {"model": m + "_notch"} | ({"y": NOTCH_Y[notch]} if NOTCH_Y[notch] else {})
+                        else:
+                            variants[key(d)] = {"model": m} | rot
+        w(f"assets/{NS}/blockstates/{b}.json", {"variants": variants}, compact=True)
 
         green = f"{NS}:green_{wood}_log"
         radius = lambda lo, hi: {"condition": "minecraft:block_state_property", "block": f"{NS}:{b}",
@@ -105,9 +156,18 @@ def main():
             {"rolls": 1, "conditions": [radius(4, 4), boom], "entries": [{"type": "minecraft:alternatives", "children": [
                 {"type": "minecraft:item", "name": green, "conditions": [{"condition": "minecraft:random_chance", "chance": 0.5}]},
                 sticks(3)]}]},
-            {"rolls": 1, "conditions": [radius(5, 8), boom], "entries": [{"type": "minecraft:item", "name": green}]}]})
+            {"rolls": 1, "conditions": [radius(5, 9), boom], "entries": [{"type": "minecraft:item", "name": green}]},
+            # Trunks over a block thick: logs in proportion to their cross-section.
+            *[{"rolls": 1, "conditions": [radius(lo, hi), boom], "entries": [{"type": "minecraft:item", "name": green,
+               "functions": [{"function": "minecraft:set_count", "count": n}]}]}
+              for lo, hi, n in ((10, 12, 2), (13, 14, 3), (15, 16, 4))]]})
         tag.append(f"{NS}:{b}")
         en[f"block.{NS}.{b}"] = f"{e} Bough"; fr[f"block.{NS}.{b}"] = f"Branche {f}"
+
+    # The invisible outer ring of thick trunks (it only lends its particles).
+    w(f"assets/{NS}/models/block/trunk_shell.json", {"textures": {"particle": "minecraft:block/oak_log"}})
+    w(f"assets/{NS}/blockstates/trunk_shell.json", {"variants": {"": {"model": f"{NS}:block/trunk_shell"}}})
+    en[f"block.{NS}.trunk_shell"] = "Trunk"; fr[f"block.{NS}.trunk_shell"] = "Tronc"
 
     for t in ("logs", "logs_that_burn"):
         p = os.path.join(R, f"data/minecraft/tags/block/{t}.json")
@@ -116,7 +176,7 @@ def main():
             if v not in cur["values"]: cur["values"].append(v)
         w(f"data/minecraft/tags/block/{t}.json", cur)
     p = os.path.join(R, "data/minecraft/tags/block/mineable/axe.json"); cur = json.load(open(p))
-    for v in tag:
+    for v in tag + [f"{NS}:trunk_shell"]:
         if v not in cur["values"]: cur["values"].append(v)
     json.dump(cur, open(p, "w"), indent=2)
     for lang, d in (("en_us", en), ("fr_fr", fr)):

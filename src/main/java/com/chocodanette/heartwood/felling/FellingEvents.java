@@ -50,6 +50,24 @@ public final class FellingEvents {
             return;
         }
 
+        // The outer ring of a thick trunk: the cut works on the trunk piece it belongs to.
+        if (state.getBlock() instanceof com.chocodanette.heartwood.tree.TrunkShellBlock) {
+            BlockPos core = com.chocodanette.heartwood.tree.TrunkShellBlock.core(state, pos);
+            BlockState coreState = level.getBlockState(core);
+            event.setCanceled(true);
+            if (!(coreState.getBlock() instanceof BoughBlock bough)) {
+                level.removeBlock(pos, false);
+                return;
+            }
+            BlockEvent.BreakEvent coreEvent = new BlockEvent.BreakEvent(level, core, coreState, player);
+            onBreakBough(coreEvent, level, core, coreState, bough, player, tool);
+            if (!coreEvent.isCanceled()) {
+                if (tool.is(ItemTags.AXES) && !player.isCreative()) tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
+                level.destroyBlock(core, !player.isCreative(), player);
+            }
+            return;
+        }
+
         // Bucking: a felled trunk is cut with an axe, once its branches are off.
         if (state.getBlock() instanceof FelledLogBlock) {
             if (player.isCreative()) return;

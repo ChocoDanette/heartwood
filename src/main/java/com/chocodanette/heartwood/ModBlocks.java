@@ -58,6 +58,11 @@ public final class ModBlocks {
             () -> new com.chocodanette.heartwood.tree.SeedMoundBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.DIRT).strength(0.3f).sound(SoundType.ROOTED_DIRT).noLootTable()
                     .noOcclusion().pushReaction(PushReaction.DESTROY)));
+    /** The outer ring of a trunk more than a block thick. */
+    public static final DeferredBlock<com.chocodanette.heartwood.tree.TrunkShellBlock> TRUNK_SHELL = BLOCKS.register("trunk_shell",
+            () -> new com.chocodanette.heartwood.tree.TrunkShellBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WOOD).strength(2.0f).sound(SoundType.WOOD).noLootTable()
+                    .noOcclusion().dynamicShape().pushReaction(PushReaction.BLOCK)));
     public static final List<DeferredItem<com.chocodanette.heartwood.tree.SeedItem>> SEEDS = new ArrayList<>();
 
     private static void seed(String name, String... features) {

@@ -137,7 +137,7 @@
           "properties": {
             "radius": {
               "min": "5",
-              "max": "8"
+              "max": "9"
             }
           }
         },
@@ -149,6 +149,96 @@
         {
           "type": "minecraft:item",
           "name": "heartwood:green_scots_pine_log"
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "conditions": [
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "heartwood:scots_pine_bough",
+          "properties": {
+            "radius": {
+              "min": "10",
+              "max": "12"
+            }
+          }
+        },
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "heartwood:green_scots_pine_log",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "conditions": [
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "heartwood:scots_pine_bough",
+          "properties": {
+            "radius": {
+              "min": "13",
+              "max": "14"
+            }
+          }
+        },
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "heartwood:green_scots_pine_log",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "conditions": [
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "heartwood:scots_pine_bough",
+          "properties": {
+            "radius": {
+              "min": "15",
+              "max": "16"
+            }
+          }
+        },
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "heartwood:green_scots_pine_log",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": 4
+            }
+          ]
         }
       ]
     }

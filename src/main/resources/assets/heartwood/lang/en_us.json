@@ -179,5 +179,6 @@
   "item.heartwood.scots_pine_seeds": "Scots Pine Seeds",
   "item.heartwood.sweet_chestnut": "Sweet Chestnut",
   "item.heartwood.maple_key": "Maple Key",
-  "block.heartwood.seed_mound": "Planted Seed"
+  "block.heartwood.seed_mound": "Planted Seed",
+  "block.heartwood.trunk_shell": "Trunk"
 }
