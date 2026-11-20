@@ -35,13 +35,28 @@ public final class FellingEvents {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         Player player = event.getPlayer();
         if (player == null) return;
-        // In creative, a block breaks on its own: nothing is notched, felled or brought down.
+        // In creative, breaking the trunk of a standing tree fells it at once, away from the player;
+        // any other block of a tree breaks on its own.
         if (player.isCreative()) {
-            if (event.getState().getBlock() instanceof com.chocodanette.heartwood.tree.TrunkShellBlock) {
+            BlockPos at = event.getPos();
+            BlockState st = event.getState();
+            if (st.getBlock() instanceof com.chocodanette.heartwood.tree.TrunkShellBlock) {
+                at = com.chocodanette.heartwood.tree.TrunkShellBlock.core(st, at);
+                st = level.getBlockState(at);
+                if (!(st.getBlock() instanceof BoughBlock)) return;
                 event.setCanceled(true);
-                BlockPos core = com.chocodanette.heartwood.tree.TrunkShellBlock.core(event.getState(), event.getPos());
-                if (level.getBlockState(core).getBlock() instanceof BoughBlock) level.destroyBlock(core, false, player);
-                else level.removeBlock(event.getPos(), false);
+            }
+            Direction away = player.getDirection();
+            if (st.getBlock() instanceof BoughBlock bough) {
+                if (st.getValue(BoughBlock.PARENT) == BoughBlock.Parent.DOWN && BoughBlock.isRooted(level, at)) {
+                    event.setCanceled(true);
+                    TreeFeller.fell(level, at, away, greenOrDry(bough.log()), player);
+                } else if (event.isCanceled()) {
+                    level.destroyBlock(at, false, player);
+                }
+            } else if (ModBlocks.notchedFor(st.getBlock()) != null && TreeFeller.isStandingTree(level, at)) {
+                event.setCanceled(true);
+                TreeFeller.fell(level, at, away, greenOrDry(st.getBlock()), player);
             }
             return;
         }
@@ -149,15 +164,7 @@ public final class FellingEvents {
             }
             if (!tree.limbed()) {
                 event.setCanceled(true);
-                player.displayClientMessage(Component.translatable("message.heartwood.limb_tree_first", tree.branches.size()), true);
-                // The axe still bites into the wood: chips fly and it sounds like a hit.
-                level.levelEvent(2001, pos, Block.getId(state));
-                level.playSound(null, pos, state.getSoundType(level, pos, player).getBreakSound(), SoundSource.BLOCKS, 0.8f, 0.9f);
-                // Show where the branches still are.
-                for (BlockPos m : tree.branches) {
-                    level.sendParticles(net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER,
-                            m.getX() + 0.5, m.getY() + 0.5, m.getZ() + 0.5, 6, 0.3, 0.3, 0.3, 0.0);
-                }
+                showBranches(level, player, tree);
                 return;
             }
             if (!axe) {
@@ -252,6 +259,33 @@ public final class FellingEvents {
         level.destroyBlock(pos, false, player);
         Block.popResource(level, pos, new ItemStack(green));
         if (tool.is(ItemTags.AXES)) tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
+    }
+
+    /**
+     * The axe goes through the trunk of a fallen tree that still has branches as if through air;
+     * the player is told so and shown where the branches are.
+     */
+    @SubscribeEvent
+    public static void onHit(net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.LeftClickBlock event) {
+        if (event.getAction() != net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.LeftClickBlock.Action.START) return;
+        if (!(event.getLevel() instanceof ServerLevel level) || event.getEntity().isCreative()) return;
+        BlockPos pos = event.getPos();
+        BlockState state = level.getBlockState(pos);
+        if (state.getBlock() instanceof com.chocodanette.heartwood.tree.TrunkShellBlock) {
+            pos = com.chocodanette.heartwood.tree.TrunkShellBlock.core(state, pos);
+            state = level.getBlockState(pos);
+        }
+        if (!(state.getBlock() instanceof BoughBlock) || BoughBlock.isRooted(level, pos)) return;
+        FallenTree tree = FallenTree.of(level, pos);
+        if (tree.stemSet.contains(pos) && !tree.limbed()) showBranches(level, event.getEntity(), tree);
+    }
+
+    private static void showBranches(ServerLevel level, Player player, FallenTree tree) {
+        player.displayClientMessage(Component.translatable("message.heartwood.limb_tree_first", tree.branches.size()), true);
+        for (BlockPos m : tree.branches) {
+            level.sendParticles(net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER,
+                    m.getX() + 0.5, m.getY() + 0.5, m.getZ() + 0.5, 6, 0.3, 0.3, 0.3, 0.0);
+        }
     }
 
     /** A vanilla log placed by a player is dry wood. */

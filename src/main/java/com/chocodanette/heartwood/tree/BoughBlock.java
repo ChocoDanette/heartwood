@@ -122,6 +122,11 @@ public class BoughBlock extends Block {
     @Override
     protected float getDestroyProgress(BlockState state, Player player, BlockGetter level, BlockPos pos) {
         // Twigs snap quickly; a full trunk is as hard as a log.
+        // The trunk of a fallen tree can't be cut into while branches are still on it.
+        if (level instanceof net.minecraft.world.level.Level l && !isRooted(l, pos)) {
+            com.chocodanette.heartwood.felling.FallenTree tree = com.chocodanette.heartwood.felling.FallenTree.of(l, pos);
+            if (tree.stemSet.contains(pos) && !tree.limbed()) return 0f;
+        }
         float scale = 8f / (state.getValue(RADIUS) + 0.0f);
         return super.getDestroyProgress(state, player, level, pos) * Math.min(4f, scale);
     }
