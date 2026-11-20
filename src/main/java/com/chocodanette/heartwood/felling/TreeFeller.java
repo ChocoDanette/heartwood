@@ -128,11 +128,59 @@ public final class TreeFeller {
             BlockState fixed = com.chocodanette.heartwood.tree.BoughBlock.reconnect(s, level.getBlockState(par));
             if (fixed != s) level.setBlock(p, fixed, Block.UPDATE_CLIENTS);
         }
+        breakLoose(level, target.keySet(), drop);
         hurt(level, target.keySet(), drop, target, source);
 
         BlockPos middle = cut.relative(dir, Math.max(1, target.size() > 0 ? 4 : 1));
         level.playSound(null, middle, SoundEvents.WOOD_FALL, SoundSource.BLOCKS, 2.0f, 0.5f);
         level.playSound(null, middle, SoundEvents.ZOMBIE_ATTACK_WOODEN_DOOR, SoundSource.BLOCKS, 1.0f, 0.5f);
+    }
+
+    /**
+     * Whatever the fall left unjoined to the trunk breaks off: pieces whose parent could not land,
+     * with all they carry, and leafy branches that no longer touch the wood.
+     */
+    private static void breakLoose(ServerLevel level, Set<BlockPos> targets, int drop) {
+        List<BlockPos> pieces = new ArrayList<>();
+        List<BlockPos> crown = new ArrayList<>();
+        for (BlockPos t : targets) {
+            BlockPos p = t.below(drop);
+            BlockState s = level.getBlockState(p);
+            if (s.getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock) pieces.add(p);
+            else if (s.getBlock() instanceof BranchesBlock) crown.add(p);
+        }
+        // The pieces hanging from nothing; the one carrying the most is the trunk.
+        BlockPos main = null;
+        int most = -1;
+        Map<BlockPos, List<BlockPos>> anchors = new LinkedHashMap<>();
+        for (BlockPos p : pieces) {
+            BlockPos par = com.chocodanette.heartwood.tree.BoughBlock.parentPos(level.getBlockState(p), p);
+            if (par != null && level.getBlockState(par).getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock) continue;
+            List<BlockPos> carried = com.chocodanette.heartwood.tree.BoughBlock.descendants(level, p, MAX_LOGS);
+            anchors.put(p, carried);
+            if (carried.size() > most) { most = carried.size(); main = p; }
+        }
+        for (Map.Entry<BlockPos, List<BlockPos>> e : anchors.entrySet()) {
+            if (e.getKey().equals(main)) continue;
+            for (BlockPos p : e.getValue()) level.destroyBlock(p, true);
+            level.destroyBlock(e.getKey(), true);
+        }
+        // Leafy branches still joined to the wood, through each other.
+        Set<BlockPos> crownSet = new HashSet<>(crown), kept = new HashSet<>();
+        ArrayDeque<BlockPos> queue = new ArrayDeque<>();
+        for (BlockPos p : pieces) {
+            if (level.getBlockState(p).getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock) queue.add(p);
+        }
+        while (!queue.isEmpty()) {
+            BlockPos p = queue.poll();
+            for (BlockPos n : BlockPos.betweenClosed(p.offset(-1, -1, -1), p.offset(1, 1, 1))) {
+                BlockPos q = n.immutable();
+                if (crownSet.contains(q) && kept.add(q)) queue.add(q);
+            }
+        }
+        for (BlockPos p : crown) {
+            if (!kept.contains(p) && level.getBlockState(p).getBlock() instanceof BranchesBlock) level.destroyBlock(p, true);
+        }
     }
 
     /** Living things under the trunk take heavy damage; under the branches, light damage. */

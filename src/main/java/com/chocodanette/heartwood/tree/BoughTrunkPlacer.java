@@ -119,7 +119,10 @@ public class BoughTrunkPlacer extends TrunkPlacer {
     @Override
     public List<FoliagePlacer.FoliageAttachment> placeTrunk(LevelSimulatedReader level, BiConsumer<BlockPos, BlockState> setter,
                                                             RandomSource random, int height, BlockPos origin, TreeConfiguration config) {
-        setDirtAt(level, setter, random, origin.below(), config);
+        // The ground under the tree stays as it is (grass stays grass); only non-earth turns to dirt.
+        if (!level.isStateAtPosition(origin.below(), net.minecraft.world.level.levelgen.feature.Feature::isDirt)) {
+            setter.accept(origin.below(), config.dirtProvider.getState(random, origin.below()));
+        }
         Skeleton sk = new Skeleton();
         sk.parent.put(origin, null);
         List<FoliagePlacer.FoliageAttachment> crowns = new ArrayList<>();
@@ -231,6 +234,8 @@ public class BoughTrunkPlacer extends TrunkPlacer {
                     if (r > 8) {
                         for (BlockPos q : BoughBlock.ring(p, Direction.Axis.Y)) {
                             if (!sk.parent.containsKey(q) && !TreeFeature.validTreePos(level, q)) { r = 8; break; }
+                            // A trunk only spreads over a block where the ground around its foot is level.
+                            if (p.equals(origin) && !level.isStateAtPosition(q.below(), BlockState::isSolid)) { r = 8; break; }
                         }
                     }
                 } else {

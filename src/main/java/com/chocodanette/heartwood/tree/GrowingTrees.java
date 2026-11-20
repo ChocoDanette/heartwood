@@ -390,7 +390,7 @@ public final class GrowingTrees extends SavedData {
             int r = Mth.clamp(Math.round((float) Math.sqrt(area.get(p) * k)), 1, girth.maxRadius());
             if (upright.contains(p) && extra > 0) {
                 r = Math.min(girth.trunk(), r + girth.taper(extra, p.getY() - root.getY(), column));
-                if (r > 8 && !roomFor(level, p)) r = 8;
+                if (r > 8 && (!roomFor(level, p) || !levelGround(level, root))) r = 8;
             } else if (!upright.contains(p)) {
                 r = girth.limb(r, extra);
             }
@@ -411,13 +411,22 @@ public final class GrowingTrees extends SavedData {
         return true;
     }
 
+    /** True when the ground is level all around the foot of the trunk (needed to spread over a block). */
+    private static boolean levelGround(ServerLevel level, BlockPos root) {
+        for (BlockPos q : BoughBlock.ring(root, Direction.Axis.Y)) {
+            BlockState below = level.getBlockState(q.below());
+            if (below.isAir() || below.canBeReplaced() || !below.isFaceSturdy(level, q.below(), Direction.UP)) return false;
+        }
+        return true;
+    }
+
     /** True when the foot of the trunk has reached the species' full girth. */
     private static boolean fullGirth(ServerLevel level, BlockPos root, BoughTrunkPlacer.Girth girth) {
         BlockState s = level.getBlockState(root);
         int column = 1;
         while (column < 64 && level.getBlockState(root.above(column)).getBlock() instanceof BoughBlock) column++;
         return !(s.getBlock() instanceof BoughBlock) || s.getValue(BoughBlock.RADIUS) >= girth.maxRadius() + girth.extraFor(column)
-                || !roomFor(level, root);
+                || !roomFor(level, root) || !levelGround(level, root);
     }
 
     /** Leaves on the tips, as a small tuft on a shoot and as crowns that widen as the tree matures. */
