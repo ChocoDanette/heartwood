@@ -49,6 +49,25 @@ public class BoughTrunkPlacer extends TrunkPlacer {
         public int trunk() {
             return Math.max(maxRadius, trunkRadius);
         }
+
+        /**
+         * How much an old trunk can thicken beyond the pipe model, by its height: a short tree
+         * never gets a big foot; the full girth needs a trunk about 14 blocks tall.
+         */
+        public int extraFor(int trunkHeight) {
+            float tall = Mth.clamp((trunkHeight - 4) / 10f, 0f, 1f);
+            return Math.round((trunk() - maxRadius) * tall);
+        }
+
+        /** The extra thickness at height y of a trunk column: most at the foot, none at the top. */
+        public int taper(int extra, int y, int column) {
+            return Math.round(extra * Math.max(0f, 1f - y / (float) Math.max(1, column)));
+        }
+
+        /** The big limbs of an old tree thicken a little too (never past a block). */
+        public int limb(int r, int extra) {
+            return r >= 3 ? Math.min(8, r + extra / 4) : r;
+        }
     }
 
     public static final MapCodec<BoughTrunkPlacer> CODEC = RecordCodecBuilder.mapCodec(i ->
@@ -204,16 +223,21 @@ public class BoughTrunkPlacer extends TrunkPlacer {
                     column = Math.max(column, p.getY() - origin.getY() + 1);
                 }
             }
-            int extra = random.nextInt(girth.trunk() - girth.maxRadius() + 1) + random.nextInt(3);
+            int extra = random.nextInt(girth.extraFor(column) + 1);
             for (BlockPos p : order) {
-                if (!upright.contains(p)) continue;
-                float rel = (p.getY() - origin.getY()) / Math.max(1f, column * 0.7f);
-                int r = Math.min(girth.trunk(), radius.get(p) + Math.round(extra * Math.max(0f, 1f - rel)));
-                if (r > 8) {
-                    for (BlockPos q : BoughBlock.ring(p, Direction.Axis.Y)) {
-                        if (!sk.parent.containsKey(q) && !TreeFeature.validTreePos(level, q)) { r = 8; break; }
+                int r;
+                if (upright.contains(p)) {
+                    r = Math.min(girth.trunk(), radius.get(p) + girth.taper(extra, p.getY() - origin.getY(), column));
+                    if (r > 8) {
+                        for (BlockPos q : BoughBlock.ring(p, Direction.Axis.Y)) {
+                            if (!sk.parent.containsKey(q) && !TreeFeature.validTreePos(level, q)) { r = 8; break; }
+                        }
                     }
+                } else {
+                    r = girth.limb(radius.get(p), extra);
                 }
+                BlockPos par = sk.parent.get(p);
+                if (par != null) r = Math.min(r, radius.get(par));
                 radius.put(p, r);
             }
         }

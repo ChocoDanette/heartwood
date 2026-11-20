@@ -382,16 +382,17 @@ public final class GrowingTrees extends SavedData {
                 column = Math.max(column, p.getY() - root.getY() + 1);
             }
         }
-        int extra = Math.max(0, oldAge / STEPS_PER_PIXEL);
+        int extra = Math.min(girth.extraFor(column), Math.max(0, oldAge / STEPS_PER_PIXEL));
         float k = 0.25f + 0.75f * maturity;
         Map<BlockPos, Integer> radius = new HashMap<>();
         for (int i = pieces.size() - 1; i >= 0; i--) {   // root first
             BlockPos p = pieces.get(i);
             int r = Mth.clamp(Math.round((float) Math.sqrt(area.get(p) * k)), 1, girth.maxRadius());
             if (upright.contains(p) && extra > 0) {
-                float rel = (p.getY() - root.getY()) / Math.max(1f, column * 0.7f);
-                r = Math.min(girth.trunk(), r + Math.round(extra * Math.max(0f, 1f - rel)));
+                r = Math.min(girth.trunk(), r + girth.taper(extra, p.getY() - root.getY(), column));
                 if (r > 8 && !roomFor(level, p)) r = 8;
+            } else if (!upright.contains(p)) {
+                r = girth.limb(r, extra);
             }
             BlockPos par = parent.get(p);
             if (par != null && radius.containsKey(par)) r = Math.min(r, radius.get(par));
@@ -413,7 +414,10 @@ public final class GrowingTrees extends SavedData {
     /** True when the foot of the trunk has reached the species' full girth. */
     private static boolean fullGirth(ServerLevel level, BlockPos root, BoughTrunkPlacer.Girth girth) {
         BlockState s = level.getBlockState(root);
-        return !(s.getBlock() instanceof BoughBlock) || s.getValue(BoughBlock.RADIUS) >= girth.trunk() || !roomFor(level, root);
+        int column = 1;
+        while (column < 64 && level.getBlockState(root.above(column)).getBlock() instanceof BoughBlock) column++;
+        return !(s.getBlock() instanceof BoughBlock) || s.getValue(BoughBlock.RADIUS) >= girth.maxRadius() + girth.extraFor(column)
+                || !roomFor(level, root);
     }
 
     /** Leaves on the tips, as a small tuft on a shoot and as crowns that widen as the tree matures. */

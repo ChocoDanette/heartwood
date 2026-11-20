@@ -202,6 +202,8 @@ public class BoughBlock extends Block {
         if (d == null) return state;
         if (parent.getBlock() instanceof BoughBlock) return state.setValue(PARENT_RADIUS, Math.min(8, parent.getValue(RADIUS)));
         if (d == Direction.DOWN && !parent.isAir() && !parent.canBeReplaced()) return state;
+        // A trunk over a block thick has no arm to lose, and keeps lying along its axis.
+        if (state.getValue(RADIUS) > 8) return state.setValue(NOTCH, Notch.NONE);
         return state.setValue(PARENT, Parent.NONE).setValue(NOTCH, Notch.NONE);
     }
 
