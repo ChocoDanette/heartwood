@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.13.1
+
+- **Organic trees.** Every overworld tree (vanilla and Heartwood species) now grows from boughs of variable thickness, in the style of Dynamic Trees. Trunks thicken towards the ground and branches thin out to twigs. The trees also have more natural shapes: leaning trunks, forks, and clustered, ragged crowns. Giant 2x2 trees, azaleas and mangroves keep their vanilla shape. New trees only appear in newly generated chunks, or from saplings.
+- **Felling bough trees.** Trunk pieces at least half a block thick take the V notch (drawn to their thickness), and the back cut fells the tree as before. Cutting a branch off a standing tree brings down everything it carries. Felling one tree no longer brings down a tree it touches, and where two crowns meet, each tree keeps its own leaves.
+- **Bucking by thickness.** Twigs give sticks, half-block poles give a green log one time in two (otherwise sticks), and thicker pieces give a green log. On a fallen tree, thin pieces break by hand with the twigs they carry; thick pieces need an axe once their leaves and thin branches are off. Thick branches of a standing tree need an axe.
+
 ## 0.9.3
 
 - **Real tree species.** Dark oak becomes **beech** and jungle becomes **teak** (new names in English and French, new textures). Four new European species grow in the overworld: **ash** (forests, flower forests, meadows, rarely plains), **Scots pine** (taigas, windswept forests and hills, groves), **sweet chestnut** (forests, windswept and dark forests) and **maple** (forests, flower and birch forests, meadows). New species only appear in newly generated chunks, or from saplings.

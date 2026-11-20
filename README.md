@@ -4,11 +4,15 @@ Realistic tree felling and wood seasoning for Minecraft 1.21.1 (NeoForge). Heart
 
 ## How to fell a tree
 
-1. **Notch.** Hold an axe and break the base of a trunk on the side you want the tree to fall. A V notch is carved into that face.
+Trees grow from boughs of variable thickness: trunks thicken towards the ground and branches thin out to twigs.
+
+1. **Notch.** Hold an axe and break the base of a trunk (at least half a block thick) on the side you want the tree to fall. A V notch is carved into that face.
 2. **Back cut.** Walk around and break the same block from the opposite side. The tree tips over towards the notch.
 3. **Stand clear.** The falling trunk hurts whatever it lands on.
-4. **Limb.** Cut the branches off the fallen tree with an axe to get sticks (and sometimes a sapling).
-5. **Buck.** Once a trunk section no longer touches any branch, cut it with an axe to get a green log.
+4. **Limb.** Cut the leafy branches and the thin boughs off the fallen tree to get sticks (and sometimes a sapling). A thin bough comes off with the twigs it carries.
+5. **Buck.** Once a thick piece no longer carries leaves or thin boughs, cut it with an axe. Pieces more than half a block thick give a green log, half-block poles a green log one time in two, thinner ones sticks.
+
+Cutting a branch off a standing tree brings down everything it carries; thick branches need an axe.
 
 Sneak, or break without an axe, to take a trunk apart one block at a time.
 
