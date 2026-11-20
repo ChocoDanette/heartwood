@@ -307,11 +307,8 @@ public final class FellingEvents {
     }
 
     private static void showBranches(ServerLevel level, Player player, FallenTree tree) {
+        // The branches left flash white on the player's screen (client side).
         player.displayClientMessage(Component.translatable("message.heartwood.limb_tree_first", tree.branches.size()), true);
-        for (BlockPos m : tree.branches) {
-            level.sendParticles(net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER,
-                    m.getX() + 0.5, m.getY() + 0.5, m.getZ() + 0.5, 6, 0.3, 0.3, 0.3, 0.0);
-        }
     }
 
     /** A vanilla log placed by a player is dry wood. */

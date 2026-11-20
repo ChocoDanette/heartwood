@@ -106,6 +106,18 @@
     "heartwood:scots_pine_bough",
     "heartwood:chestnut_bough",
     "heartwood:maple_bough",
-    "heartwood:trunk_shell"
+    "heartwood:trunk_shell",
+    "heartwood:oak_stump",
+    "heartwood:spruce_stump",
+    "heartwood:birch_stump",
+    "heartwood:jungle_stump",
+    "heartwood:acacia_stump",
+    "heartwood:dark_oak_stump",
+    "heartwood:mangrove_stump",
+    "heartwood:cherry_stump",
+    "heartwood:ash_stump",
+    "heartwood:scots_pine_stump",
+    "heartwood:chestnut_stump",
+    "heartwood:maple_stump"
   ]
 }

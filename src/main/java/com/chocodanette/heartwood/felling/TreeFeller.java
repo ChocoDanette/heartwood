@@ -70,9 +70,12 @@ public final class TreeFeller {
         }
 
         // Remove the standing tree, without triggering leaf decay. A tree of boughs leaves its
-        // notched foot as a stump, which rots away in a day or so; a plain log drops.
-        if (level.getBlockState(cut).getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock) {
-            com.chocodanette.heartwood.tree.BoughBlock.scheduleRot(level, cut);
+        // foot as a short stump, which rots away in a day or so; a plain log drops.
+        BlockState foot = level.getBlockState(cut);
+        Block stump = com.chocodanette.heartwood.ModBlocks.stumpFor(foot.getBlock());
+        if (stump != null) {
+            level.setBlock(cut, StumpBlock.of(stump, foot.getValue(com.chocodanette.heartwood.tree.BoughBlock.RADIUS), dir), Block.UPDATE_ALL);
+            StumpBlock.scheduleRot(level, cut);
         } else {
             Block.dropResources(cutLog, level, cut, null, player, player.getMainHandItem());
             level.setBlock(cut, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);

@@ -181,6 +181,18 @@
   "item.heartwood.maple_key": "Maple Key",
   "block.heartwood.seed_mound": "Planted Seed",
   "block.heartwood.trunk_shell": "Trunk",
-  "message.heartwood.limb_tree_first": "Limb the tree first: %s branch(es) left to cut off (shown in green) before bucking the trunk.",
-  "message.heartwood.notch_at_foot": "Only the foot of the trunk can be notched."
+  "message.heartwood.limb_tree_first": "Limb the tree first: %s branch(es) left to cut off (they flash white) before bucking the trunk.",
+  "message.heartwood.notch_at_foot": "Only the foot of the trunk can be notched.",
+  "block.heartwood.oak_stump": "Oak Stump",
+  "block.heartwood.spruce_stump": "Spruce Stump",
+  "block.heartwood.birch_stump": "Birch Stump",
+  "block.heartwood.jungle_stump": "Teak Stump",
+  "block.heartwood.acacia_stump": "Acacia Stump",
+  "block.heartwood.dark_oak_stump": "Beech Stump",
+  "block.heartwood.mangrove_stump": "Mangrove Stump",
+  "block.heartwood.cherry_stump": "Cherry Stump",
+  "block.heartwood.ash_stump": "Ash Stump",
+  "block.heartwood.scots_pine_stump": "Scots Pine Stump",
+  "block.heartwood.chestnut_stump": "Chestnut Stump",
+  "block.heartwood.maple_stump": "Maple Stump"
 }

@@ -51,6 +51,8 @@ public final class ModBlocks {
     public static final List<DeferredBlock<BranchesBlock>> ALL_BRANCHES = new ArrayList<>();
     private static final List<Link> BOUGHS = new ArrayList<>();
     public static final List<DeferredBlock<com.chocodanette.heartwood.tree.BoughBlock>> ALL_BOUGHS = new ArrayList<>();
+    private static final List<Link> STUMPS = new ArrayList<>();
+    private static Map<Block, Block> stumpByBough;
     private static Map<Block, Block> notchedByLog, felledByLog, branchesByLeaves, greenByLog, boughByLog;
 
     /** A planted tree seed, until it comes up. */
@@ -197,6 +199,17 @@ public final class ModBlocks {
                         .dynamicShape()));
         BOUGHS.add(new Link(log, block));
         ALL_BOUGHS.add(block);
+        DeferredBlock<com.chocodanette.heartwood.felling.StumpBlock> stump = BLOCKS.register(name + "_stump",
+                () -> new com.chocodanette.heartwood.felling.StumpBlock(BlockBehaviour.Properties.ofFullCopy(log.get())
+                        .mapColor(log.get().defaultMapColor())
+                        .noOcclusion()));
+        STUMPS.add(new Link(() -> block.get(), stump));
+    }
+
+    /** The stump a felled tree of this bough leaves, or null. */
+    public static Block stumpFor(Block bough) {
+        if (stumpByBough == null) stumpByBough = index(STUMPS);
+        return stumpByBough.get(bough);
     }
 
     /** The variable-thickness tree piece made of this log, or null. */

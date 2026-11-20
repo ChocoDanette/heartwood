@@ -6,7 +6,7 @@ import net.minecraft.client.renderer.RenderType;
 
 import java.util.OptionalDouble;
 
-/** Lines like the block outline, but thicker: the outline of a whole trunk or branch. */
+/** Lines like the block outline, but thicker: the branches flashing on a fallen tree. */
 public final class OutlineRenderType extends RenderType {
     public static final RenderType THICK_LINES = create("heartwood_thick_lines", DefaultVertexFormat.POSITION_COLOR_NORMAL,
             VertexFormat.Mode.LINES, 1536, false, false,
