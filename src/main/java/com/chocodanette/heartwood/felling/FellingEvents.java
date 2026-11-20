@@ -139,12 +139,9 @@ public final class FellingEvents {
             }
             if (!tree.limbed()) {
                 event.setCanceled(true);
-                player.displayClientMessage(Component.translatable("message.heartwood.limb_tree_first",
-                        tree.branches.size() + (tree.leafy.isEmpty() ? 0 : 1)), true);
+                player.displayClientMessage(Component.translatable("message.heartwood.limb_tree_first", tree.branches.size()), true);
                 // Show where the branches still are.
-                java.util.List<BlockPos> marks = new java.util.ArrayList<>(tree.branches);
-                for (int i = 0; i < tree.leafy.size(); i += 4) marks.add(tree.leafy.get(i));
-                for (BlockPos m : marks) {
+                for (BlockPos m : tree.branches) {
                     level.sendParticles(net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER,
                             m.getX() + 0.5, m.getY() + 0.5, m.getZ() + 0.5, 6, 0.3, 0.3, 0.3, 0.0);
                 }
@@ -153,7 +150,10 @@ public final class FellingEvents {
             if (!axe) {
                 event.setCanceled(true);
                 player.displayClientMessage(Component.translatable("message.heartwood.need_axe"), true);
+                return;
             }
+            // Leaves left on this part of the trunk go with it.
+            LeafCleanup.dropLeavesOf(level, java.util.List.of(pos), pos);
             return;
         }
         if (radius >= THICK && !axe) {

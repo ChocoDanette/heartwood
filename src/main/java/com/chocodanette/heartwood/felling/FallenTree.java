@@ -75,7 +75,8 @@ public final class FallenTree {
         return t;
     }
 
+    /** True once no branch of wood is left on the trunk (leftover leaves go as the trunk is bucked). */
     public boolean limbed() {
-        return branches.isEmpty() && leafy.isEmpty();
+        return branches.isEmpty();
     }
 }
