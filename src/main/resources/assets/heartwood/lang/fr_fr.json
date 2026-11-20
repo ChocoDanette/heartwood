@@ -181,5 +181,6 @@
   "item.heartwood.maple_key": "Samare d'érable",
   "block.heartwood.seed_mound": "Semis",
   "block.heartwood.trunk_shell": "Tronc",
-  "message.heartwood.limb_tree_first": "Ébranchez d'abord l'arbre : il reste %s branche(s) à couper (signalées en vert) avant de débiter le tronc."
+  "message.heartwood.limb_tree_first": "Ébranchez d'abord l'arbre : il reste %s branche(s) à couper (signalées en vert) avant de débiter le tronc.",
+  "message.heartwood.notch_at_foot": "L'entaille se fait au pied du tronc."
 }

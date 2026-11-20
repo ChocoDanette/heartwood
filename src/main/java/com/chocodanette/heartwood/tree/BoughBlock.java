@@ -122,10 +122,17 @@ public class BoughBlock extends Block {
     @Override
     protected float getDestroyProgress(BlockState state, Player player, BlockGetter level, BlockPos pos) {
         // Twigs snap quickly; a full trunk is as hard as a log.
-        // The trunk of a fallen tree can't be cut into while branches are still on it.
-        if (level instanceof net.minecraft.world.level.Level l && !isRooted(l, pos)) {
+        // The trunk of a fallen tree can't be cut into while branches are still on it, and the trunk
+        // of a standing tree only at its foot (where it is notched).
+        if (level instanceof net.minecraft.world.level.Level l) {
             com.chocodanette.heartwood.felling.FallenTree tree = com.chocodanette.heartwood.felling.FallenTree.of(l, pos);
-            if (tree.stemSet.contains(pos) && !tree.limbed()) return 0f;
+            if (tree.stemSet.contains(pos)) {
+                if (isRooted(l, pos)) {
+                    if (!tree.base.equals(pos) && state.getValue(NOTCH) == Notch.NONE) return 0f;
+                } else if (!tree.limbed()) {
+                    return 0f;
+                }
+            }
         }
         float scale = 8f / (state.getValue(RADIUS) + 0.0f);
         return super.getDestroyProgress(state, player, level, pos) * Math.min(4f, scale);
@@ -135,6 +142,20 @@ public class BoughBlock extends Block {
     public static BlockPos parentPos(BlockState state, BlockPos pos) {
         Direction d = state.getValue(PARENT).dir;
         return d == null ? null : pos.relative(d);
+    }
+
+    /**
+     * The piece this one really hangs from, or null. A notched piece (a foot being felled, or the
+     * stump a fallen tree leaves) only carries the piece right above it, so a fallen trunk lying
+     * against its stump is never taken as hanging from it.
+     */
+    public static BlockPos parentOf(BlockGetter level, BlockPos pos, BlockState state) {
+        BlockPos par = parentPos(state, pos);
+        if (par == null) return null;
+        BlockState ps = level.getBlockState(par);
+        if (!(ps.getBlock() instanceof BoughBlock)) return null;
+        if (ps.getValue(NOTCH) != Notch.NONE && !par.equals(pos.below())) return null;
+        return par;
     }
 
     /** True when this piece belongs to a standing tree: following parents leads down into the ground. */
@@ -148,6 +169,7 @@ public class BoughBlock extends Block {
             BlockPos next = p.relative(parent.dir);
             BlockState ns = level.getBlockState(next);
             if (!(ns.getBlock() instanceof BoughBlock)) return parent == Parent.DOWN && !ns.isAir() && !ns.canBeReplaced();
+            if (ns.getValue(NOTCH) != Notch.NONE && parent != Parent.DOWN) return false;   // lying against a stump
             p = next;
             s = ns;
         }
@@ -167,7 +189,7 @@ public class BoughBlock extends Block {
                 BlockPos n = p.relative(d);
                 if (seen.contains(n)) continue;
                 BlockState ns = level.getBlockState(n);
-                if (ns.getBlock() instanceof BoughBlock && p.equals(parentPos(ns, n))) {
+                if (ns.getBlock() instanceof BoughBlock && p.equals(parentOf(level, n, ns))) {
                     seen.add(n);
                     out.add(n);
                     queue.add(n);
@@ -206,7 +228,8 @@ public class BoughBlock extends Block {
         if (!(state.getBlock() instanceof BoughBlock)) return state;
         Direction d = state.getValue(PARENT).dir;
         if (d == null) return state;
-        if (parent.getBlock() instanceof BoughBlock) return state.setValue(PARENT_RADIUS, Math.min(8, parent.getValue(RADIUS)));
+        boolean stump = parent.getBlock() instanceof BoughBlock && parent.getValue(NOTCH) != Notch.NONE && d != Direction.DOWN;
+        if (parent.getBlock() instanceof BoughBlock && !stump) return state.setValue(PARENT_RADIUS, Math.min(8, parent.getValue(RADIUS)));
         if (d == Direction.DOWN && !parent.isAir() && !parent.canBeReplaced()) return state;
         // A trunk over a block thick has no arm to lose, and keeps lying along its axis.
         if (state.getValue(RADIUS) > 8) return state.setValue(NOTCH, Notch.NONE);
@@ -255,6 +278,18 @@ public class BoughBlock extends Block {
                 if (shellFits(level, p, pos)) level.setBlock(p, TrunkShellBlock.pointingTo(p, pos), Block.UPDATE_ALL);
             }
         }
+    }
+
+    /** A stump left by a felled tree rots away. */
+    public static void scheduleRot(net.minecraft.world.level.Level level, BlockPos pos) {
+        level.scheduleTick(pos, level.getBlockState(pos).getBlock(), 20000 + level.random.nextInt(8000));
+    }
+
+    @Override
+    protected void tick(BlockState state, net.minecraft.server.level.ServerLevel level, BlockPos pos, net.minecraft.util.RandomSource random) {
+        if (state.getValue(NOTCH) == Notch.NONE || !descendants(level, pos, 1).isEmpty()) return;
+        level.levelEvent(2001, pos, Block.getId(state));
+        level.removeBlock(pos, false);
     }
 
     @Override

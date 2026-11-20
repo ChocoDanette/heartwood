@@ -37,8 +37,8 @@ public final class FallenTree {
         // Down to the cut end: the piece whose parent is gone.
         BlockPos p = pos;
         for (int i = 0; i < 512; i++) {
-            BlockPos par = BoughBlock.parentPos(level.getBlockState(p), p);
-            if (par == null || !(level.getBlockState(par).getBlock() instanceof BoughBlock)) break;
+            BlockPos par = BoughBlock.parentOf(level, p, level.getBlockState(p));
+            if (par == null) break;
             p = par;
         }
         FallenTree t = new FallenTree(p);
@@ -53,7 +53,7 @@ public final class FallenTree {
             for (Direction d : Direction.values()) {
                 BlockPos n = cur.relative(d);
                 BlockState ns = level.getBlockState(n);
-                if (!(ns.getBlock() instanceof BoughBlock) || !cur.equals(BoughBlock.parentPos(ns, n))) continue;
+                if (!(ns.getBlock() instanceof BoughBlock) || !cur.equals(BoughBlock.parentOf(level, n, ns))) continue;
                 int score = ns.getValue(BoughBlock.RADIUS) * 2 + (d == along ? 1 : 0);
                 if (score > best) { best = score; next = n; }
             }
@@ -66,7 +66,7 @@ public final class FallenTree {
             for (Direction d : Direction.values()) {
                 BlockPos n = s.relative(d);
                 BlockState ns = level.getBlockState(n);
-                if (ns.getBlock() instanceof BoughBlock && s.equals(BoughBlock.parentPos(ns, n)) && !t.stemSet.contains(n)) t.branches.add(n);
+                if (ns.getBlock() instanceof BoughBlock && s.equals(BoughBlock.parentOf(level, n, ns)) && !t.stemSet.contains(n)) t.branches.add(n);
             }
             for (BlockPos n : BlockPos.betweenClosed(s.offset(-1, -1, -1), s.offset(1, 1, 1))) {
                 if (level.getBlockState(n).getBlock() instanceof BranchesBlock) t.leafy.add(n.immutable());

@@ -181,5 +181,6 @@
   "item.heartwood.maple_key": "Maple Key",
   "block.heartwood.seed_mound": "Planted Seed",
   "block.heartwood.trunk_shell": "Trunk",
-  "message.heartwood.limb_tree_first": "Limb the tree first: %s branch(es) left to cut off (shown in green) before bucking the trunk."
+  "message.heartwood.limb_tree_first": "Limb the tree first: %s branch(es) left to cut off (shown in green) before bucking the trunk.",
+  "message.heartwood.notch_at_foot": "Only the foot of the trunk can be notched."
 }

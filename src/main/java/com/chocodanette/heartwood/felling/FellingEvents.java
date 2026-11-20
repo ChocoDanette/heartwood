@@ -35,28 +35,31 @@ public final class FellingEvents {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         Player player = event.getPlayer();
         if (player == null) return;
-        // In creative, breaking the trunk of a standing tree fells it at once, away from the player;
-        // any other block of a tree breaks on its own.
+        // In creative, breaking the foot of a standing tree takes the whole tree away at once, and
+        // breaking it while sneaking fells it (away from the player). Any other block breaks the
+        // creative way.
         if (player.isCreative()) {
             BlockPos at = event.getPos();
             BlockState st = event.getState();
-            if (st.getBlock() instanceof com.chocodanette.heartwood.tree.TrunkShellBlock) {
+            boolean shell = st.getBlock() instanceof com.chocodanette.heartwood.tree.TrunkShellBlock;
+            if (shell) {
                 at = com.chocodanette.heartwood.tree.TrunkShellBlock.core(st, at);
                 st = level.getBlockState(at);
-                if (!(st.getBlock() instanceof BoughBlock)) return;
-                event.setCanceled(true);
             }
-            Direction away = player.getDirection();
-            if (st.getBlock() instanceof BoughBlock bough) {
-                if (st.getValue(BoughBlock.PARENT) == BoughBlock.Parent.DOWN && BoughBlock.isRooted(level, at)) {
-                    event.setCanceled(true);
-                    TreeFeller.fell(level, at, away, greenOrDry(bough.log()), player);
-                } else if (event.isCanceled()) {
-                    level.destroyBlock(at, false, player);
-                }
-            } else if (ModBlocks.notchedFor(st.getBlock()) != null && TreeFeller.isStandingTree(level, at)) {
+            if (st.getBlock() instanceof BoughBlock bough && BoughBlock.isRooted(level, at)
+                    && FallenTree.of(level, at).base.equals(at) && !BoughBlock.descendants(level, at, 1).isEmpty()) {
                 event.setCanceled(true);
-                TreeFeller.fell(level, at, away, greenOrDry(st.getBlock()), player);
+                if (player.isShiftKeyDown()) {
+                    Direction away = player.getDirection();
+                    level.setBlock(at, st.setValue(BoughBlock.NOTCH, BoughBlock.Notch.of(away)), Block.UPDATE_ALL);
+                    TreeFeller.fell(level, at, away, greenOrDry(bough.log()), player);
+                } else {
+                    TreeFeller.removeWhole(level, at);
+                }
+            } else if (shell) {
+                event.setCanceled(true);
+                if (st.getBlock() instanceof BoughBlock) level.destroyBlock(at, false, player);
+                else level.removeBlock(event.getPos(), false);
             }
             return;
         }
@@ -176,12 +179,29 @@ public final class FellingEvents {
             LeafCleanup.dropLeavesOf(level, java.util.List.of(pos), pos);
             return;
         }
+        // Standing tree: only its foot is notched; the rest of the trunk can't be cut into, while
+        // branches can still be cut off one by one.
+        FallenTree standing = FallenTree.of(level, pos);
+        boolean foot = standing.base.equals(pos);
+        Direction notch = state.getValue(BoughBlock.NOTCH).dir;
+        if (notch != null && BoughBlock.descendants(level, pos, 1).isEmpty()) {
+            // A stump: it comes out like a log.
+            if (radius >= THICK && !axe) {
+                event.setCanceled(true);
+                player.displayClientMessage(Component.translatable("message.heartwood.need_axe"), true);
+            }
+            return;
+        }
+        if (notch == null && standing.stemSet.contains(pos) && !foot) {
+            event.setCanceled(true);
+            player.displayClientMessage(Component.translatable("message.heartwood.notch_at_foot"), true);
+            return;
+        }
         if (radius >= THICK && !axe) {
             event.setCanceled(true);
             player.displayClientMessage(Component.translatable("message.heartwood.need_axe_branch"), true);
             return;
         }
-        Direction notch = state.getValue(BoughBlock.NOTCH).dir;
         if (notch != null) {
             event.setCanceled(true);
             if (!axe) {
@@ -194,7 +214,7 @@ public final class FellingEvents {
             }
             return;
         }
-        if (axe && !player.isShiftKeyDown() && radius >= THICK && state.getValue(BoughBlock.PARENT) == BoughBlock.Parent.DOWN) {
+        if (foot && axe && !player.isShiftKeyDown() && radius >= THICK) {
             event.setCanceled(true);
             tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
             level.setBlock(pos, state.setValue(BoughBlock.NOTCH, BoughBlock.Notch.of(hitFace(player, pos))), Block.UPDATE_ALL);
@@ -275,9 +295,15 @@ public final class FellingEvents {
             pos = com.chocodanette.heartwood.tree.TrunkShellBlock.core(state, pos);
             state = level.getBlockState(pos);
         }
-        if (!(state.getBlock() instanceof BoughBlock) || BoughBlock.isRooted(level, pos)) return;
+        if (!(state.getBlock() instanceof BoughBlock)) return;
         FallenTree tree = FallenTree.of(level, pos);
-        if (tree.stemSet.contains(pos) && !tree.limbed()) showBranches(level, event.getEntity(), tree);
+        if (BoughBlock.isRooted(level, pos)) {
+            if (tree.stemSet.contains(pos) && !tree.base.equals(pos) && state.getValue(BoughBlock.NOTCH) == BoughBlock.Notch.NONE) {
+                event.getEntity().displayClientMessage(Component.translatable("message.heartwood.notch_at_foot"), true);
+            }
+        } else if (tree.stemSet.contains(pos) && !tree.limbed()) {
+            showBranches(level, event.getEntity(), tree);
+        }
     }
 
     private static void showBranches(ServerLevel level, Player player, FallenTree tree) {

@@ -69,9 +69,14 @@ public final class TreeFeller {
             moved.put(p, s);
         }
 
-        // Remove the cut block (with drops) and the standing tree, without triggering leaf decay.
-        Block.dropResources(cutLog, level, cut, null, player, player.getMainHandItem());
-        level.setBlock(cut, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+        // Remove the standing tree, without triggering leaf decay. A tree of boughs leaves its
+        // notched foot as a stump, which rots away in a day or so; a plain log drops.
+        if (level.getBlockState(cut).getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock) {
+            com.chocodanette.heartwood.tree.BoughBlock.scheduleRot(level, cut);
+        } else {
+            Block.dropResources(cutLog, level, cut, null, player, player.getMainHandItem());
+            level.setBlock(cut, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+        }
         for (BlockPos p : moved.keySet()) {
             level.setBlock(p, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),
                     Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
@@ -154,8 +159,7 @@ public final class TreeFeller {
         int most = -1;
         Map<BlockPos, List<BlockPos>> anchors = new LinkedHashMap<>();
         for (BlockPos p : pieces) {
-            BlockPos par = com.chocodanette.heartwood.tree.BoughBlock.parentPos(level.getBlockState(p), p);
-            if (par != null && level.getBlockState(par).getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock) continue;
+            if (com.chocodanette.heartwood.tree.BoughBlock.parentOf(level, p, level.getBlockState(p)) != null) continue;
             List<BlockPos> carried = com.chocodanette.heartwood.tree.BoughBlock.descendants(level, p, MAX_LOGS);
             anchors.put(p, carried);
             if (carried.size() > most) { most = carried.size(); main = p; }
@@ -242,6 +246,16 @@ public final class TreeFeller {
      * Leaves of the felled tree only: where its crown touches another tree, each leaf goes with
      * the closest trunk or branch, so the neighbour keeps its own leaves.
      */
+    /** Removes a whole standing tree of boughs at once, with nothing dropped (creative). */
+    public static void removeWhole(ServerLevel level, BlockPos foot) {
+        com.chocodanette.heartwood.tree.GrowingTrees.get(level).forget(foot);
+        Set<BlockPos> logs = new HashSet<>(com.chocodanette.heartwood.tree.BoughBlock.descendants(level, foot, MAX_LOGS));
+        Set<BlockPos> leaves = ownLeaves(level, foot, logs, MAX_LEAVES);
+        for (BlockPos p : leaves) level.setBlock(p, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+        for (BlockPos p : logs) level.setBlock(p, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+        level.setBlock(foot, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+    }
+
     static Set<BlockPos> ownLeaves(ServerLevel level, BlockPos cut, Set<BlockPos> logs, int max) {
         Set<BlockPos> ours = findLeaves(level, logs, max);
         if (ours.isEmpty()) return ours;
