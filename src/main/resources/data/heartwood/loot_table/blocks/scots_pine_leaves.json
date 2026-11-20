@@ -42,7 +42,7 @@
             },
             {
               "type": "minecraft:item",
-              "name": "heartwood:scots_pine_sapling",
+              "name": "heartwood:scots_pine_seeds",
               "conditions": [
                 {
                   "condition": "minecraft:survives_explosion"

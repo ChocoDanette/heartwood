@@ -1,9 +1,13 @@
 package com.chocodanette.heartwood.tree;
 
 import com.chocodanette.heartwood.Config;
+import com.chocodanette.heartwood.ModBlocks;
+import com.chocodanette.heartwood.species.OrganicTrunkPlacer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -11,7 +15,9 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
@@ -25,8 +31,9 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.level.BlockGrowFeatureEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,18 +41,40 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Trees that grow over time. When a sapling grows, it becomes a shoot instead of a full tree; the
- * shoot then grows, stage after stage, into the mature tree its seed would have given, which it
- * reaches after {@link Config#growthDays()} in-game days. Trees from world generation are mature.
- * Growth follows the world clock, so a tree in an unloaded chunk catches up when it is loaded again.
+ * Trees that grow one step at a time, from a planted seed (or a sapling) to a mature tree.
+ *
+ * <p>Every half day or so (more or less a quarter of a day, see {@link Config#growthIntervalDays()})
+ * a young tree takes one growth step: the trunk rises (or leans), a new branch starts, a branch
+ * reaches further or forks, or the tree just fills out. After each step its wood thickens (pipe
+ * model, as the tree ages) and its crown develops. Each step is random, so no two trees end up
+ * alike; the species (the tree feature's trunk placer) only sets the proportions. The tree itself
+ * lives in the world as boughs; only its growth plan is kept here. Growth follows the world clock,
+ * so a tree in an unloaded chunk catches up when it is loaded again. Generated trees are mature.
  */
 public final class GrowingTrees extends SavedData {
-    /** Number of growth stages between the shoot (stage 1) and the mature tree. */
-    public static final int STAGES = 20;
+    private static final String NAME = "heartwood_trees";
     private static final int CHECK_EVERY = 100;
-    private static final String NAME = "heartwood_growing_trees";
+    /** Most steps a tree catches up on in one check, so a long absence is spread over a few seconds. */
+    private static final int MAX_STEPS_PER_CHECK = 4;
 
-    private record Tree(ResourceKey<ConfiguredFeature<?, ?>> feature, long seed, long planted, int stage) {}
+    private static final class Branch {
+        BlockPos from, tip;
+        float bearing, slope;
+        int len, target;
+        boolean forked, alive = true;
+    }
+
+    private static final class Tree {
+        ResourceKey<ConfiguredFeature<?, ?>> feature;
+        ResourceLocation seed;          // the seed item, while still a planted seed (null otherwise)
+        long next;
+        int age, targetHeight, targetBranches;
+        Direction leanDir = Direction.NORTH;
+        Set<Integer> leanAt = new HashSet<>();
+        List<BlockPos> trunk = new ArrayList<>();
+        boolean trunkAlive = true;
+        List<Branch> branches = new ArrayList<>();
+    }
 
     private final Map<BlockPos, Tree> trees = new LinkedHashMap<>();
 
@@ -54,9 +83,16 @@ public final class GrowingTrees extends SavedData {
                 new SavedData.Factory<>(GrowingTrees::new, GrowingTrees::load, null), NAME);
     }
 
-    /** Stops the growth of the tree rooted at root (it was felled or cut down). */
+    /** Stops the growth of the tree rooted at root (felled, cut down or dug up). */
     public void forget(BlockPos root) {
         if (trees.remove(root) != null) setDirty();
+    }
+
+    /** The seed item planted at pos, if pos is a planted seed that has not come up yet. */
+    public Optional<ItemStack> plantedSeed(BlockPos pos) {
+        Tree t = trees.get(pos);
+        if (t == null || t.seed == null) return Optional.empty();
+        return Optional.of(new ItemStack(BuiltInRegistries.ITEM.get(t.seed)));
     }
 
     /** Follows parents down from a piece of a tree to its root piece. */
@@ -71,13 +107,53 @@ public final class GrowingTrees extends SavedData {
         return p;
     }
 
-    /** A growing sapling becomes a shoot that will grow into its tree, instead of a full tree at once. */
+    /** True when the feature grows boughs, so a tree of its species can grow step by step. */
+    public static boolean canGrow(Holder<ConfiguredFeature<?, ?>> feature) {
+        return feature.value().config() instanceof TreeConfiguration config && config.trunkPlacer instanceof BoughTrunkPlacer
+                && ModBlocks.boughFor(trunkLog(config)) != null;
+    }
+
+    private static Block trunkLog(TreeConfiguration config) {
+        return config.trunkProvider.getState(RandomSource.create(0), BlockPos.ZERO).getBlock();
+    }
+
+    /**
+     * Starts a tree at root. A planted seed (seed item given) first has to come up; a sapling comes
+     * up at once as a shoot.
+     */
+    public void plant(ServerLevel level, BlockPos root, ResourceKey<ConfiguredFeature<?, ?>> key, ResourceLocation seed) {
+        Optional<Holder.Reference<ConfiguredFeature<?, ?>>> feature =
+                level.registryAccess().registryOrThrow(Registries.CONFIGURED_FEATURE).getHolder(key);
+        if (feature.isEmpty() || !canGrow(feature.get())) return;
+        TreeConfiguration config = (TreeConfiguration) feature.get().value().config();
+        BoughTrunkPlacer placer = (BoughTrunkPlacer) config.trunkPlacer;
+        RandomSource random = level.random;
+        Tree t = new Tree();
+        t.feature = key;
+        t.seed = seed;
+        t.targetHeight = Math.max(2, placer.getTreeHeight(random));
+        t.targetBranches = placer.branches().count().sample(random);
+        t.leanDir = Direction.Plane.HORIZONTAL.getRandomDirection(random);
+        int leans = placer.branches().lean() > 0 ? random.nextInt(placer.branches().lean() + 1) : 0;
+        for (int k = 0; k < leans; k++) {
+            t.leanAt.add(t.targetHeight / 3 + random.nextInt(Math.max(1, t.targetHeight * 2 / 3 - 1)));
+        }
+        t.next = level.getGameTime() + interval(random);
+        if (seed == null) comeUp(level, root, t, config);
+        trees.put(root.immutable(), t);
+        setDirty();
+    }
+
+    private static long interval(RandomSource random) {
+        return Math.max(20L, (long) (Config.growthIntervalDays() * 24000.0 * (0.5 + random.nextFloat())));
+    }
+
+    /** A growing sapling becomes a shoot that grows step by step, instead of a full tree at once. */
     @SubscribeEvent
     public static void onSaplingGrow(BlockGrowFeatureEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         Holder<ConfiguredFeature<?, ?>> feature = event.getFeature();
-        if (feature == null || !(feature.value().config() instanceof TreeConfiguration config)) return;
-        if (!(config.trunkPlacer instanceof BoughTrunkPlacer)) return;
+        if (feature == null || !canGrow(feature)) return;
         Optional<ResourceKey<ConfiguredFeature<?, ?>>> key = feature.unwrapKey();
         if (key.isEmpty()) return;
         event.setCanceled(true);
@@ -86,82 +162,226 @@ public final class GrowingTrees extends SavedData {
         BlockState sapling = level.getBlockState(pos);
         BlockPos root = pos;
         // Four saplings in a square (dark oak) grow into one tree from their corner.
-        for (int i = 0; i >= -1 && root == pos; i--) {
+        search:
+        for (int i = 0; i >= -1; i--) {
             for (int j = 0; j >= -1; j--) {
                 BlockPos c = pos.offset(i, 0, j);
-                if (same(level, c, sapling) && same(level, c.east(), sapling) && same(level, c.south(), sapling)
-                        && same(level, c.south().east(), sapling)) {
-                    for (BlockPos q : List.of(c, c.east(), c.south(), c.south().east())) {
-                        level.setBlock(q, Blocks.AIR.defaultBlockState(), Block.UPDATE_INVISIBLE);
-                    }
+                List<BlockPos> square = List.of(c, c.east(), c.south(), c.south().east());
+                if (square.stream().allMatch(q -> level.getBlockState(q).is(sapling.getBlock()))) {
+                    square.forEach(q -> level.setBlock(q, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL));
                     root = c;
-                    break;
+                    break search;
                 }
             }
         }
-        level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_INVISIBLE);
-        long seed = event.getRandom().nextLong();
-        grow(level, root, config, seed, 1);
-        if (!(level.getBlockState(root).getBlock() instanceof BoughBlock)) {
-            level.setBlock(pos, sapling, Block.UPDATE_ALL);   // no room: the sapling stays
-            return;
-        }
-        GrowingTrees data = get(level);
-        data.trees.put(root, new Tree(key.get(), seed, level.getGameTime(), 1));
-        data.setDirty();
+        level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+        get(level).plant(level, root, key.get(), null);
     }
 
-    private static boolean same(ServerLevel level, BlockPos p, BlockState sapling) {
-        return level.getBlockState(p).is(sapling.getBlock());
-    }
-
-    /** Every few seconds, trees whose next stage is due grow a step (or several, after a long absence). */
     @SubscribeEvent
     public static void onLevelTick(LevelTickEvent.Post event) {
         if (!(event.getLevel() instanceof ServerLevel level) || level.getGameTime() % CHECK_EVERY != 0) return;
         GrowingTrees data = get(level);
         if (data.trees.isEmpty()) return;
-        long stageTicks = Math.max(1L, (long) (Config.growthDays() * 24000.0 / (STAGES - 1)));
         var registry = level.registryAccess().registryOrThrow(Registries.CONFIGURED_FEATURE);
-        Map<BlockPos, Tree> updates = new LinkedHashMap<>();
-        Set<BlockPos> done = new HashSet<>();
-        for (Iterator<Map.Entry<BlockPos, Tree>> it = data.trees.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry<BlockPos, Tree> e = it.next();
+        long now = level.getGameTime();
+        List<BlockPos> done = new ArrayList<>();
+        boolean changed = false;
+        for (Map.Entry<BlockPos, Tree> e : new ArrayList<>(data.trees.entrySet())) {
             BlockPos root = e.getKey();
             Tree t = e.getValue();
-            if (!level.isAreaLoaded(root, 12)) continue;
-            if (!(level.getBlockState(root).getBlock() instanceof BoughBlock)) { done.add(root); continue; }
-            int stage = (int) Math.min(STAGES, 1 + (level.getGameTime() - t.planted()) / stageTicks);
-            if (stage <= t.stage()) continue;
-            Optional<Holder.Reference<ConfiguredFeature<?, ?>>> feature = registry.getHolder(t.feature());
-            if (feature.isEmpty() || !(feature.get().value().config() instanceof TreeConfiguration config)) {
-                done.add(root);
-                continue;
+            if (t.next > now || !level.isAreaLoaded(root, 12)) continue;
+            Optional<Holder.Reference<ConfiguredFeature<?, ?>>> feature = registry.getHolder(t.feature);
+            if (feature.isEmpty() || !canGrow(feature.get())) { done.add(root); continue; }
+            TreeConfiguration config = (TreeConfiguration) feature.get().value().config();
+            for (int n = 0; n < MAX_STEPS_PER_CHECK && t.next <= now; n++) {
+                if (!step(level, root, t, config)) { done.add(root); break; }
+                t.next += interval(level.random);
             }
-            grow(level, root, config, t.seed(), stage);
-            if (stage >= STAGES) done.add(root);
-            else updates.put(root, new Tree(t.feature(), t.seed(), t.planted(), stage));
+            changed = true;
         }
-        if (updates.isEmpty() && done.isEmpty()) return;
-        data.trees.putAll(updates);
         done.forEach(data.trees::remove);
-        data.setDirty();
+        if (changed || !done.isEmpty()) data.setDirty();
     }
 
-    /**
-     * Places the tree grown from seed at the given stage. The same seed always gives the same
-     * mature skeleton, so each stage extends and thickens the previous one.
-     */
-    static void grow(ServerLevel level, BlockPos root, TreeConfiguration config, long seed, int stage) {
-        RandomSource random = RandomSource.create(seed);
-        int height = config.trunkPlacer.getTreeHeight(random);
-        int foliageHeight = config.foliagePlacer.foliageHeight(random, height, config);
-        int foliageRadius = config.foliagePlacer.foliageRadius(random, height - foliageHeight);
+    /** One growth step. Returns false when the tree is gone or fully grown. */
+    private static boolean step(ServerLevel level, BlockPos root, Tree t, TreeConfiguration config) {
+        BlockState rootState = level.getBlockState(root);
+        if (t.seed != null) {
+            if (!(rootState.getBlock() instanceof SeedMoundBlock)) return false;
+            if (!comeUp(level, root, t, config)) return false;
+            return true;
+        }
+        if (!(rootState.getBlock() instanceof BoughBlock)) return false;
+        BoughTrunkPlacer placer = (BoughTrunkPlacer) config.trunkPlacer;
+        OrganicTrunkPlacer.Branches shape = placer.branches();
+        Block bough = ModBlocks.boughFor(trunkLog(config));
+        RandomSource random = level.random;
+        t.age++;
+
+        // Parts cut off or broken stop growing.
+        BlockPos top = t.trunk.get(t.trunk.size() - 1);
+        if (!(level.getBlockState(top).getBlock() instanceof BoughBlock)) t.trunkAlive = false;
+        for (Branch b : t.branches) {
+            if (b.alive && !(level.getBlockState(b.tip).getBlock() instanceof BoughBlock)) b.alive = false;
+        }
+
+        int height = top.getY() - root.getY() + 1;
+        int lowest = Math.max(1, Mth.floor(t.targetHeight * shape.start()));
+        List<BlockPos> branchFrom = new ArrayList<>();
+        for (BlockPos p : t.trunk) {
+            int y = p.getY() - root.getY();
+            if (y >= lowest && y < height - 1) branchFrom.add(p);
+        }
+        List<Branch> growing = new ArrayList<>();
+        for (Branch b : t.branches) if (b.alive && b.len < b.target) growing.add(b);
+
+        boolean trunkCan = t.trunkAlive && height < t.targetHeight;
+        boolean branchCan = t.branches.stream().filter(b -> !b.forked).count() < t.targetBranches && !branchFrom.isEmpty();
+        int wTrunk = trunkCan ? 3 : 0, wBranch = branchCan ? 2 : 0, wExtend = growing.isEmpty() ? 0 : 2, wFill = 1;
+        float maturity = maturity(t, shape);
+        if (!trunkCan && !branchCan && growing.isEmpty() && maturity >= 1f) return false;
+
+        int roll = random.nextInt(wTrunk + wBranch + wExtend + wFill);
+        if (roll < wTrunk) {
+            growTrunk(level, root, t, bough, top, height);
+        } else if ((roll -= wTrunk) < wBranch) {
+            startBranch(level, root, t, shape, bough, branchFrom, lowest, random);
+        } else if ((roll -= wBranch) < wExtend) {
+            extendBranch(level, t, shape, bough, growing.get(random.nextInt(growing.size())), random);
+        }
+        // Every step: the wood thickens with age and the crown fills out.
+        thicken(level, root, placer.girth(), maturity);
+        foliage(level, t, config, maturity, random);
+        return true;
+    }
+
+    /** How grown the tree is, from 0 to 1, by the number of steps it has taken. */
+    private static float maturity(Tree t, OrganicTrunkPlacer.Branches shape) {
+        float avgLen = (shape.length().getMinValue() + shape.length().getMaxValue()) / 2f;
+        float steps = 1.6f * (t.targetHeight + t.targetBranches * avgLen * (1f + shape.fork() / 2f));
+        return Math.min(1f, t.age / Math.max(1f, steps));
+    }
+
+    /** The seed comes up: a one-piece shoot with a few leaves. */
+    private static boolean comeUp(ServerLevel level, BlockPos root, Tree t, TreeConfiguration config) {
+        Block bough = ModBlocks.boughFor(trunkLog(config));
+        BlockState below = level.getBlockState(root.below());
+        if (bough == null || below.isAir() || below.canBeReplaced()) return false;
+        t.seed = null;
+        level.setBlock(root, BoughBlock.state(bough, 1, Direction.DOWN, 8), Block.UPDATE_ALL);
+        t.trunk.clear();
+        t.trunk.add(root.immutable());
+        foliage(level, t, config, 0f, level.random);
+        return true;
+    }
+
+    private static void growTrunk(ServerLevel level, BlockPos root, Tree t, Block bough, BlockPos top, int height) {
+        // A leaning trunk steps sideways once at each of its lean heights, then carries on up.
+        boolean lean = t.leanAt.remove(height);
+        BlockPos next = lean ? top.relative(t.leanDir) : top.above();
+        if (!TreeFeature.validTreePos(level, next)) { t.trunkAlive = false; return; }
+        place(level, bough, next, top);
+        t.trunk.add(next.immutable());
+    }
+
+    private static void startBranch(ServerLevel level, BlockPos root, Tree t, OrganicTrunkPlacer.Branches shape, Block bough,
+                                    List<BlockPos> branchFrom, int lowest, RandomSource random) {
+        BlockPos from = branchFrom.get(random.nextInt(branchFrom.size()));
+        // The bearing furthest from the other branches, out of a few random tries.
+        float bearing = 0f, best = -1f;
+        for (int k = 0; k < 4; k++) {
+            float b = random.nextFloat() * Mth.TWO_PI, gap = Mth.PI;
+            for (Branch o : t.branches) gap = Math.min(gap, Math.abs(Mth.wrapDegrees((b - o.bearing) * Mth.RAD_TO_DEG)) * Mth.DEG_TO_RAD);
+            if (gap > best) { best = gap; bearing = b; }
+        }
+        int y = from.getY() - root.getY();
+        float rel = t.targetHeight - 1 > lowest ? (y - lowest) / (float) (t.targetHeight - 1 - lowest) : 0f;
+        Branch b = new Branch();
+        b.from = from.immutable();
+        b.tip = from.immutable();
+        b.bearing = bearing;
+        b.slope = shape.slope();
+        b.target = Math.max(1, Math.round(shape.length().sample(random) * (1f - shape.taper() * rel)));
+        t.branches.add(b);
+        extendBranch(level, t, shape, bough, b, random);
+        if (b.len == 0) t.branches.remove(b);   // no room for it
+    }
+
+    private static void extendBranch(ServerLevel level, Tree t, OrganicTrunkPlacer.Branches shape, Block bough, Branch b,
+                                     RandomSource random) {
+        float reach = b.len + 1.5f;
+        double tx = b.from.getX() + 0.5 + Mth.cos(b.bearing) * reach;
+        double ty = b.from.getY() + 0.5 + b.slope * reach;
+        double tz = b.from.getZ() + 0.5 + Mth.sin(b.bearing) * reach;
+        double dx = tx - (b.tip.getX() + 0.5), dy = ty - (b.tip.getY() + 0.5), dz = tz - (b.tip.getZ() + 0.5);
+        double ax = Math.abs(dx), ay = Math.abs(dy), az = Math.abs(dz);
+        // The first piece always leaves the trunk sideways.
+        if (b.len == 0) ay = 0;
+        Direction d = ax >= ay && ax >= az ? (dx > 0 ? Direction.EAST : Direction.WEST)
+                : ay >= az ? (dy > 0 ? Direction.UP : Direction.DOWN)
+                : (dz > 0 ? Direction.SOUTH : Direction.NORTH);
+        BlockPos next = b.tip.relative(d);
+        if (!TreeFeature.validTreePos(level, next)) { b.alive = false; return; }
+        place(level, bough, next, b.tip);
+        b.tip = next.immutable();
+        b.len++;
+        // Halfway, a branch may fork once.
+        if (!b.forked && b.len == Math.max(2, b.target / 2) && b.target >= 3 && random.nextFloat() < shape.fork()) {
+            Branch f = new Branch();
+            f.from = b.tip;
+            f.tip = b.tip;
+            f.bearing = b.bearing + (random.nextBoolean() ? 0.8f : -0.8f);
+            f.slope = b.slope * 1.2f;
+            f.target = Math.max(2, (b.target - b.len));
+            f.forked = true;
+            t.branches.add(f);
+        }
+    }
+
+    private static void place(ServerLevel level, Block bough, BlockPos pos, BlockPos parent) {
+        Direction toParent = Direction.getNearest(parent.getX() - pos.getX(), parent.getY() - pos.getY(), parent.getZ() - pos.getZ());
+        BlockState ps = level.getBlockState(parent);
+        int pr = ps.getBlock() instanceof BoughBlock ? ps.getValue(BoughBlock.RADIUS) : 1;
+        level.setBlock(pos, BoughBlock.state(bough, 1, toParent, pr), Block.UPDATE_ALL);
+    }
+
+    /** Pipe model over the whole tree as it stands: thicker towards the root, and with age. */
+    private static void thicken(ServerLevel level, BlockPos root, BoughTrunkPlacer.Girth girth, float maturity) {
+        List<BlockPos> pieces = new ArrayList<>(BoughBlock.descendants(level, root, 4000));   // twigs first
+        pieces.add(root);
+        Map<BlockPos, Float> area = new HashMap<>();
+        Map<BlockPos, BlockPos> parent = new HashMap<>();
+        for (BlockPos p : pieces) {
+            float a = area.getOrDefault(p, 0f) + 1f + girth.growth();
+            area.put(p, a);
+            BlockPos par = p.equals(root) ? null : BoughBlock.parentPos(level.getBlockState(p), p);
+            parent.put(p, par);
+            if (par != null) area.merge(par, a, Float::sum);
+        }
+        float k = 0.25f + 0.75f * maturity;
+        Map<BlockPos, Integer> radius = new HashMap<>();
+        for (int i = pieces.size() - 1; i >= 0; i--) {   // root first
+            BlockPos p = pieces.get(i);
+            int r = Mth.clamp(Math.round((float) Math.sqrt(area.get(p) * k)), 1, girth.maxRadius());
+            BlockPos par = parent.get(p);
+            if (par != null && radius.containsKey(par)) r = Math.min(r, radius.get(par));
+            BlockState s = level.getBlockState(p);
+            r = Math.max(r, s.getValue(BoughBlock.RADIUS));   // wood never gets thinner
+            radius.put(p, r);
+            int pr = par != null && radius.containsKey(par) ? radius.get(par) : s.getValue(BoughBlock.PARENT_RADIUS);
+            BlockState n = s.setValue(BoughBlock.RADIUS, r).setValue(BoughBlock.PARENT_RADIUS, pr);
+            if (n != s) level.setBlock(p, n, Block.UPDATE_CLIENTS);
+        }
+    }
+
+    /** Leaves on the tips, as a small tuft on a shoot and as crowns that widen as the tree matures. */
+    private static void foliage(ServerLevel level, Tree t, TreeConfiguration config, float maturity, RandomSource random) {
         Set<BlockPos> leaves = new HashSet<>();
-        FoliagePlacer.FoliageSetter foliage = new FoliagePlacer.FoliageSetter() {
+        FoliagePlacer.FoliageSetter setter = new FoliagePlacer.FoliageSetter() {
             @Override
             public void set(BlockPos pos, BlockState state) {
-                if (TreeFeature.validTreePos(level, pos)) {
+                if (level.isEmptyBlock(pos) || level.getBlockState(pos).canBeReplaced()) {
                     level.setBlock(pos, state, Block.UPDATE_ALL);
                     leaves.add(pos.immutable());
                 }
@@ -172,15 +392,23 @@ public final class GrowingTrees extends SavedData {
                 return leaves.contains(pos);
             }
         };
-        BoughTrunkPlacer.AGE.set(stage >= STAGES ? 1f : stage / (float) STAGES);
-        try {
-            List<FoliagePlacer.FoliageAttachment> crowns = config.trunkPlacer.placeTrunk(level,
-                    (p, s) -> level.setBlock(p, s, Block.UPDATE_ALL), random, height, root, config);
-            for (FoliagePlacer.FoliageAttachment crown : crowns) {
-                config.foliagePlacer.createFoliage(level, foliage, random, config, height, crown, foliageHeight, foliageRadius);
+        BlockPos top = t.trunk.get(t.trunk.size() - 1);
+        if (t.trunk.size() <= 2 && t.branches.isEmpty()) {
+            setter.set(top.above(), config.foliageProvider.getState(random, top.above()));
+            Direction side = Direction.Plane.HORIZONTAL.getRandomDirection(random);
+            if (t.trunk.size() == 2) setter.set(top.relative(side), config.foliageProvider.getState(random, top.relative(side)));
+        } else {
+            List<BlockPos> tips = new ArrayList<>();
+            if (level.getBlockState(top).getBlock() instanceof BoughBlock) tips.add(top.above());
+            for (Branch b : t.branches) if (b.len > 0 && level.getBlockState(b.tip).getBlock() instanceof BoughBlock) tips.add(b.tip);
+            int offset = maturity < 0.35f ? -2 : maturity < 0.7f ? -1 : 0;
+            int height = t.trunk.size();
+            int fh = Math.max(1, Math.round(config.foliagePlacer.foliageHeight(random, height, config) * (0.3f + 0.7f * maturity)));
+            int fr = config.foliagePlacer.foliageRadius(random, height - fh);
+            for (BlockPos tip : tips) {
+                config.foliagePlacer.createFoliage(level, setter, random, config, height,
+                        new FoliagePlacer.FoliageAttachment(tip, offset, false), fh, fr);
             }
-        } finally {
-            BoughTrunkPlacer.AGE.remove();
         }
         // New leaves work out their distance to the wood, so they don't decay.
         for (BlockPos p : leaves) {
@@ -195,10 +423,30 @@ public final class GrowingTrees extends SavedData {
         trees.forEach((pos, t) -> {
             CompoundTag c = new CompoundTag();
             c.putLong("pos", pos.asLong());
-            c.putString("feature", t.feature().location().toString());
-            c.putLong("seed", t.seed());
-            c.putLong("planted", t.planted());
-            c.putInt("stage", t.stage());
+            c.putString("feature", t.feature.location().toString());
+            if (t.seed != null) c.putString("seed", t.seed.toString());
+            c.putLong("next", t.next);
+            c.putInt("age", t.age);
+            c.putInt("target_height", t.targetHeight);
+            c.putInt("target_branches", t.targetBranches);
+            c.putInt("lean_dir", t.leanDir.get3DDataValue());
+            c.putIntArray("lean_at", t.leanAt.stream().mapToInt(Integer::intValue).toArray());
+            c.putLongArray("trunk", t.trunk.stream().mapToLong(BlockPos::asLong).toArray());
+            c.putBoolean("trunk_alive", t.trunkAlive);
+            ListTag bl = new ListTag();
+            for (Branch b : t.branches) {
+                CompoundTag bc = new CompoundTag();
+                bc.putLong("from", b.from.asLong());
+                bc.putLong("tip", b.tip.asLong());
+                bc.putFloat("bearing", b.bearing);
+                bc.putFloat("slope", b.slope);
+                bc.putInt("len", b.len);
+                bc.putInt("target", b.target);
+                bc.putBoolean("forked", b.forked);
+                bc.putBoolean("alive", b.alive);
+                bl.add(bc);
+            }
+            c.put("branches", bl);
             list.add(c);
         });
         tag.put("trees", list);
@@ -211,8 +459,32 @@ public final class GrowingTrees extends SavedData {
             CompoundTag c = (CompoundTag) e;
             ResourceLocation id = ResourceLocation.tryParse(c.getString("feature"));
             if (id == null) continue;
-            data.trees.put(BlockPos.of(c.getLong("pos")), new Tree(ResourceKey.create(Registries.CONFIGURED_FEATURE, id),
-                    c.getLong("seed"), c.getLong("planted"), c.getInt("stage")));
+            Tree t = new Tree();
+            t.feature = ResourceKey.create(Registries.CONFIGURED_FEATURE, id);
+            t.seed = c.contains("seed") ? ResourceLocation.tryParse(c.getString("seed")) : null;
+            t.next = c.getLong("next");
+            t.age = c.getInt("age");
+            t.targetHeight = c.getInt("target_height");
+            t.targetBranches = c.getInt("target_branches");
+            t.leanDir = Direction.from3DDataValue(c.getInt("lean_dir"));
+            for (int y : c.getIntArray("lean_at")) t.leanAt.add(y);
+            for (long p : c.getLongArray("trunk")) t.trunk.add(BlockPos.of(p));
+            t.trunkAlive = c.getBoolean("trunk_alive");
+            for (Tag be : c.getList("branches", Tag.TAG_COMPOUND)) {
+                CompoundTag bc = (CompoundTag) be;
+                Branch b = new Branch();
+                b.from = BlockPos.of(bc.getLong("from"));
+                b.tip = BlockPos.of(bc.getLong("tip"));
+                b.bearing = bc.getFloat("bearing");
+                b.slope = bc.getFloat("slope");
+                b.len = bc.getInt("len");
+                b.target = bc.getInt("target");
+                b.forked = bc.getBoolean("forked");
+                b.alive = bc.getBoolean("alive");
+                t.branches.add(b);
+            }
+            if (t.seed == null && t.trunk.isEmpty()) continue;
+            data.trees.put(BlockPos.of(c.getLong("pos")), t);
         }
         return data;
     }

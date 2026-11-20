@@ -42,7 +42,7 @@
             },
             {
               "type": "minecraft:item",
-              "name": "heartwood:ash_sapling",
+              "name": "heartwood:ash_key",
               "conditions": [
                 {
                   "condition": "minecraft:survives_explosion"

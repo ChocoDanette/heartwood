@@ -1,0 +1,22 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "heartwood:block/seed_mound",
+        "y": 0
+      },
+      {
+        "model": "heartwood:block/seed_mound",
+        "y": 90
+      },
+      {
+        "model": "heartwood:block/seed_mound",
+        "y": 180
+      },
+      {
+        "model": "heartwood:block/seed_mound",
+        "y": 270
+      }
+    ]
+  }
+}

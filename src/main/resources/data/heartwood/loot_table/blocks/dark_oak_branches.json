@@ -48,7 +48,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:dark_oak_sapling"
+          "name": "heartwood:beechnut"
         }
       ],
       "conditions": [

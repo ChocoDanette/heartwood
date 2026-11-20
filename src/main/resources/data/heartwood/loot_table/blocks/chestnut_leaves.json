@@ -42,7 +42,7 @@
             },
             {
               "type": "minecraft:item",
-              "name": "heartwood:chestnut_sapling",
+              "name": "heartwood:sweet_chestnut",
               "conditions": [
                 {
                   "condition": "minecraft:survives_explosion"

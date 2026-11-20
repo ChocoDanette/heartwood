@@ -43,6 +43,7 @@ public class Heartwood {
     private static void addToCreativeTabs(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
             ModBlocks.ALL_GREEN_ITEMS.forEach(item -> event.accept(item.get()));
+            ModBlocks.SEEDS.forEach(item -> event.accept(item.get()));
             for (Species.Wood w : Species.ALL) {
                 event.accept(w.log().get());
                 event.accept(w.leaves().get());

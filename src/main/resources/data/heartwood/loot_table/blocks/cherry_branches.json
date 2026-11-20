@@ -48,7 +48,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:cherry_sapling"
+          "name": "heartwood:cherry_pit"
         }
       ],
       "conditions": [

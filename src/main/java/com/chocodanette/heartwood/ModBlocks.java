@@ -53,6 +53,38 @@ public final class ModBlocks {
     public static final List<DeferredBlock<com.chocodanette.heartwood.tree.BoughBlock>> ALL_BOUGHS = new ArrayList<>();
     private static Map<Block, Block> notchedByLog, felledByLog, branchesByLeaves, greenByLog, boughByLog;
 
+    /** A planted tree seed, until it comes up. */
+    public static final DeferredBlock<com.chocodanette.heartwood.tree.SeedMoundBlock> SEED_MOUND = BLOCKS.register("seed_mound",
+            () -> new com.chocodanette.heartwood.tree.SeedMoundBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.DIRT).strength(0.3f).sound(SoundType.ROOTED_DIRT).noLootTable()
+                    .noOcclusion().pushReaction(PushReaction.DESTROY)));
+    public static final List<DeferredItem<com.chocodanette.heartwood.tree.SeedItem>> SEEDS = new ArrayList<>();
+
+    private static void seed(String name, String... features) {
+        List<com.chocodanette.heartwood.tree.SeedItem.Kind> kinds = new ArrayList<>();
+        for (String f : features) {
+            String[] parts = f.split("\\*");
+            kinds.add(new com.chocodanette.heartwood.tree.SeedItem.Kind(net.minecraft.resources.ResourceLocation.parse(parts[0]),
+                    parts.length > 1 ? Integer.parseInt(parts[1]) : 1));
+        }
+        SEEDS.add(ITEMS.register(name, () -> new com.chocodanette.heartwood.tree.SeedItem(kinds, new Item.Properties())));
+    }
+
+    static {
+        // Tree seeds, and the trees (configured features) they grow into, with their odds.
+        seed("acorn", "minecraft:oak*9", "minecraft:fancy_oak*1");
+        seed("birch_seeds", "minecraft:birch");
+        seed("spruce_seeds", "minecraft:spruce");
+        seed("teak_seeds", "minecraft:jungle_tree_no_vine");
+        seed("acacia_seeds", "minecraft:acacia");
+        seed("beechnut", "minecraft:dark_oak");
+        seed("cherry_pit", "minecraft:cherry");
+        seed("ash_key", "heartwood:ash");
+        seed("scots_pine_seeds", "heartwood:scots_pine");
+        seed("sweet_chestnut", "heartwood:chestnut");
+        seed("maple_key", "heartwood:maple");
+    }
+
     static {
         Species.init();
         for (Species.Wood w : Species.ALL) {

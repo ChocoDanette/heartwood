@@ -1,0 +1,97 @@
+{
+  "parent": "minecraft:block/block",
+  "ambientocclusion": false,
+  "textures": {
+    "dirt": "minecraft:block/dirt",
+    "particle": "minecraft:block/dirt"
+  },
+  "elements": [
+    {
+      "from": [
+        3,
+        0,
+        3
+      ],
+      "to": [
+        13,
+        2,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#dirt"
+        },
+        "south": {
+          "texture": "#dirt"
+        },
+        "east": {
+          "texture": "#dirt"
+        },
+        "west": {
+          "texture": "#dirt"
+        },
+        "up": {
+          "texture": "#dirt"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        2,
+        5
+      ],
+      "to": [
+        11,
+        3,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#dirt"
+        },
+        "south": {
+          "texture": "#dirt"
+        },
+        "east": {
+          "texture": "#dirt"
+        },
+        "west": {
+          "texture": "#dirt"
+        },
+        "up": {
+          "texture": "#dirt"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        0,
+        6
+      ],
+      "to": [
+        12,
+        2.5,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#dirt"
+        },
+        "south": {
+          "texture": "#dirt"
+        },
+        "east": {
+          "texture": "#dirt"
+        },
+        "west": {
+          "texture": "#dirt"
+        },
+        "up": {
+          "texture": "#dirt"
+        }
+      }
+    }
+  ]
+}

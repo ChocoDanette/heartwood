@@ -48,7 +48,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:jungle_sapling"
+          "name": "heartwood:teak_seeds"
         }
       ],
       "conditions": [

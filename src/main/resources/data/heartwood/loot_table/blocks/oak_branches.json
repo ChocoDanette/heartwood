@@ -48,7 +48,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:oak_sapling"
+          "name": "heartwood:acorn"
         }
       ],
       "conditions": [

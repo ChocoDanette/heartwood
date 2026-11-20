@@ -1,0 +1,37 @@
+{
+  "values": {
+    "heartwood:acorn": {
+      "chance": 0.3
+    },
+    "heartwood:birch_seeds": {
+      "chance": 0.3
+    },
+    "heartwood:spruce_seeds": {
+      "chance": 0.3
+    },
+    "heartwood:teak_seeds": {
+      "chance": 0.3
+    },
+    "heartwood:acacia_seeds": {
+      "chance": 0.3
+    },
+    "heartwood:beechnut": {
+      "chance": 0.3
+    },
+    "heartwood:cherry_pit": {
+      "chance": 0.3
+    },
+    "heartwood:ash_key": {
+      "chance": 0.3
+    },
+    "heartwood:scots_pine_seeds": {
+      "chance": 0.3
+    },
+    "heartwood:sweet_chestnut": {
+      "chance": 0.3
+    },
+    "heartwood:maple_key": {
+      "chance": 0.3
+    }
+  }
+}

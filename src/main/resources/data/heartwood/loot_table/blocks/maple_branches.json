@@ -48,7 +48,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "heartwood:maple_sapling"
+          "name": "heartwood:maple_key"
         }
       ],
       "conditions": [

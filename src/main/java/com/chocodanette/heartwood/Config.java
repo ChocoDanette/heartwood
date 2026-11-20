@@ -11,8 +11,8 @@ public final class Config {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
         DRYING_DAYS = b.comment("Average number of in-game days a placed green log takes to dry when sheltered (no sky above it).")
                 .defineInRange("dryingDays", 1.0, 0.05, 100.0);
-        GROWTH_DAYS = b.comment("Number of in-game days a tree takes to grow from a sapling to maturity.")
-                .defineInRange("growthDays", 10.0, 0.05, 100.0);
+        GROWTH_DAYS = b.comment("Average number of in-game days between two growth steps of a young tree (each step varies by half this, more or less).")
+                .defineInRange("growthIntervalDays", 0.5, 0.01, 10.0);
         SPEC = b.build();
     }
 
@@ -20,7 +20,7 @@ public final class Config {
         return SPEC.isLoaded() ? DRYING_DAYS.get() : DRYING_DAYS.getDefault();
     }
 
-    public static double growthDays() {
+    public static double growthIntervalDays() {
         return SPEC.isLoaded() ? GROWTH_DAYS.get() : GROWTH_DAYS.getDefault();
     }
 

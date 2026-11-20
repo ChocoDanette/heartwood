@@ -167,5 +167,17 @@
   "block.heartwood.ash_bough": "Branche de frêne",
   "block.heartwood.scots_pine_bough": "Branche de pin sylvestre",
   "block.heartwood.chestnut_bough": "Branche de châtaignier",
-  "block.heartwood.maple_bough": "Branche d'érable"
+  "block.heartwood.maple_bough": "Branche d'érable",
+  "item.heartwood.acorn": "Gland",
+  "item.heartwood.birch_seeds": "Graines de bouleau",
+  "item.heartwood.spruce_seeds": "Graines d'épicéa",
+  "item.heartwood.teak_seeds": "Graines de teck",
+  "item.heartwood.acacia_seeds": "Graines d'acacia",
+  "item.heartwood.beechnut": "Faîne",
+  "item.heartwood.cherry_pit": "Noyau de cerise",
+  "item.heartwood.ash_key": "Samare de frêne",
+  "item.heartwood.scots_pine_seeds": "Graines de pin sylvestre",
+  "item.heartwood.sweet_chestnut": "Châtaigne",
+  "item.heartwood.maple_key": "Samare d'érable",
+  "block.heartwood.seed_mound": "Semis"
 }

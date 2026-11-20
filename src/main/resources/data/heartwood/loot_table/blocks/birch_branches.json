@@ -48,7 +48,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:birch_sapling"
+          "name": "heartwood:birch_seeds"
         }
       ],
       "conditions": [

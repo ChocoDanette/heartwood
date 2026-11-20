@@ -48,7 +48,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:spruce_sapling"
+          "name": "heartwood:spruce_seeds"
         }
       ],
       "conditions": [
