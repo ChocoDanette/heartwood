@@ -7,7 +7,6 @@ import com.chocodanette.heartwood.tree.TrunkShellBlock;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
@@ -59,15 +58,15 @@ public final class TreeOutline {
         if (cachedShape == null || cachedShape.isEmpty()) return;
 
         Vec3 cam = event.getCamera().getPosition();
-        VertexConsumer lines = event.getMultiBufferSource().getBuffer(RenderType.lines());
+        VertexConsumer lines = event.getMultiBufferSource().getBuffer(OutlineRenderType.THICK_LINES);
         PoseStack.Pose pose = event.getPoseStack().last();
         double ox = pos.getX() - cam.x, oy = pos.getY() - cam.y, oz = pos.getZ() - cam.z;
         cachedShape.forAllEdges((x1, y1, z1, x2, y2, z2) -> {
             float dx = (float) (x2 - x1), dy = (float) (y2 - y1), dz = (float) (z2 - z1);
             float len = Mth.sqrt(dx * dx + dy * dy + dz * dz);
             if (len > 0) { dx /= len; dy /= len; dz /= len; }
-            lines.addVertex(pose, (float) (x1 + ox), (float) (y1 + oy), (float) (z1 + oz)).setColor(0f, 0f, 0f, 0.4f).setNormal(pose, dx, dy, dz);
-            lines.addVertex(pose, (float) (x2 + ox), (float) (y2 + oy), (float) (z2 + oz)).setColor(0f, 0f, 0f, 0.4f).setNormal(pose, dx, dy, dz);
+            lines.addVertex(pose, (float) (x1 + ox), (float) (y1 + oy), (float) (z1 + oz)).setColor(1f, 0.85f, 0.15f, 0.95f).setNormal(pose, dx, dy, dz);
+            lines.addVertex(pose, (float) (x2 + ox), (float) (y2 + oy), (float) (z2 + oz)).setColor(1f, 0.85f, 0.15f, 0.95f).setNormal(pose, dx, dy, dz);
         });
         event.setCanceled(true);
     }

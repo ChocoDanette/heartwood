@@ -134,7 +134,7 @@ public final class FellingEvents {
                     player.displayClientMessage(Component.translatable("message.heartwood.need_axe_branch"), true);
                     return;
                 }
-                for (BlockPos p : BoughBlock.descendants(level, pos, 2000)) level.destroyBlock(p, true, player);
+                cutOff(level, pos, player);
                 return;
             }
             if (!tree.limbed()) {
@@ -184,7 +184,18 @@ public final class FellingEvents {
             return;
         }
         // A branch cut off a standing tree takes everything beyond it down with it.
-        for (BlockPos p : BoughBlock.descendants(level, pos, 2000)) level.destroyBlock(p, true, player);
+        cutOff(level, pos, player);
+    }
+
+    /**
+     * A branch cut off at pos (the piece itself is broken by the game): everything it carries
+     * comes down, and so do the leaves that grew on it.
+     */
+    private static void cutOff(ServerLevel level, BlockPos pos, Player player) {
+        java.util.List<BlockPos> gone = new java.util.ArrayList<>(BoughBlock.descendants(level, pos, 2000));
+        for (BlockPos p : gone) level.destroyBlock(p, true, player);
+        gone.add(pos);
+        LeafCleanup.dropLeavesOf(level, gone, pos);
     }
 
     /** The horizontal face of the block the player is hitting; otherwise the side of the block facing the player. */

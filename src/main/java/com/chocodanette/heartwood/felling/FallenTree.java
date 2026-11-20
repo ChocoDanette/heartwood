@@ -13,10 +13,13 @@ import java.util.Set;
 
 /**
  * A tree lying on the ground, made of boughs: its trunk (the stem, from the cut end along the
- * thickest pieces) and the branches it still carries. The trunk is bucked only once every branch,
+ * thickest pieces, as long as they are at least half a block thick) and the branches it still carries. The trunk is bucked only once every branch,
  * leafy or bare, is off.
  */
 public final class FallenTree {
+    /** Thinner than this (half a block across), the top of a trunk is a branch. */
+    public static final int TRUNK_RADIUS = 4;
+
     public final BlockPos base;
     public final List<BlockPos> stem = new ArrayList<>();
     public final Set<BlockPos> stemSet = new HashSet<>();
@@ -54,6 +57,8 @@ public final class FallenTree {
                 int score = ns.getValue(BoughBlock.RADIUS) * 2 + (d == along ? 1 : 0);
                 if (score > best) { best = score; next = n; }
             }
+            // The thin top of the trunk counts as a branch.
+            if (next != null && level.getBlockState(next).getValue(BoughBlock.RADIUS) < TRUNK_RADIUS) next = null;
             if (next != null) along = Direction.getNearest(next.getX() - cur.getX(), next.getY() - cur.getY(), next.getZ() - cur.getZ());
             cur = next;
         }
