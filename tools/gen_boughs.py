@@ -149,13 +149,14 @@ def main():
             {"functions": [{"function": "minecraft:set_count", "count": n}]} if n != 1 else {})
         boom = {"condition": "minecraft:survives_explosion"}
         w(f"data/{NS}/loot_table/blocks/{b}.json", {"type": "minecraft:block", "pools": [
-            {"rolls": 1, "conditions": [radius(1, 1), boom, {"condition": "minecraft:random_chance", "chance": 0.5}],
+            {"rolls": 1, "conditions": [radius(1, 1), boom, {"condition": "minecraft:random_chance", "chance": 0.15}],
              "entries": [sticks(1)]},
-            {"rolls": 1, "conditions": [radius(2, 2), boom], "entries": [sticks(1)]},
-            {"rolls": 1, "conditions": [radius(3, 3), boom], "entries": [sticks(2)]},
+            {"rolls": 1, "conditions": [radius(2, 2), boom, {"condition": "minecraft:random_chance", "chance": 0.4}],
+             "entries": [sticks(1)]},
+            {"rolls": 1, "conditions": [radius(3, 3), boom], "entries": [sticks(1)]},
             {"rolls": 1, "conditions": [radius(4, 4), boom], "entries": [{"type": "minecraft:alternatives", "children": [
                 {"type": "minecraft:item", "name": green, "conditions": [{"condition": "minecraft:random_chance", "chance": 0.5}]},
-                sticks(3)]}]},
+                sticks(1)]}]},
             {"rolls": 1, "conditions": [radius(5, 9), boom], "entries": [{"type": "minecraft:item", "name": green}]},
             # Trunks over a block thick: logs in proportion to their cross-section.
             *[{"rolls": 1, "conditions": [radius(lo, hi), boom], "entries": [{"type": "minecraft:item", "name": green,

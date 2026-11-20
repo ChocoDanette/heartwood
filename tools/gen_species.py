@@ -318,9 +318,9 @@ def main():
         # A fallen crown gives a stick now and then, and seeds, whatever it is broken with.
         w(f"data/{NS}/loot_table/blocks/{name}_branches.json", {"type": "minecraft:block", "pools": [
             {"rolls": 1, "entries": [{"type": "minecraft:item", "name": "minecraft:stick"}],
-             "conditions": [{"condition": "minecraft:random_chance", "chance": 0.15}]},
+             "conditions": [{"condition": "minecraft:random_chance", "chance": 0.04}]},
             {"rolls": 1, "entries": [{"type": "minecraft:item", "name": rl(sapling)}],
-             "conditions": [{"condition": "minecraft:random_chance", "chance": 0.1}]}]})
+             "conditions": [{"condition": "minecraft:random_chance", "chance": 0.03}]}]})
 
         # Recipes
         logs_tag = f"#{NS}:{name}_logs"

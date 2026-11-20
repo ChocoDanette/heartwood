@@ -19,7 +19,7 @@
         },
         {
           "condition": "minecraft:random_chance",
-          "chance": 0.5
+          "chance": 0.15
         }
       ],
       "entries": [
@@ -44,6 +44,10 @@
         },
         {
           "condition": "minecraft:survives_explosion"
+        },
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.4
         }
       ],
       "entries": [
@@ -73,13 +77,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:stick",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 2
-            }
-          ]
+          "name": "minecraft:stick"
         }
       ]
     },
@@ -116,13 +114,7 @@
             },
             {
               "type": "minecraft:item",
-              "name": "minecraft:stick",
-              "functions": [
-                {
-                  "function": "minecraft:set_count",
-                  "count": 3
-                }
-              ]
+              "name": "minecraft:stick"
             }
           ]
         }

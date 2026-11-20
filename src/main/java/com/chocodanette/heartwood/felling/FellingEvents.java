@@ -35,6 +35,16 @@ public final class FellingEvents {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         Player player = event.getPlayer();
         if (player == null) return;
+        // In creative, a block breaks on its own: nothing is notched, felled or brought down.
+        if (player.isCreative()) {
+            if (event.getState().getBlock() instanceof com.chocodanette.heartwood.tree.TrunkShellBlock) {
+                event.setCanceled(true);
+                BlockPos core = com.chocodanette.heartwood.tree.TrunkShellBlock.core(event.getState(), event.getPos());
+                if (level.getBlockState(core).getBlock() instanceof BoughBlock) level.destroyBlock(core, false, player);
+                else level.removeBlock(event.getPos(), false);
+            }
+            return;
+        }
         ItemStack tool = player.getMainHandItem();
         BlockPos pos = event.getPos();
         BlockState state = event.getState();
@@ -140,6 +150,9 @@ public final class FellingEvents {
             if (!tree.limbed()) {
                 event.setCanceled(true);
                 player.displayClientMessage(Component.translatable("message.heartwood.limb_tree_first", tree.branches.size()), true);
+                // The axe still bites into the wood: chips fly and it sounds like a hit.
+                level.levelEvent(2001, pos, Block.getId(state));
+                level.playSound(null, pos, state.getSoundType(level, pos, player).getBreakSound(), SoundSource.BLOCKS, 0.8f, 0.9f);
                 // Show where the branches still are.
                 for (BlockPos m : tree.branches) {
                     level.sendParticles(net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER,
