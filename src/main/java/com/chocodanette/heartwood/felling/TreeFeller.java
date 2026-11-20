@@ -46,6 +46,8 @@ public final class TreeFeller {
      * above is rotated by 90 degrees around the cut, towards dir, then lowered onto the ground.
      */
     public static void fell(ServerLevel level, BlockPos cut, Direction dir, BlockState cutLog, Player player) {
+        // A felled young tree stops growing.
+        com.chocodanette.heartwood.tree.GrowingTrees.get(level).forget(com.chocodanette.heartwood.tree.GrowingTrees.rootOf(level, cut));
         Set<BlockPos> logs = level.getBlockState(cut).getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock
                 ? new HashSet<>(com.chocodanette.heartwood.tree.BoughBlock.descendants(level, cut, MAX_LOGS))
                 : findLogs(level, cut);

@@ -29,6 +29,7 @@ public class Heartwood {
         modBus.addListener(Heartwood::addToCreativeTabs);
         modBus.addListener(Heartwood::addSignBlocks);
         NeoForge.EVENT_BUS.register(FellingEvents.class);
+        NeoForge.EVENT_BUS.register(com.chocodanette.heartwood.tree.GrowingTrees.class);
     }
 
     /** Lets the vanilla sign block entities accept the species' signs. */

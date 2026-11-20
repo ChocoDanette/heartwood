@@ -48,6 +48,12 @@ public class BoughTrunkPlacer extends TrunkPlacer {
                     Girth.CODEC.fieldOf("girth").forGetter(p -> p.girth)
             )).apply(i, BoughTrunkPlacer::new));
 
+    /**
+     * Age of the tree being grown on this thread, from 0 (a shoot) to 1 (mature); unset for a
+     * mature tree (world generation). See {@link GrowingTrees}.
+     */
+    public static final ThreadLocal<Float> AGE = new ThreadLocal<>();
+
     private final OrganicTrunkPlacer.Branches branches;
     private final Girth girth;
 
@@ -139,8 +145,35 @@ public class BoughTrunkPlacer extends TrunkPlacer {
             }
         }
 
-        place(level, setter, random, origin, config, sk);
-        return crowns;
+        Float age = AGE.get();
+        if (age == null || age >= 1f) {
+            place(level, setter, random, origin, config, sk, null);
+            return crowns;
+        }
+
+        // A young tree: only the part of the mature skeleton nearest the root, grown out from it,
+        // with smaller crowns on the tips it has reached so far.
+        Map<BlockPos, Integer> depth = new HashMap<>();
+        int maxDepth = 0;
+        for (Map.Entry<BlockPos, BlockPos> e : sk.parent.entrySet()) {
+            int d = e.getValue() == null ? 0 : depth.get(e.getValue()) + 1;
+            depth.put(e.getKey(), d);
+            maxDepth = Math.max(maxDepth, d);
+        }
+        int reach = Math.max(1, Mth.ceil(age * maxDepth));
+        java.util.Set<BlockPos> grown = new java.util.HashSet<>();
+        for (Map.Entry<BlockPos, Integer> e : depth.entrySet()) if (e.getValue() <= reach) grown.add(e.getKey());
+        java.util.Set<BlockPos> placed = place(level, setter, random, origin, config, sk, grown);
+
+        java.util.Set<BlockPos> carrying = new java.util.HashSet<>();
+        for (BlockPos p : placed) {
+            BlockPos par = sk.parent.get(p);
+            if (par != null) carrying.add(par);
+        }
+        int offset = age < 0.35f ? -2 : age < 0.7f ? -1 : 0;
+        List<FoliagePlacer.FoliageAttachment> tips = new ArrayList<>();
+        for (BlockPos p : placed) if (!carrying.contains(p)) tips.add(new FoliagePlacer.FoliageAttachment(p, offset, false));
+        return tips;
     }
 
     private static BlockPos trunkAt(List<BlockPos> trunk, int y) {
@@ -159,10 +192,14 @@ public class BoughTrunkPlacer extends TrunkPlacer {
         return best;
     }
 
-    /** Works out thickness from the tips down, then places every piece. */
-    private void place(LevelSimulatedReader level, BiConsumer<BlockPos, BlockState> setter, RandomSource random,
-                       BlockPos origin, TreeConfiguration config, Skeleton sk) {
+    /**
+     * Works out thickness from the tips down, then places every piece (or only those in {@code only},
+     * for a young tree). Returns the pieces placed.
+     */
+    private java.util.Set<BlockPos> place(LevelSimulatedReader level, BiConsumer<BlockPos, BlockState> setter, RandomSource random,
+                                          BlockPos origin, TreeConfiguration config, Skeleton sk, java.util.Set<BlockPos> only) {
         List<BlockPos> order = new ArrayList<>(sk.parent.keySet());
+        if (only != null) order.removeIf(p -> !only.contains(p));
         Map<BlockPos, Float> area = new HashMap<>();
         for (int i = order.size() - 1; i >= 0; i--) {
             BlockPos p = order.get(i);
@@ -187,7 +224,9 @@ public class BoughTrunkPlacer extends TrunkPlacer {
         for (BlockPos p : order) {
             BlockPos par = sk.parent.get(p);
             if (par != null && !placed.contains(par)) continue;
-            if (!TreeFeature.validTreePos(level, p)) continue;
+            // A growing tree may replace its own younger, thinner pieces.
+            boolean own = only != null && bough != null && level.isStateAtPosition(p, st -> st.is(bough));
+            if (!own && !TreeFeature.validTreePos(level, p)) continue;
             placed.add(p);
             Direction toParent = par == null ? Direction.DOWN : Direction.getNearest(
                     par.getX() - p.getX(), par.getY() - p.getY(), par.getZ() - p.getZ());
@@ -200,5 +239,6 @@ public class BoughTrunkPlacer extends TrunkPlacer {
                         ? logState.setValue(RotatedPillarBlock.AXIS, toParent.getAxis()) : logState);
             }
         }
+        return placed;
     }
 }

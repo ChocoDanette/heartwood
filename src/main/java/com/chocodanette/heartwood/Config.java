@@ -5,16 +5,23 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 public final class Config {
     public static final ModConfigSpec SPEC;
     private static final ModConfigSpec.DoubleValue DRYING_DAYS;
+    private static final ModConfigSpec.DoubleValue GROWTH_DAYS;
 
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
         DRYING_DAYS = b.comment("Average number of in-game days a placed green log takes to dry when sheltered (no sky above it).")
                 .defineInRange("dryingDays", 1.0, 0.05, 100.0);
+        GROWTH_DAYS = b.comment("Number of in-game days a tree takes to grow from a sapling to maturity.")
+                .defineInRange("growthDays", 10.0, 0.05, 100.0);
         SPEC = b.build();
     }
 
     public static double dryingDays() {
         return SPEC.isLoaded() ? DRYING_DAYS.get() : DRYING_DAYS.getDefault();
+    }
+
+    public static double growthDays() {
+        return SPEC.isLoaded() ? GROWTH_DAYS.get() : GROWTH_DAYS.getDefault();
     }
 
     private Config() {}
