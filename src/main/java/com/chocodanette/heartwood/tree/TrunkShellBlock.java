@@ -17,7 +17,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 
 /**
@@ -32,7 +32,7 @@ public class TrunkShellBlock extends Block {
     public static final IntegerProperty CY = IntegerProperty.create("cy", 0, 2);
     public static final IntegerProperty CZ = IntegerProperty.create("cz", 0, 2);
 
-    private static final Map<Long, VoxelShape> SHAPES = new HashMap<>();
+    private static final Map<Long, VoxelShape> SHAPES = new ConcurrentHashMap<>();
 
     public TrunkShellBlock(Properties properties) {
         super(properties);
