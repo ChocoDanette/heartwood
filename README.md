@@ -26,7 +26,7 @@ In `serverconfig/heartwood-server.toml`:
 
 ## Green and dry wood
 
-Freshly cut wood is green. Place green logs somewhere sheltered (no sky above them) and they dry into normal logs in about one in-game day. Green logs show sap-coloured end grain and drip water while fresh. Right-click a log with an empty hand to check: green wood squelches like a slime block. Green wood burns poorly and cannot be made into planks or charcoal.
+Freshly cut wood is green. Place green logs somewhere sheltered (no sky above them) and they dry into normal logs in about one in-game day. Green logs show sap-coloured end grain and drip water while fresh. Knock on a log (right-click with an empty hand) to check: green wood gives a dull, muffled knock, dry wood no sound. Green wood burns poorly and cannot be made into planks or charcoal.
 
 The drying time is set by `dryingDays` in `serverconfig/heartwood-server.toml` (default 1).
 
