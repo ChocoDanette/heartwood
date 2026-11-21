@@ -39,7 +39,8 @@ import java.util.List;
 /**
  * Swinging an axe (or bare hands, with handCutting) at the trunk of a fallen tree that still has
  * branches makes the whole of each branch left to cut off glow white for a few seconds, fading in
- * and out.
+ * and out. On a standing tree, hitting the trunk above its foot (where it can't be cut) makes the
+ * foot and the branches glow the same way.
  */
 @EventBusSubscriber(modid = Heartwood.MOD_ID, value = Dist.CLIENT)
 public final class BranchFlash {
@@ -65,10 +66,18 @@ public final class BranchFlash {
             pos = TrunkShellBlock.core(state, pos);
             state = level.getBlockState(pos);
         }
-        if (!(state.getBlock() instanceof BoughBlock) || BoughBlock.isRooted(level, pos)) return;
+        if (!(state.getBlock() instanceof BoughBlock)) return;
         FallenTree tree = FallenTree.of(level, pos);
-        if (!tree.stemSet.contains(pos) || tree.limbed()) return;
+        if (!tree.stemSet.contains(pos)) return;
         List<BlockPos> part = new ArrayList<>();
+        if (BoughBlock.isRooted(level, pos)) {
+            // A standing tree: its trunk can only be cut at the foot. Hitting it higher up shows
+            // where it can be cut: the foot and every branch.
+            if (tree.base.equals(pos) || state.getValue(BoughBlock.NOTCH).dir != null) return;
+            part.add(tree.base);
+        } else if (tree.limbed()) {
+            return;
+        }
         for (BlockPos b : tree.branches) {
             part.add(b);
             part.addAll(BoughBlock.descendants(level, b, 1000));

@@ -20,6 +20,7 @@ public class Heartwood {
     public Heartwood(IEventBus modBus, ModContainer container) {
         ModBlocks.BLOCKS.register(modBus);
         ModBlocks.ITEMS.register(modBus);
+        ModBlocks.SOUNDS.register(modBus);
         ModBlocks.BLOCK_ENTITIES.register(modBus);
         ModBlocks.ENTITY_TYPES.register(modBus);
         PlacedLogs.ATTACHMENTS.register(modBus);

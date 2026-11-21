@@ -47,25 +47,6 @@ public class GreenLogBlock extends RotatedPillarBlock implements EntityBlock {
         builder.add(DRYING);
     }
 
-    /**
-     * Knocking on a green log (right-click with an empty hand) gives a dull, muffled knock: a quick
-     * way to tell it is still green. The fresher it is, the duller and lower it sounds; as it dries
-     * the knock gets a little clearer. Dry logs make no sound.
-     */
-    @Override
-    protected net.minecraft.world.InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
-                                                                   Player player, net.minecraft.world.phys.BlockHitResult hit) {
-        if (!player.getMainHandItem().isEmpty()) return net.minecraft.world.InteractionResult.PASS;
-        int stage = state.getValue(DRYING);
-        float wet = 1.0f - stage / (float) MAX_STAGE;
-        float jitter = level.random.nextFloat() * 0.06f;
-        level.playSound(player, pos, net.minecraft.sounds.SoundEvents.WOOD_HIT, net.minecraft.sounds.SoundSource.BLOCKS,
-                1.0f, 0.45f + (1.0f - wet) * 0.25f + jitter);
-        level.playSound(player, pos, net.minecraft.sounds.SoundEvents.MUD_HIT, net.minecraft.sounds.SoundSource.BLOCKS,
-                0.3f + wet * 0.5f, 0.6f + jitter);
-        return net.minecraft.world.InteractionResult.sidedSuccess(level.isClientSide);
-    }
-
     @Override
     protected boolean isRandomlyTicking(BlockState state) {
         return true;

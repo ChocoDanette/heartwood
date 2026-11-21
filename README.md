@@ -6,7 +6,7 @@ Realistic tree felling and wood seasoning for Minecraft 1.21.1 (NeoForge). Heart
 
 Trees grow from boughs of variable thickness: trunks thicken towards the ground, up to two blocks across on old trees, and branches thin out to twigs.
 
-1. **Notch.** With an axe, or bare-handed (see [Settings](#settings)), break the foot of the trunk on the side you want the tree to fall. A V notch is carved into that face. The rest of a standing trunk can't be cut into.
+1. **Notch.** With an axe, or bare-handed (see [Settings](#settings)), break the foot of the trunk on the side you want the tree to fall. A V notch is carved into that face. The rest of a standing trunk can't be cut into: hitting it makes the foot and the branches flash white, the places where the tree can be cut.
 2. **Back cut.** Walk around and break the foot again from the opposite side. The tree tips over towards the notch and leaves a stump, which rots away in about a day.
 3. **Stand clear.** The falling trunk hurts whatever it lands on and crushes the grass, flowers, bushes and leaves under it. It lies flat on the ground: a bend of the trunk that points the way of the fall is straightened out, and the tree is raised by up to three blocks where the ground rises under it. Branches and leaves do not take the place of water. Snow, vines, cocoa pods, bee nests and anything else resting on the tree come down with it.
 4. **Limb.** Cut every branch off the fallen tree; each comes off with all it carries. While branches are left, they flash white, joints included, when you aim at the trunk.
@@ -26,7 +26,7 @@ In `serverconfig/heartwood-server.toml`:
 
 ## Green and dry wood
 
-Freshly cut wood is green. Place green logs somewhere sheltered (no sky above them) and they dry into normal logs in about one in-game day. Green logs show sap-coloured end grain and drip water while fresh. Knock on a log (right-click with an empty hand) to check: green wood gives a dull, muffled knock, dry wood no sound. Green wood burns poorly and cannot be made into planks or charcoal.
+Freshly cut wood is green. Place green logs somewhere sheltered (no sky above them) and they dry into normal logs in about one in-game day. Green logs show sap-coloured end grain and drip water while fresh. Hitting green wood gives a dull, muffled knock, unlike dry wood. Green wood burns poorly and cannot be made into planks or charcoal.
 
 The drying time is set by `dryingDays` in `serverconfig/heartwood-server.toml` (default 1).
 

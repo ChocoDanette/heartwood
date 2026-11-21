@@ -3,12 +3,12 @@
 ## 1.0.0
 
 - **Bare-handed cutting.** Trees can be notched, felled, limbed and bucked without a tool, the same way as with an axe, only slower. It is on by default; set `handCutting = false` in `serverconfig/heartwood-server.toml` to require an axe.
-- **Whole branches flash.** Branches left on a fallen tree flash white as a whole, joints between blocks included, whenever you aim at the trunk with something that cuts.
+- **Whole branches flash.** Branches left on a fallen tree flash white as a whole, joints between blocks included, when you hit the trunk with something that cuts. On a standing tree, hitting the trunk above its foot makes the foot and the branches flash: the places where it can be cut.
 - **Trees lie flat.** A bend of the trunk pointing the way of the fall is straightened out, so the tree no longer breaks on flat ground; bends on the other sides fall as they are and the branches under the tree are crushed. Where the ground rises under the trunk, the tree is raised by up to three blocks.
 - **Crushed vegetation.** A fallen tree crushes the grass, flowers, ferns, saplings, bushes, crops and leaves (of other trees too) it lands on, without drops.
 - **Water kept.** Branches and leaves falling into water no longer replace it; only the trunk lies in it.
 - **What rests on the tree comes down.** When a tree falls, the blocks around it are updated: snow, vines (and the vines hanging below them), cocoa pods and anything else that needed the tree break, and bee nests fall with it.
-- **Knock on green wood.** Right-click a green log with an empty hand: it gives a dull, muffled knock, duller the fresher it is. Dry logs make no sound.
+- **Green wood knocks.** Hitting a green log gives a dull, muffled knock instead of the usual wood sound, until it is dry: an easy way to tell green wood from dry.
 - **No more giant trees.** Mega jungle, mega spruce and mega pine trees grow as the single-trunk tree of their wood.
 - **No more messages.** The action bar hints are gone.
 - Tested on a dedicated server.

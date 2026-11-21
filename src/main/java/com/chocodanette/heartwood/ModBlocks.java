@@ -37,6 +37,16 @@ import java.util.function.Supplier;
 public final class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Heartwood.MOD_ID);
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Heartwood.MOD_ID);
+    public static final DeferredRegister<net.minecraft.sounds.SoundEvent> SOUNDS =
+            DeferredRegister.create(Registries.SOUND_EVENT, Heartwood.MOD_ID);
+    /** The dull, muffled knock of green wood, heard while hitting it. */
+    public static final Supplier<net.minecraft.sounds.SoundEvent> GREEN_KNOCK = SOUNDS.register("block.green_log.hit",
+            () -> net.minecraft.sounds.SoundEvent.createVariableRangeEvent(
+                    net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(Heartwood.MOD_ID, "block.green_log.hit")));
+    /** Green wood sounds like wood, except when hit: then it gives the muffled knock of wet wood. */
+    private static final SoundType GREEN_WOOD = new net.neoforged.neoforge.common.util.DeferredSoundType(1.0f, 1.0f,
+            () -> net.minecraft.sounds.SoundEvents.WOOD_BREAK, () -> net.minecraft.sounds.SoundEvents.WOOD_STEP,
+            () -> net.minecraft.sounds.SoundEvents.WOOD_PLACE, GREEN_KNOCK, () -> net.minecraft.sounds.SoundEvents.WOOD_FALL);
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, Heartwood.MOD_ID);
 
@@ -170,6 +180,7 @@ public final class ModBlocks {
         DeferredBlock<GreenLogBlock> block = BLOCKS.register("green_" + name,
                 () -> new GreenLogBlock(log, BlockBehaviour.Properties.ofFullCopy(log.get())
                         .mapColor(log.get().defaultMapColor())
+                        .sound(GREEN_WOOD)
                         .randomTicks()));
         GREEN.add(new Link(log, block));
         ALL_GREEN.add(block);
