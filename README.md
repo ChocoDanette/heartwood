@@ -6,7 +6,7 @@ Realistic tree felling and wood seasoning for Minecraft 1.21.1 (NeoForge). Heart
 
 Trees grow from boughs of variable thickness: trunks thicken towards the ground, up to two blocks across on old trees, and branches thin out to twigs.
 
-1. **Notch.** With an axe, or bare-handed (see [Settings](#settings)), break the foot of the trunk on the side you want the tree to fall. A V notch is carved into that face. The rest of a standing trunk can't be cut into: hitting it makes the foot and the branches flash white, the places where the tree can be cut.
+1. **Notch.** With an axe, or anything else in hand unless the server requires an axe (see [Settings](#settings)), break the foot of the trunk on the side you want the tree to fall. A V notch is carved into that face. The rest of a standing trunk can't be cut into: hitting it makes the foot and the branches flash white, the places where the tree can be cut.
 2. **Back cut.** Walk around and break the foot again from the opposite side. The tree tips over towards the notch and leaves a stump, which rots away in about a day.
 3. **Stand clear.** The falling trunk hurts whatever it lands on and crushes the grass, flowers, bushes and leaves under it. It lies flat on the ground: a bend of the trunk that points the way of the fall is straightened out, and the tree is raised by up to three blocks where the ground rises under it. Branches and leaves do not take the place of water. Snow, vines, cocoa pods, bee nests and anything else resting on the tree come down with it.
 4. **Limb.** Cut every branch off the fallen tree; each comes off with all it carries. While branches are left, they flash white, joints included, when you aim at the trunk.
@@ -20,7 +20,7 @@ In creative mode, breaking the foot of a tree removes the whole tree, and breaki
 
 In `serverconfig/heartwood-server.toml`:
 
-- `handCutting` (default `true`): trees can be notched, felled, limbed and bucked bare-handed, the same way as with an axe, only slower. Set it to `false` to require an axe.
+- `axeRequired` (default `false`): by default, trees can be notched, felled, limbed and bucked with anything in hand or bare-handed, the same way as with an axe. Set it to `true` to require an axe.
 - `dryingDays` (default 1): days a sheltered green log takes to dry.
 - `growthIntervalDays` (default 0.5): days between two growth steps of a young tree.
 

@@ -2,7 +2,7 @@
 
 ## 1.0.0
 
-- **Bare-handed cutting.** Trees can be notched, felled, limbed and bucked without a tool, the same way as with an axe, only slower. It is on by default; set `handCutting = false` in `serverconfig/heartwood-server.toml` to require an axe.
+- **No axe needed.** By default, trees can be notched, felled, limbed and bucked with anything in hand or bare-handed, the same way as with an axe (only an axe wears out). Set `axeRequired = true` in `serverconfig/heartwood-server.toml` to require an axe.
 - **Whole branches flash.** Branches left on a fallen tree flash white as a whole, joints between blocks included, when you hit the trunk with something that cuts. On a standing tree, hitting the trunk above its foot makes the foot and the branches flash: the places where it can be cut.
 - **Trees lie flat.** A bend of the trunk pointing the way of the fall is straightened out, so the tree no longer breaks on flat ground; bends on the other sides fall as they are and the branches under the tree are crushed. Where the ground rises under the trunk, the tree is raised by up to three blocks.
 - **Crushed vegetation.** A fallen tree crushes the grass, flowers, ferns, saplings, bushes, crops and leaves (of other trees too) it lands on, without drops.

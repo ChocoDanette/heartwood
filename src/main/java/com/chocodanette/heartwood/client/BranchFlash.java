@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Swinging an axe (or bare hands, with handCutting) at the trunk of a fallen tree that still has
+ * Swinging an axe (or anything else, unless axeRequired is on) at the trunk of a fallen tree that still has
  * branches makes the whole of each branch left to cut off glow white for a few seconds, fading in
  * and out. On a standing tree, hitting the trunk above its foot (where it can't be cut) makes the
  * foot and the branches glow the same way.

@@ -89,7 +89,7 @@ public final class FellingEvents {
             BlockEvent.BreakEvent coreEvent = new BlockEvent.BreakEvent(level, core, coreState, player);
             onBreakBough(coreEvent, level, core, coreState, bough, player, tool);
             if (!coreEvent.isCanceled()) {
-                if (tool.is(ItemTags.AXES) && !player.isCreative()) tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
+                if (tool.is(ItemTags.AXES) && !player.isCreative()) wear(tool, player);
                 level.destroyBlock(core, !player.isCreative(), player);
             }
             return;
@@ -118,7 +118,7 @@ public final class FellingEvents {
             if (face != notch.getOpposite()) {
                 return;
             }
-            tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
+            wear(tool, player);
             TreeFeller.fell(level, pos, notch, greenOrDry(notched.log()), player);
             return;
         }
@@ -131,7 +131,7 @@ public final class FellingEvents {
         }
 
         event.setCanceled(true);
-        tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
+        wear(tool, player);
         level.setBlock(pos, notchedBlock.defaultBlockState().setValue(NotchedLogBlock.FACING, face), Block.UPDATE_ALL);
         level.playSound(null, pos, SoundEvents.AXE_STRIP, SoundSource.BLOCKS, 1.0f, 0.8f);
         level.levelEvent(2001, pos, Block.getId(state)); // break particles
@@ -194,14 +194,14 @@ public final class FellingEvents {
         if (notch != null) {
             event.setCanceled(true);
             if (axe && hitFace(player, pos) == notch.getOpposite()) {
-                tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
+                wear(tool, player);
                 TreeFeller.fell(level, pos, notch, greenOrDry(bough.log()), player);
             }
             return;
         }
         if (foot && axe && !player.isShiftKeyDown() && radius >= THICK) {
             event.setCanceled(true);
-            tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
+            wear(tool, player);
             level.setBlock(pos, state.setValue(BoughBlock.NOTCH, BoughBlock.Notch.of(hitFace(player, pos))), Block.UPDATE_ALL);
             level.playSound(null, pos, SoundEvents.AXE_STRIP, SoundSource.BLOCKS, 1.0f, 0.8f);
             level.levelEvent(2001, pos, Block.getId(state));
@@ -262,7 +262,7 @@ public final class FellingEvents {
         event.setCanceled(true);
         level.destroyBlock(pos, false, player);
         Block.popResource(level, pos, new ItemStack(green));
-        if (tool.is(ItemTags.AXES)) tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
+        if (tool.is(ItemTags.AXES)) wear(tool, player);
     }
 
 
@@ -278,6 +278,11 @@ public final class FellingEvents {
     private static BlockState greenOrDry(Block log) {
         Block green = ModBlocks.greenFor(log);
         return (green != null ? green : log).defaultBlockState();
+    }
+
+    /** Only an axe wears out from cutting a tree: whatever else is in hand is left as it is. */
+    private static void wear(ItemStack tool, Player player) {
+        if (tool.is(ItemTags.AXES)) tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
     }
 
     private FellingEvents() {}
