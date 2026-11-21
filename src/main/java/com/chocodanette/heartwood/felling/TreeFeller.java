@@ -35,6 +35,7 @@ public final class TreeFeller {
     private static final int MAX_LEAVES = 2000;
     private static final int MIN_NATURAL_LEAVES = 3;
     private static final int MAX_DROP = 4;
+    private static final int MAX_LIFT = 3;
 
     /** True when the log at pos belongs to a natural tree: logs above it, with natural leaves around. */
     public static boolean isStandingTree(ServerLevel level, BlockPos pos) {
@@ -160,7 +161,13 @@ public final class TreeFeller {
     /** Lays the fallen tree on the ground once the fall animation is over, and hurts what is under it. */
     static void land(ServerLevel level, BlockPos cut, Direction dir, Map<BlockPos, BlockState> target, Entity source) {
         // Lower the fallen tree until a log would touch the ground.
+        // Where the ground rises under the trunk, the tree rests on it: it is raised (up to
+        // MAX_LIFT blocks) until its whole trunk has room, instead of the pieces that would go
+        // into the ground popping out and the trunk breaking in two.
+        Set<BlockPos> stem = stemOf(cut, dir, target);
         int drop = 0;
+        while (drop > -MAX_LIFT && !fits(level, stem, drop)) drop--;
+        if (!fits(level, stem, drop)) drop = 0;
         while (drop < MAX_DROP && canLower(level, target, drop + 1)) drop++;
 
         AABB trunkBox = null, crownBox = null;
@@ -181,7 +188,10 @@ public final class TreeFeller {
             if (isTrunk(s)) trunkBox = trunkBox == null ? box : trunkBox.minmax(box);
             else crownBox = crownBox == null ? box : crownBox.minmax(box);
             BlockState there = level.getBlockState(p);
-            if (there.isAir() || there.canBeReplaced() || isTrunk(s) && isCrown(there)) {
+            // Branches and leaves falling into water stay out of it: the water is kept. Only the
+            // trunk lies in it.
+            boolean water = !there.getFluidState().isEmpty() && !stem.contains(e.getKey());
+            if (!water && (there.isAir() || there.canBeReplaced() || isTrunk(s) && isCrown(there))) {
                 if (!there.isAir()) Block.dropResources(there, level, p);
                 level.setBlock(p, s, Block.UPDATE_ALL);
                 if (s.getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock) {
@@ -424,6 +434,35 @@ public final class TreeFeller {
         if (axis == Direction.Axis.Y) axis = fall;
         else if (axis == fall) axis = Direction.Axis.Y;
         return s.setValue(BlockStateProperties.AXIS, axis);
+    }
+
+    /** The trunk of the fallen tree, as it is to land: from the cut end along the thickest pieces. */
+    private static Set<BlockPos> stemOf(BlockPos cut, Direction dir, Map<BlockPos, BlockState> target) {
+        Set<BlockPos> stem = new HashSet<>();
+        BlockPos p = cut.relative(dir);
+        while (p != null && target.get(p) != null && target.get(p).getBlock() instanceof BoughBlock && stem.add(p)) {
+            BlockPos best = null;
+            int bestR = 3;
+            for (Direction d : Direction.values()) {
+                BlockPos n = p.relative(d);
+                BlockState c = target.get(n);
+                if (c == null || !(c.getBlock() instanceof BoughBlock)) continue;
+                if (!p.equals(BoughBlock.parentPos(c, n))) continue;
+                int r = c.getValue(BoughBlock.RADIUS);
+                if (r > bestR) { bestR = r; best = n; }
+            }
+            p = best;
+        }
+        return stem;
+    }
+
+    /** True when every piece of the trunk has room, the tree being lowered by drop (raised when negative). */
+    private static boolean fits(ServerLevel level, Set<BlockPos> stem, int drop) {
+        for (BlockPos p : stem) {
+            BlockState s = level.getBlockState(p.below(drop));
+            if (!(s.isAir() || s.canBeReplaced() || isCrown(s))) return false;
+        }
+        return true;
     }
 
     private static boolean canLower(ServerLevel level, Map<BlockPos, BlockState> target, int drop) {

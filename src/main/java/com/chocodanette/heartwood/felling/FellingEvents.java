@@ -101,10 +101,8 @@ public final class FellingEvents {
             if (player.isCreative()) return;
             if (hasBranchesAround(level, pos)) {
                 event.setCanceled(true);
-                player.displayClientMessage(Component.translatable("message.heartwood.limb_first"), true);
             } else if (!com.chocodanette.heartwood.Config.cuts(tool)) {
                 event.setCanceled(true);
-                player.displayClientMessage(Component.translatable("message.heartwood.need_axe"), true);
             }
             return;
         }
@@ -119,7 +117,6 @@ public final class FellingEvents {
             Direction notch = state.getValue(NotchedLogBlock.FACING);
             event.setCanceled(true);
             if (face != notch.getOpposite()) {
-                player.displayClientMessage(Component.translatable("message.heartwood.back_cut_side"), true);
                 return;
             }
             tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
@@ -139,7 +136,6 @@ public final class FellingEvents {
         level.setBlock(pos, notchedBlock.defaultBlockState().setValue(NotchedLogBlock.FACING, face), Block.UPDATE_ALL);
         level.playSound(null, pos, SoundEvents.AXE_STRIP, SoundSource.BLOCKS, 1.0f, 0.8f);
         level.levelEvent(2001, pos, Block.getId(state)); // break particles
-        player.displayClientMessage(Component.translatable("message.heartwood.notch_done"), true);
     }
 
     /**
@@ -159,7 +155,6 @@ public final class FellingEvents {
             if (!tree.stemSet.contains(pos)) {
                 if (radius >= THICK && !axe) {
                     event.setCanceled(true);
-                    player.displayClientMessage(Component.translatable("message.heartwood.need_axe_branch"), true);
                     return;
                 }
                 cutOff(level, pos, player);
@@ -167,12 +162,10 @@ public final class FellingEvents {
             }
             if (!tree.limbed()) {
                 event.setCanceled(true);
-                showBranches(level, player, tree);
                 return;
             }
             if (!axe) {
                 event.setCanceled(true);
-                player.displayClientMessage(Component.translatable("message.heartwood.need_axe"), true);
                 return;
             }
             // Leaves left on this part of the trunk go with it.
@@ -188,27 +181,20 @@ public final class FellingEvents {
             // A stump: it comes out like a log.
             if (radius >= THICK && !axe) {
                 event.setCanceled(true);
-                player.displayClientMessage(Component.translatable("message.heartwood.need_axe"), true);
             }
             return;
         }
         if (notch == null && standing.stemSet.contains(pos) && !foot) {
             event.setCanceled(true);
-            player.displayClientMessage(Component.translatable("message.heartwood.notch_at_foot"), true);
             return;
         }
         if (radius >= THICK && !axe) {
             event.setCanceled(true);
-            player.displayClientMessage(Component.translatable("message.heartwood.need_axe_branch"), true);
             return;
         }
         if (notch != null) {
             event.setCanceled(true);
-            if (!axe) {
-                player.displayClientMessage(Component.translatable("message.heartwood.need_axe"), true);
-            } else if (hitFace(player, pos) != notch.getOpposite()) {
-                player.displayClientMessage(Component.translatable("message.heartwood.back_cut_side"), true);
-            } else {
+            if (axe && hitFace(player, pos) == notch.getOpposite()) {
                 tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
                 TreeFeller.fell(level, pos, notch, greenOrDry(bough.log()), player);
             }
@@ -220,7 +206,6 @@ public final class FellingEvents {
             level.setBlock(pos, state.setValue(BoughBlock.NOTCH, BoughBlock.Notch.of(hitFace(player, pos))), Block.UPDATE_ALL);
             level.playSound(null, pos, SoundEvents.AXE_STRIP, SoundSource.BLOCKS, 1.0f, 0.8f);
             level.levelEvent(2001, pos, Block.getId(state));
-            player.displayClientMessage(Component.translatable("message.heartwood.notch_done"), true);
             return;
         }
         // A branch cut off a standing tree takes everything beyond it down with it.
@@ -281,35 +266,7 @@ public final class FellingEvents {
         if (tool.is(ItemTags.AXES)) tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
     }
 
-    /**
-     * The axe goes through the trunk of a fallen tree that still has branches as if through air;
-     * the player is told so and shown where the branches are.
-     */
-    @SubscribeEvent
-    public static void onHit(net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.LeftClickBlock event) {
-        if (event.getAction() != net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.LeftClickBlock.Action.START) return;
-        if (!(event.getLevel() instanceof ServerLevel level) || event.getEntity().isCreative()) return;
-        BlockPos pos = event.getPos();
-        BlockState state = level.getBlockState(pos);
-        if (state.getBlock() instanceof com.chocodanette.heartwood.tree.TrunkShellBlock) {
-            pos = com.chocodanette.heartwood.tree.TrunkShellBlock.core(state, pos);
-            state = level.getBlockState(pos);
-        }
-        if (!(state.getBlock() instanceof BoughBlock)) return;
-        FallenTree tree = FallenTree.of(level, pos);
-        if (BoughBlock.isRooted(level, pos)) {
-            if (tree.stemSet.contains(pos) && !tree.base.equals(pos) && state.getValue(BoughBlock.NOTCH) == BoughBlock.Notch.NONE) {
-                event.getEntity().displayClientMessage(Component.translatable("message.heartwood.notch_at_foot"), true);
-            }
-        } else if (tree.stemSet.contains(pos) && !tree.limbed()) {
-            showBranches(level, event.getEntity(), tree);
-        }
-    }
 
-    private static void showBranches(ServerLevel level, Player player, FallenTree tree) {
-        // The branches left flash white on the player's screen (client side).
-        player.displayClientMessage(Component.translatable("message.heartwood.limb_tree_first", tree.branches.size()), true);
-    }
 
     /** A vanilla log placed by a player is dry wood. */
     @SubscribeEvent
