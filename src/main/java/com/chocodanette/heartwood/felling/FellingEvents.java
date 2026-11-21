@@ -209,6 +209,19 @@ public final class FellingEvents {
             } else if (hitFace(player, pos) != notch.getOpposite()) {
                 player.displayClientMessage(Component.translatable("message.heartwood.back_cut_side"), true);
             } else {
+                // Something big in the way (another tree, a bank two blocks high or more): the
+                // tree can't come down this way, and what is in the way flashes.
+                java.util.List<BlockPos> blocked = TreeFeller.obstacles(level, pos, notch);
+                if (!blocked.isEmpty()) {
+                    // The notch closes up, so the tree can be notched again on another side.
+                    level.setBlock(pos, state.setValue(BoughBlock.NOTCH, BoughBlock.Notch.NONE), Block.UPDATE_ALL);
+                    player.displayClientMessage(Component.translatable("message.heartwood.fall_blocked"), true);
+                    if (player instanceof net.minecraft.server.level.ServerPlayer sp) {
+                        net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(sp,
+                                new com.chocodanette.heartwood.net.FallBlockedPayload(blocked));
+                    }
+                    return;
+                }
                 tool.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
                 TreeFeller.fell(level, pos, notch, greenOrDry(bough.log()), player);
             }

@@ -28,6 +28,7 @@ public class Heartwood {
         container.registerConfig(ModConfig.Type.SERVER, Config.SPEC);
         modBus.addListener(Heartwood::addToCreativeTabs);
         modBus.addListener(Heartwood::addSignBlocks);
+        modBus.addListener(com.chocodanette.heartwood.net.FallBlockedPayload::register);
         NeoForge.EVENT_BUS.register(FellingEvents.class);
         NeoForge.EVENT_BUS.register(com.chocodanette.heartwood.tree.GrowingTrees.class);
     }

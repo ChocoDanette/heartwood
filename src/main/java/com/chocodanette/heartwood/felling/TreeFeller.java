@@ -1,5 +1,7 @@
 package com.chocodanette.heartwood.felling;
 
+import com.chocodanette.heartwood.tree.BoughBlock;
+
 import com.chocodanette.heartwood.ModBlocks;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -24,6 +26,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,7 +36,6 @@ public final class TreeFeller {
     private static final int MAX_LEAVES = 2000;
     private static final int MIN_NATURAL_LEAVES = 3;
     private static final int MAX_DROP = 4;
-    private static final int MAX_LIFT = 4;
 
     /** True when the log at pos belongs to a natural tree: logs above it, with natural leaves around. */
     public static boolean isStandingTree(ServerLevel level, BlockPos pos) {
@@ -104,13 +106,7 @@ public final class TreeFeller {
     /** Lays the fallen tree on the ground once the fall animation is over, and hurts what is under it. */
     static void land(ServerLevel level, BlockPos cut, Direction dir, Map<BlockPos, BlockState> target, Entity source) {
         // Lower the fallen tree until a log would touch the ground.
-        // A trunk leaning the way the tree falls comes down below the cut, into the ground: the
-        // tree then rests on that bend, raised as much as it takes for its whole trunk to lie
-        // whole, instead of the buried pieces popping out and the trunk breaking in two.
-        Set<BlockPos> stem = stemOf(cut, dir, target);
         int drop = 0;
-        while (drop > -MAX_LIFT && !fits(level, stem, drop)) drop--;
-        if (!fits(level, stem, drop)) drop = 0;
         while (drop < MAX_DROP && canLower(level, target, drop + 1)) drop++;
 
         AABB trunkBox = null, crownBox = null;
@@ -119,9 +115,17 @@ public final class TreeFeller {
         // piece would take the place where other pieces of the tree have to land, and those pieces
         // (with all they carry) would break off.
         Map<BlockPos, BlockState> thick = new LinkedHashMap<>();
+        Set<BlockPos> landed = new LinkedHashSet<>();
         for (Map.Entry<BlockPos, BlockState> e : target.entrySet()) {
             BlockPos p = e.getKey().below(drop);
             BlockState s = e.getValue();
+            // A piece of trunk meeting a low step (it was checked before the fall that nothing
+            // higher stands in the way) breaks off there and lies on top of it.
+            if (s.getBlock() instanceof BoughBlock && s.getValue(BoughBlock.RADIUS) >= THICK && !free(level, p, s)) {
+                for (int up = 1; up <= 2; up++) {
+                    if (free(level, p.above(up), s)) { p = p.above(up); break; }
+                }
+            }
             if (s.getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock
                     && s.getValue(com.chocodanette.heartwood.tree.BoughBlock.RADIUS) > 8) {
                 thick.put(p, s);
@@ -134,6 +138,7 @@ public final class TreeFeller {
             if (there.isAir() || there.canBeReplaced() || isTrunk(s) && isCrown(there)) {
                 if (!there.isAir()) Block.dropResources(there, level, p);
                 level.setBlock(p, s, Block.UPDATE_ALL);
+                landed.add(p);
                 if (s.getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock) {
                     com.chocodanette.heartwood.drying.PlacedLogs.setFallen(level, p, true);
                 }
@@ -154,8 +159,7 @@ public final class TreeFeller {
             }
         }
         // Pieces whose parent could not land (blocked by terrain) lose the arm reaching for it.
-        for (BlockPos t : target.keySet()) {
-            BlockPos p = t.below(drop);
+        for (BlockPos p : landed) {
             BlockState s = level.getBlockState(p);
             if (!(s.getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock)) continue;
             BlockPos par = com.chocodanette.heartwood.tree.BoughBlock.parentPos(s, p);
@@ -163,7 +167,7 @@ public final class TreeFeller {
             BlockState fixed = com.chocodanette.heartwood.tree.BoughBlock.reconnect(s, level.getBlockState(par));
             if (fixed != s) level.setBlock(p, fixed, Block.UPDATE_CLIENTS);
         }
-        breakLoose(level, target.keySet(), drop);
+        breakLoose(level, landed);
         hurt(level, target.keySet(), drop, target, source);
 
         BlockPos middle = cut.relative(dir, Math.max(1, target.size() > 0 ? 4 : 1));
@@ -172,14 +176,14 @@ public final class TreeFeller {
     }
 
     /**
-     * Whatever the fall left unjoined to the trunk breaks off: pieces whose parent could not land,
-     * with all they carry, and leafy branches that no longer touch the wood.
+     * Whatever the fall left unjoined to the trunk: thin pieces whose parent could not land break
+     * off with all they carry, lengths of trunk stay on the ground, and leafy branches that no
+     * longer touch the wood break.
      */
-    private static void breakLoose(ServerLevel level, Set<BlockPos> targets, int drop) {
+    private static void breakLoose(ServerLevel level, Set<BlockPos> landed) {
         List<BlockPos> pieces = new ArrayList<>();
         List<BlockPos> crown = new ArrayList<>();
-        for (BlockPos t : targets) {
-            BlockPos p = t.below(drop);
+        for (BlockPos p : landed) {
             BlockState s = level.getBlockState(p);
             if (s.getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock) pieces.add(p);
             else if (s.getBlock() instanceof BranchesBlock) crown.add(p);
@@ -196,6 +200,8 @@ public final class TreeFeller {
         }
         for (Map.Entry<BlockPos, List<BlockPos>> e : anchors.entrySet()) {
             if (e.getKey().equals(main)) continue;
+            // A length of trunk broken off on an obstacle stays on the ground with what it carries.
+            if (level.getBlockState(e.getKey()).getValue(BoughBlock.RADIUS) >= THICK) continue;
             for (BlockPos p : e.getValue()) level.destroyBlock(p, true);
             level.destroyBlock(e.getKey(), true);
         }
@@ -376,34 +382,47 @@ public final class TreeFeller {
         return s.setValue(BlockStateProperties.AXIS, axis);
     }
 
-    /** The trunk of the fallen tree, as it is to land: from the cut end along the thickest pieces. */
-    private static Set<BlockPos> stemOf(BlockPos cut, Direction dir, Map<BlockPos, BlockState> target) {
-        Set<BlockPos> stem = new HashSet<>();
-        BlockPos p = cut.relative(dir);
-        while (p != null && target.get(p) != null && target.get(p).getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock
-                && stem.add(p)) {
-            BlockPos best = null;
-            int bestR = 3;
-            for (Direction d : Direction.values()) {
-                BlockPos n = p.relative(d);
-                BlockState c = target.get(n);
-                if (c == null || !(c.getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock)) continue;
-                if (!p.equals(com.chocodanette.heartwood.tree.BoughBlock.parentPos(c, n))) continue;
-                int r = c.getValue(com.chocodanette.heartwood.tree.BoughBlock.RADIUS);
-                if (r > bestR) { bestR = r; best = n; }
-            }
-            p = best;
-        }
-        return stem;
+    private static final int THICK = 4;
+
+    /** True when a piece of the fallen tree can be laid at pos. */
+    private static boolean free(ServerLevel level, BlockPos pos, BlockState piece) {
+        BlockState there = level.getBlockState(pos);
+        return there.isAir() || there.canBeReplaced() || isTrunk(piece) && isCrown(there);
     }
 
-    /** True when every piece of the trunk has room, the tree being lowered by drop (raised when negative). */
-    private static boolean fits(ServerLevel level, Set<BlockPos> stem, int drop) {
-        for (BlockPos p : stem) {
-            BlockState s = level.getBlockState(p.below(drop));
-            if (!(s.isAir() || s.canBeReplaced() || isCrown(s))) return false;
+    /**
+     * What stands in the way of a tree of boughs felled at cut towards dir: another tree's wood,
+     * or ground rising two blocks or more where its trunk would lie. A step of one block is not in
+     * the way: the trunk breaks on it and lies on top. Empty when the tree can come down.
+     */
+    public static List<BlockPos> obstacles(ServerLevel level, BlockPos cut, Direction dir) {
+        List<BlockPos> out = new ArrayList<>();
+        FallenTree tree = FallenTree.of(level, cut);
+        Set<BlockPos> own = new HashSet<>(BoughBlock.descendants(level, cut, MAX_LOGS));
+        own.add(cut);
+        for (BlockPos p : tree.stemSet) {
+            if (p.getY() <= cut.getY()) continue;
+            BlockPos t = rotate(p, cut, dir);
+            if (open(level, t, own)) continue;
+            BlockState there = level.getBlockState(t);
+            if (there.getBlock() instanceof BoughBlock || there.getBlock() instanceof com.chocodanette.heartwood.tree.TrunkShellBlock
+                    || there.is(BlockTags.LOGS)) {
+                out.add(t);
+            } else if (!open(level, t.above(), own)) {
+                out.add(t);
+                out.add(t.above());
+            }
         }
-        return true;
+        return out;
+    }
+
+    /** True when nothing stands at pos but air, plants, leaves or the felled tree itself. */
+    private static boolean open(ServerLevel level, BlockPos pos, Set<BlockPos> own) {
+        if (own.contains(pos)) return true;
+        BlockState s = level.getBlockState(pos);
+        if (s.getBlock() instanceof com.chocodanette.heartwood.tree.TrunkShellBlock
+                && own.contains(com.chocodanette.heartwood.tree.TrunkShellBlock.core(s, pos))) return true;
+        return s.isAir() || s.canBeReplaced() || isCrown(s);
     }
 
     private static boolean canLower(ServerLevel level, Map<BlockPos, BlockState> target, int drop) {

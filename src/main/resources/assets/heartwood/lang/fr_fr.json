@@ -194,5 +194,6 @@
   "block.heartwood.ash_stump": "Souche de frêne",
   "block.heartwood.scots_pine_stump": "Souche de pin sylvestre",
   "block.heartwood.chestnut_stump": "Souche de châtaignier",
-  "block.heartwood.maple_stump": "Souche d'érable"
+  "block.heartwood.maple_stump": "Souche d'érable",
+  "message.heartwood.fall_blocked": "Un obstacle bloque la chute : abattez l'arbre dans une autre direction (refaites l'entaille d'un autre côté)."
 }

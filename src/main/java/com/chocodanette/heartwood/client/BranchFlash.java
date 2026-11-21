@@ -80,6 +80,20 @@ public final class BranchFlash {
         start = System.currentTimeMillis();
     }
 
+    /** Makes these blocks flash the same way: what stands in the way of a tree's fall. */
+    public static void flashBlocks(List<BlockPos> blocks) {
+        if (blocks.isEmpty()) return;
+        BlockPos o = blocks.get(0);
+        VoxelShape all = Shapes.empty();
+        for (BlockPos p : blocks) {
+            all = Shapes.joinUnoptimized(all, Shapes.block().move(p.getX() - o.getX(), p.getY() - o.getY(), p.getZ() - o.getZ()), BooleanOp.OR);
+        }
+        shape = all.optimize();
+        boxes = shape.toAabbs();
+        origin = o;
+        start = System.currentTimeMillis();
+    }
+
     @SubscribeEvent
     public static void onRender(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES || shape == null) return;

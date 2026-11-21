@@ -194,5 +194,6 @@
   "block.heartwood.ash_stump": "Ash Stump",
   "block.heartwood.scots_pine_stump": "Scots Pine Stump",
   "block.heartwood.chestnut_stump": "Chestnut Stump",
-  "block.heartwood.maple_stump": "Maple Stump"
+  "block.heartwood.maple_stump": "Maple Stump",
+  "message.heartwood.fall_blocked": "Something stands in the way of the fall: fell the tree another way (re-notch on another side)."
 }
