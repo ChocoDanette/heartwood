@@ -160,27 +160,27 @@ public final class TreeFeller {
     }
 
     /**
-     * What hung on the standing tree comes down with it: vines (and the vines hanging below them),
-     * cocoa pods and bee nests next to its wood and leaves break.
+     * The standing tree is removed in one go, without updates. Afterwards, every block next to it
+     * is updated as if the tree had been broken block by block: what needed the tree to stand
+     * (snow, vines and the vines hanging below them, cocoa pods, moss carpets...) breaks or
+     * changes, and the updates spread on from there. Bee nests come down with the tree too.
      */
     private static void breakHangers(ServerLevel level, Set<BlockPos> tree) {
-        ArrayDeque<BlockPos> queue = new ArrayDeque<>();
-        Set<BlockPos> seen = new HashSet<>();
+        Set<BlockPos> around = new HashSet<>();
         for (BlockPos p : tree) {
             for (Direction d : Direction.values()) {
                 BlockPos n = p.relative(d);
-                if (seen.add(n)) queue.add(n);
+                if (!tree.contains(n)) around.add(n);
             }
         }
-        while (!queue.isEmpty()) {
-            BlockPos p = queue.poll();
-            BlockState s = level.getBlockState(p);
-            boolean vine = s.getBlock() instanceof net.minecraft.world.level.block.VineBlock;
-            if (!vine && !(s.getBlock() instanceof net.minecraft.world.level.block.CocoaBlock)
-                    && !s.is(BlockTags.BEEHIVES)) continue;
-            level.destroyBlock(p, true);
-            if (vine && seen.add(p.below())) queue.add(p.below());
+        for (BlockPos n : around) {
+            BlockState s = level.getBlockState(n);
+            if (s.isAir()) continue;
+            if (s.is(BlockTags.BEEHIVES)) { level.destroyBlock(n, true); continue; }
+            BlockState updated = Block.updateFromNeighbourShapes(s, level, n);
+            if (updated != s) Block.updateOrDestroy(s, updated, level, n, Block.UPDATE_ALL);
         }
+        for (BlockPos p : tree) level.updateNeighborsAt(p, net.minecraft.world.level.block.Blocks.AIR);
     }
 
     /** Lays the fallen tree on the ground once the fall animation is over, and hurts what is under it. */

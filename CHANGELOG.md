@@ -7,7 +7,8 @@
 - **Trees lie flat.** A bend of the trunk pointing the way of the fall is straightened out, so the tree no longer breaks on flat ground; bends on the other sides fall as they are and the branches under the tree are crushed. Where the ground rises under the trunk, the tree is raised by up to three blocks.
 - **Crushed vegetation.** A fallen tree crushes the grass, flowers, ferns, saplings, bushes, crops and leaves (of other trees too) it lands on, without drops.
 - **Water kept.** Branches and leaves falling into water no longer replace it; only the trunk lies in it.
-- **Hangers come down.** Vines on a falling tree (and the vines hanging below them), cocoa pods and bee nests break with it.
+- **What rests on the tree comes down.** When a tree falls, the blocks around it are updated: snow, vines (and the vines hanging below them), cocoa pods and anything else that needed the tree break, and bee nests fall with it.
+- **Green wood squelches.** Right-click a green log with an empty hand: it squelches like a slime block while it is still green, louder the fresher it is.
 - **No more giant trees.** Mega jungle, mega spruce and mega pine trees grow as the single-trunk tree of their wood.
 - **No more messages.** The action bar hints are gone.
 - Tested on a dedicated server.

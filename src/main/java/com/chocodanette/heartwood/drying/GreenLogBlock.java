@@ -47,6 +47,20 @@ public class GreenLogBlock extends RotatedPillarBlock implements EntityBlock {
         builder.add(DRYING);
     }
 
+    /**
+     * Right-clicking a green log with an empty hand makes it squelch, like a slime block: a quick
+     * way to tell it is still green. The fresher it is, the louder and lower it sounds.
+     */
+    @Override
+    protected net.minecraft.world.InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
+                                                                   Player player, net.minecraft.world.phys.BlockHitResult hit) {
+        if (!player.getMainHandItem().isEmpty()) return net.minecraft.world.InteractionResult.PASS;
+        int stage = state.getValue(DRYING);
+        level.playSound(player, pos, net.minecraft.sounds.SoundEvents.SLIME_BLOCK_HIT, net.minecraft.sounds.SoundSource.BLOCKS,
+                1.0f - stage * 0.08f, 0.8f + stage * 0.06f + level.random.nextFloat() * 0.1f);
+        return net.minecraft.world.InteractionResult.sidedSuccess(level.isClientSide);
+    }
+
     @Override
     protected boolean isRandomlyTicking(BlockState state) {
         return true;
