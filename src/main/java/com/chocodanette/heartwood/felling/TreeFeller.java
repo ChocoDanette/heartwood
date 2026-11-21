@@ -119,10 +119,10 @@ public final class TreeFeller {
         for (Map.Entry<BlockPos, BlockState> e : target.entrySet()) {
             BlockPos p = e.getKey().below(drop);
             BlockState s = e.getValue();
-            // A piece of trunk meeting a low step (it was checked before the fall that nothing
-            // higher stands in the way) breaks off there and lies on top of it.
+            // A piece of trunk meeting an obstacle (a bank, another tree) breaks off there and
+            // lies on top of it, with the rest of its length.
             if (s.getBlock() instanceof BoughBlock && s.getValue(BoughBlock.RADIUS) >= THICK && !free(level, p, s)) {
-                for (int up = 1; up <= 2; up++) {
+                for (int up = 1; up <= MAX_RISE; up++) {
                     if (free(level, p.above(up), s)) { p = p.above(up); break; }
                 }
             }
@@ -383,46 +383,12 @@ public final class TreeFeller {
     }
 
     private static final int THICK = 4;
+    private static final int MAX_RISE = 4;
 
     /** True when a piece of the fallen tree can be laid at pos. */
     private static boolean free(ServerLevel level, BlockPos pos, BlockState piece) {
         BlockState there = level.getBlockState(pos);
         return there.isAir() || there.canBeReplaced() || isTrunk(piece) && isCrown(there);
-    }
-
-    /**
-     * What stands in the way of a tree of boughs felled at cut towards dir: another tree's wood,
-     * or ground rising two blocks or more where its trunk would lie. A step of one block is not in
-     * the way: the trunk breaks on it and lies on top. Empty when the tree can come down.
-     */
-    public static List<BlockPos> obstacles(ServerLevel level, BlockPos cut, Direction dir) {
-        List<BlockPos> out = new ArrayList<>();
-        FallenTree tree = FallenTree.of(level, cut);
-        Set<BlockPos> own = new HashSet<>(BoughBlock.descendants(level, cut, MAX_LOGS));
-        own.add(cut);
-        for (BlockPos p : tree.stemSet) {
-            if (p.getY() <= cut.getY()) continue;
-            BlockPos t = rotate(p, cut, dir);
-            if (open(level, t, own)) continue;
-            BlockState there = level.getBlockState(t);
-            if (there.getBlock() instanceof BoughBlock || there.getBlock() instanceof com.chocodanette.heartwood.tree.TrunkShellBlock
-                    || there.is(BlockTags.LOGS)) {
-                out.add(t);
-            } else if (!open(level, t.above(), own)) {
-                out.add(t);
-                out.add(t.above());
-            }
-        }
-        return out;
-    }
-
-    /** True when nothing stands at pos but air, plants, leaves or the felled tree itself. */
-    private static boolean open(ServerLevel level, BlockPos pos, Set<BlockPos> own) {
-        if (own.contains(pos)) return true;
-        BlockState s = level.getBlockState(pos);
-        if (s.getBlock() instanceof com.chocodanette.heartwood.tree.TrunkShellBlock
-                && own.contains(com.chocodanette.heartwood.tree.TrunkShellBlock.core(s, pos))) return true;
-        return s.isAir() || s.canBeReplaced() || isCrown(s);
     }
 
     private static boolean canLower(ServerLevel level, Map<BlockPos, BlockState> target, int drop) {
