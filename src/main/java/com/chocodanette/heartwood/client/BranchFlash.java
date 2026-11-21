@@ -4,10 +4,16 @@ import com.chocodanette.heartwood.Heartwood;
 import com.chocodanette.heartwood.felling.FallenTree;
 import com.chocodanette.heartwood.tree.BoughBlock;
 import com.chocodanette.heartwood.tree.TrunkShellBlock;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
@@ -25,26 +31,34 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
+import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL11;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Swinging an axe at the trunk of a fallen tree that still has branches makes the branches left to
- * cut off flash white for a few seconds, fading in and out.
+ * Swinging an axe (or bare hands, with handCutting) at the trunk of a fallen tree that still has
+ * branches makes the whole of each branch left to cut off glow white for a few seconds, fading in
+ * and out.
  */
 @EventBusSubscriber(modid = Heartwood.MOD_ID, value = Dist.CLIENT)
 public final class BranchFlash {
     private static final long DURATION_MS = 3500;
     private static final double PULSE_MS = 700;
 
+    /** Drawn just outside the wood, so it doesn't flicker against it. */
+    private static final float E = 0.004f;
+
     private static VoxelShape shape;
+    private static List<AABB> boxes = List.of();
     private static BlockPos origin;
     private static long start;
 
     @SubscribeEvent
     public static void onHit(PlayerInteractEvent.LeftClickBlock event) {
         if (!event.getLevel().isClientSide() || event.getAction() != PlayerInteractEvent.LeftClickBlock.Action.START) return;
-        if (!event.getEntity().getMainHandItem().is(ItemTags.AXES)) return;
+        if (!com.chocodanette.heartwood.Config.cuts(event.getEntity().getMainHandItem())) return;
         Level level = event.getLevel();
         BlockPos pos = event.getPos();
         BlockState state = level.getBlockState(pos);
@@ -61,6 +75,7 @@ public final class BranchFlash {
             part.addAll(BoughBlock.descendants(level, b, 1000));
         }
         shape = shapeOf(level, pos, part);
+        boxes = shape.toAabbs();
         origin = pos;
         start = System.currentTimeMillis();
     }
@@ -76,22 +91,51 @@ public final class BranchFlash {
         // Fades in and out a few times, softer towards the end.
         float pulse = (float) (0.5 - 0.5 * Math.cos(t / PULSE_MS * Mth.TWO_PI));
         float fade = Math.min(1f, (DURATION_MS - t) / 800f);
-        float alpha = 0.15f + 0.85f * pulse * fade;
+
+        float alpha = 0.08f + 0.47f * pulse * fade;
 
         PoseStack poseStack = event.getPoseStack() != null ? event.getPoseStack() : new PoseStack();
         Vec3 cam = event.getCamera().getPosition();
-        MultiBufferSource.BufferSource buffers = Minecraft.getInstance().renderBuffers().bufferSource();
-        VertexConsumer lines = buffers.getBuffer(OutlineRenderType.THICK_LINES);
-        PoseStack.Pose pose = poseStack.last();
-        double ox = origin.getX() - cam.x, oy = origin.getY() - cam.y, oz = origin.getZ() - cam.z;
-        shape.forAllEdges((x1, y1, z1, x2, y2, z2) -> {
-            float dx = (float) (x2 - x1), dy = (float) (y2 - y1), dz = (float) (z2 - z1);
-            float len = Mth.sqrt(dx * dx + dy * dy + dz * dz);
-            if (len > 0) { dx /= len; dy /= len; dz /= len; }
-            lines.addVertex(pose, (float) (x1 + ox), (float) (y1 + oy), (float) (z1 + oz)).setColor(1f, 1f, 1f, alpha).setNormal(pose, dx, dy, dz);
-            lines.addVertex(pose, (float) (x2 + ox), (float) (y2 + oy), (float) (z2 + oz)).setColor(1f, 1f, 1f, alpha).setNormal(pose, dx, dy, dz);
-        });
-        buffers.endBatch(OutlineRenderType.THICK_LINES);
+        Matrix4f m = poseStack.last().pose();
+        float ox = (float) (origin.getX() - cam.x), oy = (float) (origin.getY() - cam.y), oz = (float) (origin.getZ() - cam.z);
+
+        // The whole branch glows as one piece: a first pass only writes depth, so the second only
+        // lights its outer surface, with no seams where its pieces meet.
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthFunc(GL11.GL_LEQUAL);
+        RenderSystem.disableCull();
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.colorMask(false, false, false, false);
+        RenderSystem.depthMask(true);
+        draw(m, ox, oy, oz, 0f);
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.depthMask(false);
+        draw(m, ox, oy, oz, alpha);
+        RenderSystem.depthMask(true);
+        RenderSystem.disableBlend();
+        RenderSystem.enableCull();
+    }
+
+    private static void draw(Matrix4f m, float ox, float oy, float oz, float alpha) {
+        BufferBuilder b = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        for (AABB box : boxes) {
+            float x0 = (float) box.minX + ox - E, y0 = (float) box.minY + oy - E, z0 = (float) box.minZ + oz - E;
+            float x1 = (float) box.maxX + ox + E, y1 = (float) box.maxY + oy + E, z1 = (float) box.maxZ + oz + E;
+            quad(b, m, alpha, x0, y0, z0, x1, y0, z0, x1, y0, z1, x0, y0, z1);
+            quad(b, m, alpha, x0, y1, z0, x0, y1, z1, x1, y1, z1, x1, y1, z0);
+            quad(b, m, alpha, x0, y0, z0, x0, y1, z0, x1, y1, z0, x1, y0, z0);
+            quad(b, m, alpha, x0, y0, z1, x1, y0, z1, x1, y1, z1, x0, y1, z1);
+            quad(b, m, alpha, x0, y0, z0, x0, y0, z1, x0, y1, z1, x0, y1, z0);
+            quad(b, m, alpha, x1, y0, z0, x1, y1, z0, x1, y1, z1, x1, y0, z1);
+        }
+        MeshData mesh = b.build();
+        if (mesh != null) BufferUploader.drawWithShader(mesh);
+    }
+
+    private static void quad(BufferBuilder b, Matrix4f m, float a, float... v) {
+        for (int i = 0; i < 12; i += 3) b.addVertex(m, v[i], v[i + 1], v[i + 2]).setColor(1f, 1f, 1f, a);
     }
 
     /** The outline of these pieces, relative to origin. */

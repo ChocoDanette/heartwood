@@ -102,14 +102,14 @@ public final class FellingEvents {
             if (hasBranchesAround(level, pos)) {
                 event.setCanceled(true);
                 player.displayClientMessage(Component.translatable("message.heartwood.limb_first"), true);
-            } else if (!tool.is(ItemTags.AXES)) {
+            } else if (!com.chocodanette.heartwood.Config.cuts(tool)) {
                 event.setCanceled(true);
                 player.displayClientMessage(Component.translatable("message.heartwood.need_axe"), true);
             }
             return;
         }
 
-        if (player.isShiftKeyDown() || !tool.is(ItemTags.AXES)) {
+        if (player.isShiftKeyDown() || !com.chocodanette.heartwood.Config.cuts(tool)) {
             breakAsGreen(event, level, pos, state, player, tool);
             return;
         }
@@ -151,7 +151,7 @@ public final class FellingEvents {
                                      BoughBlock bough, Player player, ItemStack tool) {
         if (player.isCreative()) return;
         int radius = state.getValue(BoughBlock.RADIUS);
-        boolean axe = tool.is(ItemTags.AXES);
+        boolean axe = com.chocodanette.heartwood.Config.cuts(tool);
         if (!BoughBlock.isRooted(level, pos)) {
             // Fallen tree. Its trunk is bucked only once every branch is off; branches come off
             // with all they carry (thick ones with an axe).
