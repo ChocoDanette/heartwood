@@ -26,7 +26,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -55,6 +54,10 @@ public final class TreeFeller {
                 ? new HashSet<>(com.chocodanette.heartwood.tree.BoughBlock.descendants(level, cut, MAX_LOGS))
                 : findLogs(level, cut);
         Set<BlockPos> leaves = ownLeaves(level, cut, logs, MAX_LEAVES);
+        // A bend of the trunk towards the fall would come down into the ground: it is taken out
+        // of the fall, and what stands above it comes down as if the trunk were straight.
+        Set<BlockPos> bends = new HashSet<>();
+        Map<BlockPos, Integer> shift = straighten(level, cut, dir, logs, leaves, bends);
 
         // What is seen falling (the standing tree) and what lands (lying trunk and branches).
         List<FallingTreeEntity.Part> parts = new ArrayList<>();
@@ -94,13 +97,64 @@ public final class TreeFeller {
         // Rotate around the cut: height above the cut becomes distance along dir.
         Map<BlockPos, BlockState> target = new LinkedHashMap<>();
         for (Map.Entry<BlockPos, BlockState> e : moved.entrySet()) {
-            target.put(rotate(e.getKey(), cut, dir), e.getValue());
+            if (bends.contains(e.getKey())) continue;
+            BlockPos from = e.getKey().relative(dir.getOpposite(), shift.getOrDefault(e.getKey(), 0));
+            target.putIfAbsent(rotate(from, cut, dir), e.getValue());
         }
 
         level.playSound(null, cut, SoundEvents.ZOMBIE_BREAK_WOODEN_DOOR, SoundSource.BLOCKS, 0.7f, 0.6f);
         // Taller trees take longer to come down.
         int duration = Math.min(60, 20 + height * 2);
         FallingTreeEntity.spawn(level, cut, dir, parts, target, duration);
+    }
+
+    /**
+     * How far back towards the cut each piece of a tree of boughs (and each leaf) comes down: the
+     * number of steps its trunk takes towards the fall below it. Those steps (the bends) are put in
+     * bends, to be left out of the fall. Empty for a tree of plain logs.
+     */
+    private static Map<BlockPos, Integer> straighten(ServerLevel level, BlockPos cut, Direction dir, Set<BlockPos> logs,
+                                                     Set<BlockPos> leaves, Set<BlockPos> bends) {
+        Map<BlockPos, Integer> shift = new java.util.HashMap<>();
+        if (!(level.getBlockState(cut).getBlock() instanceof BoughBlock)) return shift;
+        int steps = 0;
+        BlockPos prev = null;
+        for (BlockPos p : FallenTree.of(level, cut).stem) {
+            if (prev != null && p.equals(prev.relative(dir))) {
+                steps++;
+                bends.add(p);
+            }
+            shift.put(p, steps);
+            prev = p;
+        }
+        if (steps == 0) return new java.util.HashMap<>();
+        // A branch comes down with the trunk piece it grows from.
+        for (BlockPos p : logs) {
+            if (shift.containsKey(p)) continue;
+            List<BlockPos> chain = new ArrayList<>();
+            BlockPos q = p;
+            Integer found = null;
+            while (q != null && chain.size() < MAX_LOGS) {
+                found = shift.get(q);
+                if (found != null) break;
+                chain.add(q);
+                q = BoughBlock.parentOf(level, q, level.getBlockState(q));
+            }
+            int v = found == null ? 0 : found;
+            for (BlockPos c : chain) shift.put(c, v);
+        }
+        // A leaf, with the closest wood.
+        List<BlockPos> wood = new ArrayList<>(logs);
+        for (BlockPos leaf : leaves) {
+            BlockPos best = null;
+            double bestD = Double.MAX_VALUE;
+            for (BlockPos w : wood) {
+                double d = w.distSqr(leaf);
+                if (d < bestD) { bestD = d; best = w; }
+            }
+            shift.put(leaf, best == null ? 0 : shift.getOrDefault(best, 0));
+        }
+        return shift;
     }
 
     /** Lays the fallen tree on the ground once the fall animation is over, and hurts what is under it. */
@@ -115,17 +169,9 @@ public final class TreeFeller {
         // piece would take the place where other pieces of the tree have to land, and those pieces
         // (with all they carry) would break off.
         Map<BlockPos, BlockState> thick = new LinkedHashMap<>();
-        Set<BlockPos> landed = new LinkedHashSet<>();
         for (Map.Entry<BlockPos, BlockState> e : target.entrySet()) {
             BlockPos p = e.getKey().below(drop);
             BlockState s = e.getValue();
-            // A piece of trunk meeting an obstacle (a bank, another tree) breaks off there and
-            // lies on top of it, with the rest of its length.
-            if (s.getBlock() instanceof BoughBlock && s.getValue(BoughBlock.RADIUS) >= THICK && !free(level, p, s)) {
-                for (int up = 1; up <= MAX_RISE; up++) {
-                    if (free(level, p.above(up), s)) { p = p.above(up); break; }
-                }
-            }
             if (s.getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock
                     && s.getValue(com.chocodanette.heartwood.tree.BoughBlock.RADIUS) > 8) {
                 thick.put(p, s);
@@ -138,7 +184,6 @@ public final class TreeFeller {
             if (there.isAir() || there.canBeReplaced() || isTrunk(s) && isCrown(there)) {
                 if (!there.isAir()) Block.dropResources(there, level, p);
                 level.setBlock(p, s, Block.UPDATE_ALL);
-                landed.add(p);
                 if (s.getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock) {
                     com.chocodanette.heartwood.drying.PlacedLogs.setFallen(level, p, true);
                 }
@@ -159,7 +204,8 @@ public final class TreeFeller {
             }
         }
         // Pieces whose parent could not land (blocked by terrain) lose the arm reaching for it.
-        for (BlockPos p : landed) {
+        for (BlockPos t : target.keySet()) {
+            BlockPos p = t.below(drop);
             BlockState s = level.getBlockState(p);
             if (!(s.getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock)) continue;
             BlockPos par = com.chocodanette.heartwood.tree.BoughBlock.parentPos(s, p);
@@ -167,7 +213,7 @@ public final class TreeFeller {
             BlockState fixed = com.chocodanette.heartwood.tree.BoughBlock.reconnect(s, level.getBlockState(par));
             if (fixed != s) level.setBlock(p, fixed, Block.UPDATE_CLIENTS);
         }
-        breakLoose(level, landed);
+        breakLoose(level, target.keySet(), drop);
         hurt(level, target.keySet(), drop, target, source);
 
         BlockPos middle = cut.relative(dir, Math.max(1, target.size() > 0 ? 4 : 1));
@@ -176,14 +222,14 @@ public final class TreeFeller {
     }
 
     /**
-     * Whatever the fall left unjoined to the trunk: thin pieces whose parent could not land break
-     * off with all they carry, lengths of trunk stay on the ground, and leafy branches that no
-     * longer touch the wood break.
+     * Whatever the fall left unjoined to the trunk breaks off: pieces whose parent could not land,
+     * with all they carry, and leafy branches that no longer touch the wood.
      */
-    private static void breakLoose(ServerLevel level, Set<BlockPos> landed) {
+    private static void breakLoose(ServerLevel level, Set<BlockPos> targets, int drop) {
         List<BlockPos> pieces = new ArrayList<>();
         List<BlockPos> crown = new ArrayList<>();
-        for (BlockPos p : landed) {
+        for (BlockPos t : targets) {
+            BlockPos p = t.below(drop);
             BlockState s = level.getBlockState(p);
             if (s.getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock) pieces.add(p);
             else if (s.getBlock() instanceof BranchesBlock) crown.add(p);
@@ -200,8 +246,6 @@ public final class TreeFeller {
         }
         for (Map.Entry<BlockPos, List<BlockPos>> e : anchors.entrySet()) {
             if (e.getKey().equals(main)) continue;
-            // A length of trunk broken off on an obstacle stays on the ground with what it carries.
-            if (level.getBlockState(e.getKey()).getValue(BoughBlock.RADIUS) >= THICK) continue;
             for (BlockPos p : e.getValue()) level.destroyBlock(p, true);
             level.destroyBlock(e.getKey(), true);
         }
@@ -380,15 +424,6 @@ public final class TreeFeller {
         if (axis == Direction.Axis.Y) axis = fall;
         else if (axis == fall) axis = Direction.Axis.Y;
         return s.setValue(BlockStateProperties.AXIS, axis);
-    }
-
-    private static final int THICK = 4;
-    private static final int MAX_RISE = 4;
-
-    /** True when a piece of the fallen tree can be laid at pos. */
-    private static boolean free(ServerLevel level, BlockPos pos, BlockState piece) {
-        BlockState there = level.getBlockState(pos);
-        return there.isAir() || there.canBeReplaced() || isTrunk(piece) && isCrown(there);
     }
 
     private static boolean canLower(ServerLevel level, Map<BlockPos, BlockState> target, int drop) {
