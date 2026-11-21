@@ -74,7 +74,10 @@ public final class TreeFeller {
         BlockState foot = level.getBlockState(cut);
         Block stump = com.chocodanette.heartwood.ModBlocks.stumpFor(foot.getBlock());
         if (stump != null) {
-            level.setBlock(cut, StumpBlock.of(stump, foot.getValue(com.chocodanette.heartwood.tree.BoughBlock.RADIUS), dir), Block.UPDATE_ALL);
+            BlockState left = StumpBlock.of(stump, foot.getValue(com.chocodanette.heartwood.tree.BoughBlock.RADIUS), dir);
+            // The upper part of the cut goes down with the tree, only to be seen falling: it is not laid on the ground.
+            parts.add(new FallingTreeEntity.Part(BlockPos.ZERO, left.setValue(StumpBlock.TOP, true)));
+            level.setBlock(cut, left, Block.UPDATE_ALL);
             StumpBlock.scheduleRot(level, cut);
         } else {
             Block.dropResources(cutLog, level, cut, null, player, player.getMainHandItem());

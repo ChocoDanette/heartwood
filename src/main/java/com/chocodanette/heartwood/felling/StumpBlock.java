@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -23,16 +24,19 @@ public class StumpBlock extends Block {
     public static final IntegerProperty RADIUS = IntegerProperty.create("radius", 1, 16);
     public static final net.minecraft.world.level.block.state.properties.DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
 
+    /** The upper part of the cut, which goes down with the tree: only ever drawn in the fall. */
+    public static final BooleanProperty TOP = BooleanProperty.create("top");
+
     private static final VoxelShape[] SHAPES = new VoxelShape[17];
 
     public StumpBlock(Properties properties) {
         super(properties);
-        registerDefaultState(stateDefinition.any().setValue(RADIUS, 8).setValue(FACING, Direction.NORTH));
+        registerDefaultState(stateDefinition.any().setValue(RADIUS, 8).setValue(FACING, Direction.NORTH).setValue(TOP, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(RADIUS, FACING);
+        builder.add(RADIUS, FACING, TOP);
     }
 
     public static BlockState of(Block stump, int radius, Direction fell) {

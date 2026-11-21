@@ -14,8 +14,9 @@ FACING_Y = {"north": 0, "east": 90, "south": 180, "west": 270}
 FRONT_H, BACK_H, HINGE_H = 5, 7, 9
 
 
-def box(x0, x1, z0, z1, h, lo, hi, zlo, zhi, ragged=False):
-    """A block of wood from the ground up to h, split at block edges so the bark is not stretched."""
+def box(x0, x1, z0, z1, h, lo, hi, zlo, zhi, ragged=False, upper=False):
+    """A block of wood from the ground up to h (or, upper, from h up to the top of the block), split
+    at block edges so the bark is not stretched."""
     out = []
     xs = _segments(x0, x1)
     if ragged:   # splinters: narrow strips of uneven height
@@ -24,7 +25,8 @@ def box(x0, x1, z0, z1, h, lo, hi, zlo, zhi, ragged=False):
         for b0, b1 in _segments(z0, z1):
             ux0, ux1 = _u(a0, a1); uz0, uz1 = _u(b0, b1)
             top = h - ((a0 // 2) * 7 % 3 if ragged else 0)
-            v = [16 - top, 16]
+            y0, y1 = (top, 16) if upper else (0, top)
+            v = [16 - y1, 16 - y0]
             faces = {"up": {"uv": [ux0, uz0, ux1, uz1], "texture": "#end"},
                      "down": {"uv": [ux0, uz0, ux1, uz1], "texture": "#end"}}
             # Bark on the outside of the stump; split wood where the cut opens onto a lower part.
@@ -32,19 +34,19 @@ def box(x0, x1, z0, z1, h, lo, hi, zlo, zhi, ragged=False):
             if b1 == z1: faces["south"] = {"uv": [ux0, v[0], ux1, v[1]], "texture": "#side" if b1 == zhi else "#end"}
             if a0 == lo or ragged: faces["west"] = {"uv": [uz0, v[0], uz1, v[1]], "texture": "#side"}
             if a1 == hi or ragged: faces["east"] = {"uv": [uz0, v[0], uz1, v[1]], "texture": "#side"}
-            out.append({"from": [a0, 0, b0], "to": [a1, top, b1], "faces": faces})
+            out.append({"from": [a0, y0, b0], "to": [a1, y1, b1], "faces": faces})
     return out
 
 
-def stump_model(side, end, r):
+def stump_model(side, end, r, upper=False):
     lo, hi = 8 - r, 8 + r
     width = hi - lo
     front = max(1, round(width * 0.35))
     hinge = max(1, round(width * 0.12))
     z1, z2 = lo + front, lo + front + hinge
-    elements = box(lo, hi, lo, z1, FRONT_H, lo, hi, lo, hi) \
-        + box(lo, hi, z1, z2, HINGE_H if r >= 2 else BACK_H, lo, hi, lo, hi, ragged=True) \
-        + box(lo, hi, z2, hi, BACK_H, lo, hi, lo, hi)
+    elements = box(lo, hi, lo, z1, FRONT_H, lo, hi, lo, hi, upper=upper) \
+        + box(lo, hi, z1, z2, HINGE_H if r >= 2 else BACK_H, lo, hi, lo, hi, ragged=True, upper=upper) \
+        + box(lo, hi, z2, hi, BACK_H, lo, hi, lo, hi, upper=upper)
     return {"parent": "minecraft:block/block", "ambientocclusion": True,
             "textures": {"side": side, "end": end, "particle": side}, "elements": elements}
 
@@ -57,9 +59,13 @@ def main():
         side, end = f"{tns}:block/{wood}_log", f"{tns}:block/{wood}_log_top"
         variants = {}
         for r in range(1, 17):
+            # The upper part, which goes down with the tree (only drawn in the fall).
             w(f"assets/{NS}/models/block/stump/{wood}_{r}.json", stump_model(side, end, r))
+            w(f"assets/{NS}/models/block/stump/{wood}_{r}_top.json", stump_model(side, end, r, upper=True))
             for facing, y in FACING_Y.items():
-                variants[f"facing={facing},radius={r}"] = {"model": f"{NS}:block/stump/{wood}_{r}"} | ({"y": y} if y else {})
+                for top in ("false", "true"):
+                    m = f"{NS}:block/stump/{wood}_{r}" + ("_top" if top == "true" else "")
+                    variants[f"facing={facing},radius={r},top={top}"] = {"model": m} | ({"y": y} if y else {})
         w(f"assets/{NS}/blockstates/{b}.json", {"variants": variants}, compact=True)
 
         green = f"{NS}:green_{wood}_log"
