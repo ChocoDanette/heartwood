@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.20.2
+
+- **Trees grow from seeds.** Trees no longer give saplings: leaves and fallen crowns drop the tree's seed instead (acorn, beechnut, sweet chestnut, cherry pit, ash and maple keys, and birch, spruce, Scots pine, teak and acacia seeds). A seed planted on earth makes a small mound that takes the look of the ground it is in and comes up as a shoot.
+- **Step-by-step growth.** A young tree grows one random step every half day or so (`growthIntervalDays`): the trunk rises or leans, a branch starts, reaches out or forks, wood thickens or the crown fills out. Its crown follows it as it grows. No two trees end up alike, and the foot of a trunk always stands straight. Felling a young tree stops its growth.
+- **Thick trunks.** Trunks can grow up to two blocks across, in proportion to their height and to the species (chestnut, beech and teak are the thickest, birch stays under a block). A trunk only spreads over a block where the ground around its foot is level. Thick pieces give logs in proportion to their girth. Trees no longer turn the grass under them into dirt.
+- **Felling at the foot.** The notch can only be carved at the foot of a standing tree; elsewhere on the trunk, the axe goes through as if through air. Branches can still be cut off one by one, with the leaves they hold.
+- **Stumps.** A felled tree leaves a short stump facing the way it fell: the low floor of the notch, a ragged hinge and the back cut a little higher. The upper part of the cut falls with the tree. A stump can't be cut: it rots away in about a day.
+- **Limbing first.** A fallen trunk is bucked only once the whole tree is limbed. While branches are left, the trunk can't be cut into, and swinging an axe at it makes those branches flash white for a few seconds. Leftover leaves do not count.
+- **Fewer drops.** Twigs give a stick 15 % or 40 % of the time, or one stick, by thickness. A fallen crown gives a stick 4 % and a seed 3 % of the time.
+- **Creative mode.** Breaking the foot of a standing tree takes the whole tree away; breaking it while sneaking fells it. Other blocks break the creative way.
+- **Fixes.** Big trees no longer break apart when they land. Pieces cut off from the trunk after a fall break off with what they carry. Fixed a crash when drawing thick trunks.
+
 ## 0.13.1
 
 - **Organic trees.** Every overworld tree (vanilla and Heartwood species) now grows from boughs of variable thickness, in the style of Dynamic Trees. Trunks thicken towards the ground and branches thin out to twigs. The trees also have more natural shapes: leaning trunks, forks, and clustered, ragged crowns. Giant 2x2 trees, azaleas and mangroves keep their vanilla shape. New trees only appear in newly generated chunks, or from saplings.

@@ -4,23 +4,27 @@ Realistic tree felling and wood seasoning for Minecraft 1.21.1 (NeoForge). Heart
 
 ## How to fell a tree
 
-Trees grow from boughs of variable thickness: trunks thicken towards the ground and branches thin out to twigs.
+Trees grow from boughs of variable thickness: trunks thicken towards the ground, up to two blocks across on old trees, and branches thin out to twigs.
 
-1. **Notch.** Hold an axe and break the base of a trunk (at least half a block thick) on the side you want the tree to fall. A V notch is carved into that face.
-2. **Back cut.** Walk around and break the same block from the opposite side. The tree tips over towards the notch.
+1. **Notch.** Hold an axe and break the foot of the trunk on the side you want the tree to fall. A V notch is carved into that face. The rest of a standing trunk can't be cut into.
+2. **Back cut.** Walk around and break the foot again from the opposite side. The tree tips over towards the notch and leaves a stump, which rots away in about a day.
 3. **Stand clear.** The falling trunk hurts whatever it lands on.
-4. **Limb.** Cut the leafy branches and the thin boughs off the fallen tree to get sticks (and sometimes a sapling). A thin bough comes off with the twigs it carries.
-5. **Buck.** Once a thick piece no longer carries leaves or thin boughs, cut it with an axe. Pieces more than half a block thick give a green log, half-block poles a green log one time in two, thinner ones sticks.
+4. **Limb.** Cut every branch off the fallen tree; each comes off with all it carries. Swinging an axe at the trunk while branches are left makes them flash white.
+5. **Buck.** Once the tree is limbed, cut the trunk with an axe. Pieces more than half a block thick give a green log (thick trunks several), half-block poles a green log one time in two, thinner ones sticks.
 
 Cutting a branch off a standing tree brings down everything it carries; thick branches need an axe.
 
-Sneak, or break without an axe, to take a trunk apart one block at a time.
+In creative mode, breaking the foot of a tree removes the whole tree, and breaking it while sneaking fells it.
 
 ## Green and dry wood
 
 Freshly cut wood is green. Place green logs somewhere sheltered (no sky above them) and they dry into normal logs in about one in-game day. Green logs show sap-coloured end grain and drip water while fresh. Green wood burns poorly and cannot be made into planks or charcoal.
 
 The drying time is set by `dryingDays` in `serverconfig/heartwood-server.toml` (default 1).
+
+## Growing trees
+
+Trees drop seeds, not saplings. Plant a seed on earth: it makes a small mound, comes up as a shoot and grows one random step every half day or so, so no two trees look alike. The pace is set by `growthIntervalDays` in `serverconfig/heartwood-server.toml` (default 0.5).
 
 ## Tree species
 
