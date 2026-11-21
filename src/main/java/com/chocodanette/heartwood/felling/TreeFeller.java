@@ -185,7 +185,8 @@ public final class TreeFeller {
 
     /** Lays the fallen tree on the ground once the fall animation is over, and hurts what is under it. */
     static void land(ServerLevel level, BlockPos cut, Direction dir, Map<BlockPos, BlockState> target, Entity source) {
-        // Lower the fallen tree until a log would touch the ground.
+        // Lower the fallen tree until its trunk would touch the ground. Only the trunk counts:
+        // branches under it don't hold it up, they break against the ground.
         // Where the ground rises under the trunk, the tree rests on it: it is raised (up to
         // MAX_LIFT blocks) until its whole trunk has room, instead of the pieces that would go
         // into the ground popping out and the trunk breaking in two.
@@ -193,7 +194,7 @@ public final class TreeFeller {
         int drop = 0;
         while (drop > -MAX_LIFT && !fits(level, stem, drop)) drop--;
         if (!fits(level, stem, drop)) drop = 0;
-        while (drop < MAX_DROP && canLower(level, target, drop + 1)) drop++;
+        while (drop < MAX_DROP && fits(level, stem, drop + 1)) drop++;
 
         AABB trunkBox = null, crownBox = null;
         // Pieces over a block thick are first laid down a block wide, and only get their full width
@@ -485,16 +486,6 @@ public final class TreeFeller {
     private static boolean fits(ServerLevel level, Set<BlockPos> stem, int drop) {
         for (BlockPos p : stem) {
             BlockState s = level.getBlockState(p.below(drop));
-            if (!crushable(s)) return false;
-        }
-        return true;
-    }
-
-    private static boolean canLower(ServerLevel level, Map<BlockPos, BlockState> target, int drop) {
-        for (Map.Entry<BlockPos, BlockState> e : target.entrySet()) {
-            if (!isTrunk(e.getValue())) continue;
-            BlockPos below = e.getKey().below(drop);
-            BlockState s = level.getBlockState(below);
             if (!crushable(s)) return false;
         }
         return true;
