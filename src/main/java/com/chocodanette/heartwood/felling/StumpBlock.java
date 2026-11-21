@@ -16,8 +16,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
  * What a felled tree of boughs leaves: a short stump, its front lowered by the notch, a ragged hinge
- * of wood across it and its back cut a little higher, facing the side the tree fell. It rots away
- * in a day or so.
+ * of wood across it and its back cut a little higher, facing the side the tree fell. It can't be
+ * cut: it rots away in a day or so.
  */
 public class StumpBlock extends Block {
     public static final IntegerProperty RADIUS = IntegerProperty.create("radius", 1, 16);
@@ -50,10 +50,10 @@ public class StumpBlock extends Block {
         return s;
     }
 
+    /** A stump can't be cut: it is left to rot. */
     @Override
     protected float getDestroyProgress(BlockState state, net.minecraft.world.entity.player.Player player, BlockGetter level, BlockPos pos) {
-        float scale = 8f / state.getValue(RADIUS);
-        return super.getDestroyProgress(state, player, level, pos) * Math.min(4f, Math.max(0.5f, scale));
+        return 0f;
     }
 
     /** The stump rots away in a day or so. */

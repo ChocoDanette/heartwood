@@ -104,9 +104,19 @@ public final class TreeFeller {
         while (drop < MAX_DROP && canLower(level, target, drop + 1)) drop++;
 
         AABB trunkBox = null, crownBox = null;
+        // Pieces over a block thick are first laid down a block wide, and only get their full width
+        // (and the shells around them) once the whole tree is down: otherwise the shells of one
+        // piece would take the place where other pieces of the tree have to land, and those pieces
+        // (with all they carry) would break off.
+        Map<BlockPos, BlockState> thick = new LinkedHashMap<>();
         for (Map.Entry<BlockPos, BlockState> e : target.entrySet()) {
             BlockPos p = e.getKey().below(drop);
             BlockState s = e.getValue();
+            if (s.getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock
+                    && s.getValue(com.chocodanette.heartwood.tree.BoughBlock.RADIUS) > 8) {
+                thick.put(p, s);
+                s = s.setValue(com.chocodanette.heartwood.tree.BoughBlock.RADIUS, 8);
+            }
             AABB box = new AABB(p);
             if (isTrunk(s)) trunkBox = trunkBox == null ? box : trunkBox.minmax(box);
             else crownBox = crownBox == null ? box : crownBox.minmax(box);
@@ -124,6 +134,13 @@ public final class TreeFeller {
             } else if (isTrunk(s)) {
                 // Blocked by terrain: the log pops out as an item instead.
                 Block.dropResources(s, level, p.above());
+            }
+        }
+        for (Map.Entry<BlockPos, BlockState> e : thick.entrySet()) {
+            BlockState now = level.getBlockState(e.getKey());
+            if (now.getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock) {
+                level.setBlock(e.getKey(), now.setValue(com.chocodanette.heartwood.tree.BoughBlock.RADIUS,
+                        e.getValue().getValue(com.chocodanette.heartwood.tree.BoughBlock.RADIUS)), Block.UPDATE_ALL);
             }
         }
         // Pieces whose parent could not land (blocked by terrain) lose the arm reaching for it.
