@@ -155,12 +155,31 @@ public final class BranchFlash {
                 };
                 piece = Shapes.create(box);
             } else {
-                piece = s.getShape(level, p, CollisionContext.empty());
+                piece = Shapes.or(s.getShape(level, p, CollisionContext.empty()), armBeyond(s));
             }
             shape = Shapes.joinUnoptimized(shape, piece.move(p.getX() - origin.getX(), p.getY() - origin.getY(), p.getZ() - origin.getZ()),
                     BooleanOp.OR);
         }
         return shape.optimize();
+    }
+
+    /**
+     * The part of a piece's arm drawn inside its parent's block, reaching the surface of the
+     * parent's core: the block shape stops at the block, so the joint would not glow otherwise.
+     */
+    private static VoxelShape armBeyond(BlockState s) {
+        int r = s.getValue(BoughBlock.RADIUS), pr = s.getValue(BoughBlock.PARENT_RADIUS);
+        if (r >= 8 || pr >= 8) return Shapes.empty();
+        double lo = 8 - r, hi = 8 + r, d = 8 - pr;
+        return switch (s.getValue(BoughBlock.PARENT)) {
+            case DOWN -> net.minecraft.world.level.block.Block.box(lo, -d, lo, hi, 0, hi);
+            case UP -> net.minecraft.world.level.block.Block.box(lo, 16, lo, hi, 16 + d, hi);
+            case NORTH -> net.minecraft.world.level.block.Block.box(lo, lo, -d, hi, hi, 0);
+            case SOUTH -> net.minecraft.world.level.block.Block.box(lo, lo, 16, hi, hi, 16 + d);
+            case WEST -> net.minecraft.world.level.block.Block.box(-d, lo, lo, 0, hi, hi);
+            case EAST -> net.minecraft.world.level.block.Block.box(16, lo, lo, 16 + d, hi, hi);
+            default -> Shapes.empty();
+        };
     }
 
     private BranchFlash() {}
