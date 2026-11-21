@@ -5,7 +5,6 @@ import com.chocodanette.heartwood.drying.PlacedLogs;
 import com.chocodanette.heartwood.tree.BoughBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
