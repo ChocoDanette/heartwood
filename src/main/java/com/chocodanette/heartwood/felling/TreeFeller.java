@@ -94,6 +94,7 @@ public final class TreeFeller {
             level.setBlock(p, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),
                     Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
         }
+        breakHangers(level, moved.keySet());
 
         // Rotate around the cut: height above the cut becomes distance along dir.
         Map<BlockPos, BlockState> target = new LinkedHashMap<>();
@@ -156,6 +157,30 @@ public final class TreeFeller {
             shift.put(leaf, best == null ? 0 : shift.getOrDefault(best, 0));
         }
         return shift;
+    }
+
+    /**
+     * What hung on the standing tree comes down with it: vines (and the vines hanging below them),
+     * cocoa pods and bee nests next to its wood and leaves break.
+     */
+    private static void breakHangers(ServerLevel level, Set<BlockPos> tree) {
+        ArrayDeque<BlockPos> queue = new ArrayDeque<>();
+        Set<BlockPos> seen = new HashSet<>();
+        for (BlockPos p : tree) {
+            for (Direction d : Direction.values()) {
+                BlockPos n = p.relative(d);
+                if (seen.add(n)) queue.add(n);
+            }
+        }
+        while (!queue.isEmpty()) {
+            BlockPos p = queue.poll();
+            BlockState s = level.getBlockState(p);
+            boolean vine = s.getBlock() instanceof net.minecraft.world.level.block.VineBlock;
+            if (!vine && !(s.getBlock() instanceof net.minecraft.world.level.block.CocoaBlock)
+                    && !s.is(BlockTags.BEEHIVES)) continue;
+            level.destroyBlock(p, true);
+            if (vine && seen.add(p.below())) queue.add(p.below());
+        }
     }
 
     /** Lays the fallen tree on the ground once the fall animation is over, and hurts what is under it. */
