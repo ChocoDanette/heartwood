@@ -2,8 +2,9 @@
 
 Usage: python3 tools/gen_vanilla_trees.py <dir with the vanilla 1.21.1 configured_feature JSON>
 Each listed feature keeps its vanilla blocks, size and decorators (bees, vines, cocoa);
-only the trunk and foliage placers are replaced. Giant 2x2 trees (mega spruce/pine/jungle),
-azalea, mangrove and the jungle bush are left as they are.
+only the trunk and foliage placers are replaced. Giant 2x2 trees (mega spruce/pine/jungle)
+are replaced by the single-trunk tree of their wood. Azalea, mangrove and the jungle bush are
+left as they are.
 """
 import json, os, sys
 
@@ -63,6 +64,15 @@ def main(src):
         # Leaves and logs must stay persistent=false and axis=y in the providers, as in vanilla.
         with open(os.path.join(OUT, name + ".json"), "w") as f:
             json.dump(data, f, indent=2)
+
+    # No giant 2x2 trees: they grow as the ordinary tree of their wood.
+    for mega, plain in GIANTS.items():
+        with open(os.path.join(OUT, plain + ".json")) as f:
+            data = json.load(f)
+        with open(os.path.join(OUT, mega + ".json"), "w") as f:
+            json.dump(data, f, indent=2)
+
+GIANTS = {"mega_jungle_tree": "jungle_tree", "mega_spruce": "spruce", "mega_pine": "pine"}
 
 if __name__ == "__main__":
     main(sys.argv[1])

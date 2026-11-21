@@ -191,8 +191,8 @@ public final class TreeFeller {
             // Branches and leaves falling into water stay out of it: the water is kept. Only the
             // trunk lies in it.
             boolean water = !there.getFluidState().isEmpty() && !stem.contains(e.getKey());
-            if (!water && (there.isAir() || there.canBeReplaced() || isTrunk(s) && isCrown(there))) {
-                if (!there.isAir()) Block.dropResources(there, level, p);
+            // The fallen tree crushes the plants and leaves it comes down on: they go, without drops.
+            if (!water && crushable(there)) {
                 level.setBlock(p, s, Block.UPDATE_ALL);
                 if (s.getBlock() instanceof com.chocodanette.heartwood.tree.BoughBlock) {
                     com.chocodanette.heartwood.drying.PlacedLogs.setFallen(level, p, true);
@@ -460,7 +460,7 @@ public final class TreeFeller {
     private static boolean fits(ServerLevel level, Set<BlockPos> stem, int drop) {
         for (BlockPos p : stem) {
             BlockState s = level.getBlockState(p.below(drop));
-            if (!(s.isAir() || s.canBeReplaced() || isCrown(s))) return false;
+            if (!crushable(s)) return false;
         }
         return true;
     }
@@ -470,7 +470,7 @@ public final class TreeFeller {
             if (!isTrunk(e.getValue())) continue;
             BlockPos below = e.getKey().below(drop);
             BlockState s = level.getBlockState(below);
-            if (!(s.isAir() || s.canBeReplaced() || isCrown(s))) return false;
+            if (!crushable(s)) return false;
         }
         return true;
     }
@@ -494,6 +494,13 @@ public final class TreeFeller {
 
     static boolean isTrunk(BlockState s) {
         return s.getBlock() instanceof FelledLogBlock || s.is(BlockTags.LOGS);
+    }
+
+    /** Air, or what a falling tree crushes: grass, flowers, ferns, saplings, vines, leaves. */
+    static boolean crushable(BlockState s) {
+        return s.isAir() || s.canBeReplaced() || isCrown(s) || s.is(BlockTags.REPLACEABLE_BY_TREES)
+                || s.is(BlockTags.FLOWERS) || s.is(BlockTags.SAPLINGS)
+                || s.getBlock() instanceof net.minecraft.world.level.block.BushBlock;
     }
 
     static boolean isCrown(BlockState s) {

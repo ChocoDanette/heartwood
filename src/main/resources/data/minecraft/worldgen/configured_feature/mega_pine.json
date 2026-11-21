@@ -1,0 +1,75 @@
+{
+  "type": "minecraft:tree",
+  "config": {
+    "decorators": [],
+    "dirt_provider": {
+      "type": "minecraft:simple_state_provider",
+      "state": {
+        "Name": "minecraft:dirt"
+      }
+    },
+    "foliage_placer": {
+      "type": "heartwood:cluster_foliage_placer",
+      "radius": 2,
+      "offset": 0,
+      "height": 2,
+      "irregularity": 0.35
+    },
+    "foliage_provider": {
+      "type": "minecraft:simple_state_provider",
+      "state": {
+        "Name": "minecraft:spruce_leaves",
+        "Properties": {
+          "distance": "7",
+          "persistent": "false",
+          "waterlogged": "false"
+        }
+      }
+    },
+    "force_dirt": false,
+    "ignore_vines": true,
+    "minimum_size": {
+      "type": "minecraft:two_layers_feature_size",
+      "limit": 1,
+      "lower_size": 0,
+      "upper_size": 1
+    },
+    "trunk_placer": {
+      "type": "heartwood:bough_trunk_placer",
+      "base_height": 9,
+      "height_rand_a": 3,
+      "height_rand_b": 0,
+      "branches": {
+        "lean": 2,
+        "count": {
+          "type": "minecraft:uniform",
+          "min_inclusive": 3,
+          "max_inclusive": 5
+        },
+        "length": {
+          "type": "minecraft:uniform",
+          "min_inclusive": 2,
+          "max_inclusive": 3
+        },
+        "start": 0.7,
+        "slope": 0.35,
+        "fork": 0.2,
+        "taper": 0.0
+      },
+      "girth": {
+        "growth": 0.9,
+        "max_radius": 6,
+        "trunk_radius": 10
+      }
+    },
+    "trunk_provider": {
+      "type": "minecraft:simple_state_provider",
+      "state": {
+        "Name": "minecraft:spruce_log",
+        "Properties": {
+          "axis": "y"
+        }
+      }
+    }
+  }
+}
